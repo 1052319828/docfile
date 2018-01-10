@@ -1,0 +1,43 @@
+
+floatings	弹性IP
+instances	云主机
+networks	网络
+images	镜像
+users	用户
+subnets	子网
+firewalls	安全组
+keypairs	云主机密钥对
+flavors	云主机类型
+volumes	云硬盘
+volumetypes	云硬盘类型
+
+394dd461ac544b4fb1bcc9a18a4aa6b9
+extension /ext  扩展
+--router:external=true 表示创建的是公网网络
+gateway 网关
+domain   域
+charge  负责
+logic   逻辑
+Operation  操作
+resource   资源
+result	结果
+customer  客户
+active   活跃
+quota    配额
+
+QUOTA CHECK =  True                       配额检查正确
+MULTI ROUTER ENABLED = True 			  启用多路由器= True
+WORKFLOW ENABLED = False 				  启用工作流= False
+CAPTCHA ENABLED = False 				  验证码= False启用
+REGISTER ENABLED = True 	    		  注册激活= True
+REGISTER ACTIVATE EMAIL ENABLED = False   注册激活邮件激活= False
+DEFAULT ROUTER AUTO SET GATEWAY = True    默认路由器自动设置网关= True
+ACTIVATE EMAIL EXPIRE DAYS =timedelta(30) 激活电子邮件过期天数= timedelta(30)
+
+
+
+
+
+
+
+

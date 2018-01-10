@@ -1,0 +1,1985 @@
+测试
+    quotas
+    cloudstack quotas 的序号说明
+    1 - IP
+    2 - Volume
+    3 - Snapshot
+    4 - Template
+    5 - Project
+    6 - Network
+    7 - VPC
+    8 - CPU
+    9 - Memory
+    10 - Primary Storage
+    11 - Secondary Storage
+firewalls 
+    ACLlist 增 http://172.18.143.9:12121/api/firewalls/create/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+        post  {"name":"test_acllist","desc":"test_acl_desc","network_uuid":"80b39653-4e0b-41ea-ab5e-cf83e203fb77","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
+    删除 http://172.18.143.9:12121/api/firewalls/delete/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+            {"firewall_uuid":"bb3d355d-6ed5-43cd-ba36-7cb15c0f6492","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
+    更改
+    查询
+    list http://172.18.143.9:12121/api/firewalls/list/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+    query http://172.18.143.9:12121/api/firewalls/query/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be&name_or_id=80b39653-4e0b-41ea-ab5e-cf83e203fb77
+
+
+volume Backup
+    说明 query接口接收backup_id参数，没有就查询所有，但是如果给一个 volume_id，默认返回volume下的所有备份。
+    create 
+    http://172.18.143.37:8081/api/volumebackups/create/?ct_user_id=d5cde804f9c34bdfac7a7659af19c890&os_id=31b564b8c46211e7a8740242ac110002
+    post 参数
+    系统盘{"volume_id":"b71b5820-80c3-4013-a777-4a80ba56a05e","name":"ROOT-valume-backup01","description":"root-valume-backup01","ct_user_id":"d5cde804f9c34bdfac7a7659af19c890","os_id":"31b564b8c46211e7a8740242ac110002"}
+    数据盘{"volume_id":"570ddac8-33c4-4868-a770-90f3bf496be0","name":"DATADISK-valume-backup01","description":"DATADISK-valume-backup01","ct_user_id":"d5cde804f9c34bdfac7a7659af19c890","os_id":"31b564b8c46211e7a8740242ac110002"}
+
+
+network 的创建功能
+    query http://172.18.143.9:12121/api/networks/query/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be&network_uuid_or_name=zhangyi-vpc-net
+    list http://172.18.143.9:12121/api/networks/list/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+    create
+    请求接口 http://172.18.143.9:12121/api/networks/create/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+    请求方式 POST 
+    请求参数 {"vpc_name":"new-test-vpc","subnet_cidr":"10.0.0.1/24","desc":"10.0.1.1/16","subnet_name":"new-test-sub","subnet_gateway":"10.0.0.1","enable_dhcp":"0","dns1":"","dns2":"",
+                    "zone_id":"0d86f114-7153-4d71-a835-7916a41ab0b7","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
+    delete
+    请求接口 http://172.18.143.9:12121/api/networks/delete/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+    请求方式 POST 
+    请求参数 {"network_uuid":"c66de94e-0fb7-452d-81eb-555b770304c0","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
+    update
+    请求接口 http://172.18.143.9:12121/api/networks/update/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+    请求方式 POST 
+    请求参数 {"network_uuid":"92f3c7f7-2245-4031-b505-b459a00e4920","name":"vpc-test-new","desc":"10.0.1.1/24","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
+subnet 功能测试
+    list http://172.18.143.9:12121/api/subnets/list/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+    query http://172.18.143.9:12121/api/subnets/query/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be&subnet_uuid=60cb704f-ddda-4763-a009-f5b5a09145ac
+    create 
+    请求接口 http://172.18.143.9:12121/api/subnets/create/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+    请求方式 POST # 一个vpc下创建多个subnet偶尔会出问题，原因是子网网关不能相同，且包含在vpc中，解决方法：voc的CIDR需要大一些，如10.1.1.1/16 子网可以是10.1.1.1/24
+    请求参数 {"address":"10.0.2.1/24","subnet_cidr":"10.0.2.1/24","subnet_name":"new-test-sub2",
+                "subnet_gateway":"10.0.1.1","enable_dhcp":"0","dns1":"","dns2":"","network_uuid":"92f3c7f7-2245-4031-b505-b459a00e4920",
+                    "zone_id":"0d86f114-7153-4d71-a835-7916a41ab0b7","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
+    delete
+    删除
+    请求接口 http://172.18.143.9:12121/api/subnets/delete/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+    请求方式 POST 
+    请求参数 {"subnet_uuid":"e893f2f7-e806-4b24-b247-40b2a3db1b7b","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
+    update
+    请求接口 http://172.18.143.9:12121/api/subnets/update/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
+    请求方式 POST 
+    请求参数 {"subnet_uuid":"e893f2f7-e806-4b24-b247-40b2a3db1b7b","name":"sub-test-new","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
+
+
+floatings功能测试
+    list http://172.18.143.9:12121/api/floatings/list/?ct_user_id=bacf0dd10047f664298a2f85c280ce5693a&os_id=7f622b928d3011e7aebb005056aaa8be
+    query 
+    create  http://172.18.143.9:12121/api/floatings/create/?ct_user_id=bacf0dd10047f664298a2f85c280ce5693a&os_id=7f622b928d3011e7aebb005056aaa8be
+            {"bandwidth":"10","bandwidth_name":"zhangyiflting","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be","network_uuid":"80b39653-4e0b-41ea-ab5e-cf83e203fb77"}
+    delete floating  http://172.18.143.9:12121/api/floatings/action/?ct_user_id=bacf0dd10047f664298a2f85c280ce5693a&os_id=7f622b928d3011e7aebb005056aaa8be
+            {"action":"release","floating_uuid":"7bf97bcc-5752-4392-b69f-f1f635619aee","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
+
+
+
+keypair 功能测试
+创建keypair
+    http://172.18.143.2:12222/api/keypairs/create/?ct_user_id=bac37b465e1c69f4dcc9557916afb09e6d8&os_id=7f622b928d3011e7aebb005056aaa8be
+    {"name":"ningtestkey","ct_user_id":"bac37b465e1c69f4dcc9557916afb09e6d8","os_id":"7f622b928d3011e7aebb005056aaa8be"}
+list_keypair   http://172.18.143.2:12222/api/keypairs/list/?ct_user_id=bac37b465e1c69f4dcc9557916afb09e6d8&os_id=7f622b928d3011e7aebb005056aaa8be
+query_keypair  http://172.18.143.2:12222/api/keypairs/list/?ct_user_id=bac37b465e1c69f4dcc9557916afb09e6d8&os_id=7f622b928d3011e7aebb005056aaa8be&name=ningtestkey
+delete_keypair http://172.18.143.2:12222/api/keypairs/delete/?ct_user_id=bac37b465e1c69f4dcc9557916afb09e6d8&os_id=7f622b928d3011e7aebb005056aaa8be
+    {"name":"ningtestkey","ct_user_id":"bac37b465e1c69f4dcc9557916afb09e6d8","os_id":"7f622b928d3011e7aebb005056aaa8be"}
+instance 的增删改查功能
+    #"reboot": _server_reboot,
+    "hard_reboot": _server_hard_reboot,
+    "terminate": _server_delete,
+    #"power_on": _server_start,
+    #"power_off": _server_stop,
+    ''
+        接口 http://172.18.143.37:8081/api/instances/action/?ct_user_id=bac_13450e6314124d4d877682031f95b016&os_id=7f622b928d3011e7aebb005056aaa8be
+        1 停止虚拟机{"action":"power_off","instance_uuid":"ab2ea171-2b8f-4923-a1cf-68c29ffeb4de","ct_user_id":"bac_13450e6314124d4d877682031f95b016","os_id":"sjif259a8d3011e7aebb005056aaa8be"} 10s
+        2 恢复虚拟机 {"action":"power_on","instance_uuid":"ab2ea171-2b8f-4923-a1cf-68c29ffeb4de","ct_user_id":"bac_13450e6314124d4d877682031f95b016","os_id":"sjif259a8d3011e7aebb005056aaa8be"} 25s
+        3 重启虚拟机 {"action":"reboot","instance_uuid":"ab2ea171-2b8f-4923-a1cf-68c29ffeb4de","ct_user_id":"bac_13450e6314124d4d877682031f95b016","os_id":"sjif259a8d3011e7aebb005056aaa8be"} 10s
+        4 update 虚拟机名 {"action":"update","instance_uuid":"ab2ea171-2b8f-4923-a1cf-68c29ffeb4de","ct_user_id":"bac_13450e6314124d4d877682031f95b016","os_id":"sjif259a8d3011e7aebb005056aaa8be","name":"zhangwuinstances","server":"f69e7c5a-7282-4ad0-b072-ce39469b1d95"}
+        5 重装虚拟机 {"action":"rebuild","instance_uuid":"ab2ea171-2b8f-4923-a1cf-68c29ffeb4de","ct_user_id":"bac_13450e6314124d4d877682031f95b016","os_id":"sjif259a8d3011e7aebb005056aaa8be","admin_password":"password","image":"b5128c2e-1cf3-4d3a-a3f9-1d18d31b1920","name":"newname"}
+        image id
+    创建一个instance（cloudstack）
+    {"image_uuid":"b5128c2e-1cf3-4d3a-a3f9-1d18d31b1920","name":"zhangwuinstance","cpu":"1","memory":"512","availability_zone":"7cac1ccc-e515-4d7a-9fda-e3b94d363605","os_id":"sjif259a8d3011e7aebb005056aaa8be","ct_user_id":"bac_53e4589158574474b5a92a9fa42e20a9"}
+    out {"image_uuid":"beb081aa-c088-11e7-8f23-000c297ce556","name":"zhangwuinstance","cpu":"1","memory":"512","availability_zone":"fddb13b3-a4fe-4b3e-964a-9f5ce9cea5fb","os_id":"876fc91aea4649718dbe94da9bf5fffa","ct_user_id":"bac_53e4589158574474b5a92a9fa42e20a9"}
+    查询list 本用户的instance list 
+    http://172.18.143.2:12121/api/instances/list/?ct_user_id=bac_750e361b025a418a98b4b912dc826c80&os_id=sjif259a8d3011e7aebb005056aaa8be
+
+    删除用户的instance
+    http://172.18.143.2:12121/api/instances/action/?ct_user_id=bac_750e361b025a418a98b4b912dc826c80&os_id=7f622b928d3011e7aebb005056aaa8be
+    {"instance_uuid":"d364dd1a-f063-4969-a90d-0ebc74446f52","action":"terminate","memory":"512","availability_zone":"c55b0059-cb0e-4cc3-ad30-6f04b8f9e975","os_id":"7f622b928d3011e7aebb005056aaa8be","ct_user_id":"bac_750e361b025a418a98b4b912dc826c80"}
+    {"instance_uuid":"c3a9536a-2536-43b7-bd57-9b06c3c2d8e2","action":"terminate","memory":"512","availability_zone":"fddb13b3-a4fe-4b3e-964a-9f5ce9cea5fb","os_id":"876fc91aea4649718dbe94da9bf5fffa","ct_user_id":"bac_53e4589158574474b5a92a9fa42e20a9"}
+
+curl -d '{"action":"dc_register_all_user","sysplatforms_id":"207","ct_user_id" :"40c2c1b395bb43df90ef88366bdb74e0","os_id":"93217b3effd5422b9b26a94045dda88f"}' -H "Content-Type: application/json" -X POST http://172.18.143.37:8081/api/users/action/
+
+firewall的增删查
+    创建一个firewall
+    http://172.18.143.2:12121/api/firewalls/create/?ct_user_id=bac_c32c297c0df3407ca14197e19f2cfd7c&os_id=bea41e9eb46f11e79653005056aaa8be
+    {"name":"testusersecuritygroup","desc":"testusersecuritygroup","ct_user_id":"bacf0dd10047f664298a2f85c280ce5693a","os_id":"7f622b928d3011e7aebb005056aaa8be"}
+    删除一个firewall
+    http://172.18.143.2:12121/api/firewalls/delete/?ct_user_id=bac_c32c297c0df3407ca14197e19f2cfd7c&os_id=bea41e9eb46f11e79653005056aaa8be
+    {"firewall_uuid":"974ef8a0-a091-452d-87b2-f7dfe40adda7","ct_user_id":"bac_c32c297c0df3407ca14197e19f2cfd7c","os_id":"bea41e9eb46f11e79653005056aaa8be"}
+
+    更新firewall 
+    http://172.18.143.2:12121/api/firewalls/update/?ct_user_id=bac_c32c297c0df3407ca14197e19f2cfd7c&os_id=7f622b928d3011e7aebb005056aaa8be
+    {"name":"newname", "firewall_uuid": "970533f0-d7f9-4c2a-be03-5baf8112452c","ct_user_id":"bac_c32c297c0df3407ca14197e19f2cfd7c","os_id":"bea41e9eb46f11e79653005056aaa8be"}
+
+
+清理单个用户资源
+fa12e19d247b4faf8ff479e281c630eb
+http://172.18.143.37:8081/api/work_order/cleanup/?ct_user_id=fa12e19d247b4faf8ff479e281c630eb&os_id=93217b3effd5422b9b26a94045dda88f
+{"action":"one_user","ct_user_id":"fa12e19d247b4faf8ff479e281c630eb","os_id":"93217b3effd5422b9b26a94045dda88f"}
+查询剩余IP
+ 在任务中有
+
+同步镜像
+{"action":"syn_image","os_id":"93217b3effd5422b9b26a94045dda88f","ct_user_id":"ed9973d98d8b4cc2ad7b71978e9315c5"}
+
+用户登录测试
+    参数：{"username":"Test123@qq.com","password":"TESTtest123"}
+
+完成用户 action 接口参数  集 active_users deactivate_user activate_user  
+ initialize_user change_password  dc_register_user  dc_unregister_user 的功能
+
+#活跃用户查询{"action":"active_users","ct_user_id" :"024e604491544f8a8c5476709f7f80b0","os_id":"666cc8ea257311e79148005056aaa8cc"}
+#禁用用户{"action":"deactivate_user","user_id":"736"}
+#激活用户{"action":"activate_user","user_id":"736"}
+初始化用户{"action":"initialize_user","user_id":"1067","ct_user_id" :"bac_13859d156b9c4d7fa58881fe304b3f39","os_id":"93217b3effd5422b9b26a94045dda88f"}
+初始化所有用户 {"action":"initialize_all_user","ct_user_id" :"024e604491544f8a8c5476709f7f80b0","os_id":"666cc8ea257311e79148005056aaa8cc"}
+用户数据中心绑定{"action":"dc_register_user","user_id":"3","sysplatforms_id":"209","ct_user_id" :"bac9eabf2308ee0410980e05c48af0a77eb","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
+用户数据中心绑定{"action":"dc_unregister_user","user_id":"1067","sysplatforms_id":"186","ct_user_id" :"bac_13859d156b9c4d7fa58881fe304b3f39","os_id":"93217b3effd5422b9b26a94045dda88f"}
+用户数据中心解绑所有用户{"action":"dc_unregister_all_users","sysplatforms_id":"186"}
+单一数据中心初始化所有用户{"action":"dc_register_all_user","sysplatforms_id":"186","ct_user_id" :"bac_13859d156b9c4d7fa58881fe304b3f39","os_id":"93217b3effd5422b9b26a94045dda88f"}
+数据中心解绑所有用户{"action":"dc_unregister_all_users","sysplatforms_id":"186","ct_user_id" :"bac_13859d156b9c4d7fa58881fe304b3f39","os_id":"93217b3effd5422b9b26a94045dda88f"}
+# 用户登陆{"action":"login_user","username":"testtest@qq.com","password":"TESTtest123"}  邮箱登陆
+# 用户登出{"action":"logout_user","ct_user_id" :"024e604491544f8a8c5476709f7f80b0","os_id":"666cc8ea257311e79148005056aaa8cc"}
+# 修改密码{"action":"change_password","user_id":"736","old_password":"testuser1","new_password":"testusertest","firm_password":"testusertest"}
+
+12b1bbde-b8ea-4614-9a8a-dcc5b25ca608
+另加认证 ,"ct_user_id" :"024e604491544f8a8c5476709f7f80b0","os_id":"666cc8ea257311e79148005056aaa8cc"
+用户中心create测试
+http://172.18.143.43:8877/api/users/create/
+    参数{"username":"testuser2","password":"testuser2","mobile":"13021230926","email":"13021230926@qq.com",
+         "ct_user_id":"test_user_id290926", "ct_account_id":"test_account_id08290926"}
+创建用户 {"username":"ningtest","password":"ningtest","mobile":"13021232669","email":"ningtest@qq.com"}
+http://172.18.143.2:12121/api/users/create/
+{"username":"zhangyi","password":"zhangyi","mobile":"13021230930","email":"13021230930@qq.com"}
+user1 = User.objects.filter(Q(ct_user_id="qqwweddetrtqwe") | Q(ct_account_id="qwfeqqrtrtrdwe"))
+bac_0fd92d1bfb704fa58a3df28334c0c5b0 
+
+用户更新测试
+{"ct_user_id":"bac_faf72ebc7a484258a663163aa531b336","username":"testuser91348","mobile":"13021291413","city": "8888888",}
+{"username":"testzhn1401","password":"zhntest1803","mobile":"1302151401","email":"13052111401@qq.com","ct_user_id":"test_user_id08091109","ct_account_id":"test_account_id08091109","loginName": "testzhn1401","loginEmail": "13052111401@qq.com","rootUserid": "952d59sdff5c4a35a9c9493a428s1401","createDate": 1499760961401,"accountType": 1,"status": 100,"province": "8110000","city": "8110100","county": "8110101","mobilephone": "18000001109","channel": 1,"userLevel": 0,"messageFlag": 1,"emailFlag": 1,"auditStatus": "0",
+"postpaid": 0,"fkRootUserid": "952d59338f5c4a35a9c9493a428bdb45"}
+
+{"username":"testzhn1418","password":"zhntest1418","mobile":"1302151418","email":"13052111418@qq.com","ct_user_id":"test_user_id08091418","ct_account_id":"test_account_id08091418","loginName":"testzhn1418","loginEmail":"13052111418@qq.com","rootUserid":"952d59sdff5c4a35a9c9493a428s1418","createDate":1499760961418,"accountType":1,"status":100,"province":"8110000","city":"8110100","county":"8110101","mobilephone":"18000001418","channel":1,"userLevel":0,"messageFlag":1,"emailFlag":1,"auditStatus":"0","postpaid":0,"fkRootUserid": "952d59338f5c4a35a9c9493a428b1418"}
+
+
+em = ["","","","","","","","","","",""]
+
+删除用户
+curl -d '{"action":"dc_register_all_user","sysplatforms_id":"206","ct_user_id" :"baa018c5195d496d966e349f544f6933","os_id":"93217b3effd5422b9b26a94045dda88f"}' -H "Content-Type: application/json" -X POST http://172.18.143.141:12080/api/users/action/
+curl -d '{"del_ct_user_id":"8694b8bb2e0a4c07b7b5128bcc2485ea"}' -H "Content-Type: application/json" -X POST http://172.18.143.141:12080/api/users/delete/
+
+curl -d '{"del_ct_user_id":"f9406cb7bbbd4cd98632e0ec5bec0e79"}' -H "Content-Type: application/json" -X POST http://172.18.143.37:8081/api/users/delete/
+{"del_ct_user_id":"pricloud_test_user_eb0c48e09f334f6fa0c6b8852bb89960"}
+
+http://172.18.143.2:12121/api/user-datacenters/create/?ct_account_id=b96fc0be7e464857859e9d4fc948d242&ct_user_id=b4180afbc86147a58a2188e9e2e21c99&os_id=666cc8ea257311e79148005056aaa8cc&page=1&page_size=5
+http://172.18.143.2:12121/api/users/create/?ct_user_id=024e604491544f8a8c5476709f7f80b0&os_id=666cc8ea257311e79148005056aaa8cc&page=1&page_size=5
+
+用户初始化
+{"user_id":"717", "ct_user_id" :"024e604491544f8a8c5476709f7f80b0","os_id":"666cc8ea257311e79148005056aaa8cc"}
+
+租户添加
+{"user_id":"b4180afbc86147a58a2188e9e2e21c99","sysplatforms_id":"28", "ct_user_id" :"024e604491544f8a8c5476709f7f80b0","os_id":"666cc8ea257311e79148005056aaa8cc"}
+# link_data_center
+
+租户注册成功（失败）的资源池查询 GET
+api/users/query/?ct_user_id=test_user_id290926&os_id=666cc8ea257311e79148005056aaa8cc&ct_user_id_regist=e5f2db4a516947ca94b19dff898c05ce
+ct_user_id_regist 是要查询的用户的ct_user_id
+{"share":"1",
+"name":"linchunxu0099088",
+"image_uuid":"af6276a7-1984-4e88-8630-5f4e384b95c2",
+"os_type":"1"}
+ct_user_id
+ct_connect_id
+
+用户中心
+update_user
+{"ct_user_id":"7220b8cd0faf42f9b0e3a107dd929d00",
+"user_id":"15",
+"username":"admin11",
+"password":"pbkdf2_sha256$20000$zm1QeJWW5OB6$v7UyxRLi2UBH4si2wBy1C4Vv0Wv/Hwd+LWf6G2mv+1g=",
+"mobile":"18000000000",
+"email":"12dds3@qq.com"}
+
+http://172.18.143.43:8077/api/datacenters/create/
+数据中心添加测试
+{"name":"zhntest1123","uuid":"zhntest1123uuid","service_url":"zhntest1123url","type ":1,"password":"zhntest1123","user":"zhntest01123","host":"zhntest1123","project":"zhntest1123p","ext_net":"zhntest1123","ct_user_id":"b4180afbc86147a58a2188e9e2e21c99","os_id":"666cc8ea257311e79148005056aaa8cc"}
+
+
+{"name":"zhntest0914","uuid":"zhntest0914uuid","service_url":"zhntest0914url","type ":1,"password":"zhntest0914","user":"zhntest0914","host":"zhntest0914","project":"zhntest0914p","ext_net":"zhntest0914","ct_user_id":"b4180afbc86147a58a2188e9e2e21c99","CT_OS_ID":"0"}
+
+CT_OS_ID="0" CT_USER_ID="ecscloud_jenkins_test_user_id"
+
+
+数据中心 update datacenter 测试
+"id" and "host", to update "service_url","password" ,"ext_net", "project"
+参数 {"uuid":"zhntest0914uuid","host":"zhntest70914url", "service_url":"http://asdfsa233df.com", "ct_user_id" :"b4180afbc86147a58a2188e9e2e21c99","os_id":"666cc8ea257311e79148005056aaa8cc"}
+
+返回
+{
+    "msg": "Data Center is created successfully!",
+    "errstatus": "SUCCESS",
+    "errcode": 0,
+    "results": null
+}
+
+数据中心的更改
+http://172.18.143.43:8877/api/datacenters/update/
+http://172.18.143.43:8077/api/datacenters/update/
+{"id":"dsfesd",
+"short_name":"sdfrsdf",
+"uuid":"sdfwsdf",
+"service_url":"sdftsdf",
+"type ":1,
+"password":"sdfstdf",
+"user":"sdjf",
+"host":"sdkfsd",
+"project":"lsdf",
+"ext_net":"sfdf"}
+
+数据中心 增加请求参数异常处理和打印日志，优化参数获取方式，
+用户中心 增加用户名的模糊查询
+ListSerializer(
+
+
+data_detail
+
+create_time, host, id, name, password, removed, service_url, short_name, state, type, update_time, user, uuid
+
+创建数据中心
+{"name": "zhntest","uuid": "zhntestuuid", "service_url": "zhntesturl", "type": 2, "password": "zhntest","user": "zhntsestuser", "host": "zhntesthost", "project": "zhnproject", "ext_net": "zhnext_net"}
+数据中心的删除
+
+{"ct_user_id": "b4180afbc86147a58a2188e9e2e21c99", "os_id": "666cc8ea257311e79148005056aaa8cc", "id":"51"}
+
+表 SysPlatforms
+ [
+        {
+            "id": 20,
+            "idc_type_name": "OpenStack",
+            "project": "admin",
+            "ext_net": "ext-net",
+            "name": "os101",
+            "short_name": "os101",
+            "uuid": "271cc8ea257311e79148005056aaa8be",
+            "service_url": "http://10.0.194.101:10006/v3",
+            "type": 2,
+            "state": 0,
+            "create_time": "2017-04-20T02:43:36",
+            "update_time": "2017-04-20T02:43:36",
+            "removed": null,
+            "password": "admin",
+            "user": "admin",
+            "host": "10.0.194.101"
+        },
+        {
+            "id": 23,
+            "idc_type_name": "CloudStack",
+            "name": "cloudstack-189",
+            "short_name": "cs189",
+            "uuid": "2c05f41c257311e79148005056aaa8be",
+            "service_url": "http://172.18.143.189:8080/client/api",
+            "type": 1,
+            "state": 1,
+            "create_time": "2017-04-20T02:43:44",
+            "update_time": "2017-04-20T02:55:22",
+            "removed": null,
+            "password": "password",
+            "user": "admin",
+            "host": "172.18.143.189"
+        },]
+
+删除用户参数{"id":"205"}
+删除用户数据关联 {"user_id":"205","sysplatforms_id":"28"}
+# link_data_center
+# unlink_data_center
+
+执行结果的返回封装
+from biz.common.utils import common_success_response,common_error_response
+return common_error_response(msg)
+return common_success_response(request, data, msg)
+
+还有更新操作除了delete， 需要在返回值中的restults中将相关资源的信息展示出来
+
+显示个人信息时候挑选
+
+"idc_type_name": "OpenStack",
+"project": "admin",
+"name": "os101",
+"short_name": "os101",
+"service_url": "http://10.0.194.101:10006/v3",
+"type": 2,
+"user": "admin",
+
+
+ "id": 20,
+            "idc_type_name": "OpenStack",
+            "project": "admin",
+            "ext_net": "ext-net",
+            "name": "os101",
+            "short_name": "os101",
+            "uuid": "271cc8ea257311e79148005056aaa8be",
+            "service_url": "http://10.0.194.101:10006/v3",
+            "type": 2,
+            "state": 0,
+            "create_time": "2017-04-20T02:43:36",
+            "update_time": "2017-04-20T02:43:36",
+            "removed": null,
+            "password": "admin",
+            "user": "admin",
+            "host": "10.0.194.101"
+
+create  user_datacenter 
+
+{"user_id":"260","sysplatforms_id":"28"}
+
+
+
+延时异常处理
+    begin = datetime.datetime.now()
+    try:
+        LOG.info(str(tenant_id))
+        LOG.info(str(u.id))
+        LOG.info(str(role.id))
+        is_success = self.identity.role_assign_to_project_user(tenant_id, u.id, role.id)
+        end = datetime.datetime.now()
+        LOG.info("CTKeystone add tenant user role [tenant_id=%s][%s] successfully, "
+                 "cost [%s] seconds", tenant_id, attrs, (end - begin).seconds)
+    except Exception as ex:
+        end = datetime.datetime.now()
+        LOG.exception("CTKeystone add tenant user role [tenant_id=%s][%s] failed, "
+                      "cost [%s] seconds, exception [%s]", tenant_id, attrs, (end - begin).seconds, ex)
+        raise ex
+
+        "CTKeystone add tenant user role [tenant_id=%s][%s] successfully, \
+                cost [%s] seconds"%( tenant_id, attrs, (end - begin).seconds)
+
+
+增加逻辑删除字段
+
+
+
+try:
+    a = 2/0
+except Exception as e:
+    print("unlink_user_from_all_dc_task error, msg:[%s]" % e)
+
+HttpException: Conflict occurred attempting to store project - it is not permitted to have two projects with the same name in the same domain : ct_qwfeqqrtrtrdwe (HTTP 409) (Request-ID: req-89cd1b78-3a36-4244-8bcf-24982427d124), Conflict occurred attempting to store project - it is not permitted to have two projects with the same name in the same domain : ct_qwfeqqrtrtrdwe] 
+
+
+
+
+
+
+
+
+svn export --username=licheng --password=lc123123 --non-interactive svn://42.123.127.38/pricloud/trunk/ecscloud_web/celery/./celery
+
+
+
+    except socket.error:
+        errno, errstr = sys.exc_info()[:2]
+        if errno == socket.timeout:
+            ex = "There was a timeout"
+        else:
+            ex = "There was some other socket error"
+        LOG.debug("to create t failed, exception [%s]" % ex)
+        return
+
+
+
+
+INFO:cloud.universal_api.ct_keystone:CTKeystone the tenant is [openstack.identity.v3.project.Project(is_domain=False, description=testzhn, enabled=True, domain_id=default, parent_id=default, id=03f4958919ec4563a495f976e4a0d19f, name=ct_test_account_id)]
+
+
+INFO:cloud.tasks:openstack.identity.v3.project.Project(is_domain=False, description=testzhn, enabled=True, domain_id=default, parent_id=default, id=03f4958919ec4563a495f976e4a0d19f, name=ct_test_account_id)
+
+
+
+
+
+
+
+    for subnet_id in subnetid_list:
+        LOG.info("subnet id is" + str(subnet_id))
+        related_ports = get_all_ports(rc, subnet_id)
+        converted_ports = convert_obj_to_dict(related_ports)
+        # Remove interface and gateway port first
+        for port in converted_ports:
+            LOG.info(" Port is " + str(port))
+            try:
+                if port['device_owner'] == 'network:router_interface' or port['device_owner'] == 'network:router_interface_distributed':
+                    fixedip_list = port['fixed_ips']
+                    if fixedip_list:
+                        fixedips = fixedip_list[0]
+                        subnet_uuid = fixedips['subnet_id']
+                        universal_network.remove_interface_from_router(port['device_id'], subnet_uuid, port['id'])
+                        LOG.info(" Remove interface from router succcessfully router[%s] subnet_uuid [%s] port_id [%s]",
+                                 port['device_id'], subnet_uuid, port['id'])
+                    universal_network.remove_interface_from_router(port['device_id'], subnet_id, port['id'])
+                if port['device_owner'] == 'network:router_gateway':
+                    universal_network.remove_gateway_from_router(port['device_id'])
+                    LOG.info(" Remove gateway from router succcessfully router[%s]",port['device_id'])
+
+                else:
+                    universal_network.delete_port(port['id'])
+            except:
+                pass
+    # After router delete done, delete subnet port and subnet.
+    # for subnet_id in subnetid_list:
+        # LOG.info("subnet id is" + str(subnet_id))
+        # related_ports = get_all_ports(rc, subnet_id)
+        # converted_ports = convert_obj_to_dict(related_ports)
+        # for port in converted_ports:
+            LOG.info("device_owner is" + str(port['device_owner']))
+            """
+            if not port['device_owner'] or 'compute' in port['device_owner']:
+                universal_network.delete_port(port['id'])
+                LOG.info("delete port [%s] done", port['id'])
+            """
+            try:
+                if port['device_owner'] == 'network:router_interface_distributed':
+                    universal_network.remove_interface_from_router(port['device_id'], subnet_id, port['id'])
+                if port['device_owner'] == 'network:router_gateway':
+                    universal_network.remove_gateway_from_router(port['device_id'])
+                    LOG.info(" Remove gateway from router succcessfully router[%s]", port['device_id'])
+                else:
+                    universal_network.delete_port(port['id'])
+            except:
+                pass
+
+{"sessionid":"btp9gawxgphwo238ja2y6gle7wscccuy"}
+
+url = "http://172.18.143.2:12121/api/users/list/"
+headers = {"host": "172.18.143.2:12121"}
+session_post = requests.session()
+response = session_post.get(url, headers=headers)
+
+
+
+URL_ = "http://42.123.127.38:9981" + "/api/users/action/"
+data = {"ct_user_id": "ecscloud_jenkins_test_user_id_2", "os_id": "666cc8ea257311e79148005056aaa8cc", "action": "login_user",
+              "username": "ningtest", "password": "123456"}
+http_result = requests.post(URL_, data=data)
+
+URL_ = BASE_URL + "/api/users/create/"
+http_result = self.http_post(URL_, data=user.get_payload(), headers=dict(Referer=URL_))
+os_user = http_result.result_data
+LOG.info("create user sucessfully, the os_user is [%s]", os_user)
+
+[{u'username': u'pricloud_test_user_1e5720', u'first_name': u'', u'balance': u'0.00', u'is_staff': False, u'groups': [],
+  u'ct_user_id': u'pricloud_test_user_1e5720_ctuserid', u'mobile': u'18910111111', u'deleted': False,
+  u'is_active': True, u'user_type': 1, u'email': u'pricloud_test_user_1e5720@181.cn', u'is_superuser': False,
+  u'last_name': u'', u'last_login': None,
+  u'profile_info': {u'mobile': u'18910111111', u'ct_user_id': u'pricloud_test_user_1e5720_ctuserid',
+                    u'ct_account_id': u'pricloud_test_user_1e5720_ctaccountid'}, u'user_permissions': [],
+  u'ct_account_id': u'pricloud_test_user_1e5720_ctaccountid',
+  u'password': u'pbkdf2_sha256$20000$A57zlkI8zhH6$KD/i/TazIdcyCj17QNrCBLuBMHmkkt0ggAizL7a+A+s=', u'id': 1314,
+  u'date_joined': u'2017-09-11 09:53:32'}]
+
+  user1.password = "pricloud_test_user_1e5720"
+
+LOG.info("query user register data centers")
+URL_ = BASE_URL + "/api/datacenters/query/"
+data = {"ct_user_id": CT_USER_ID, "os_id": CT_OS_ID, "ct_user_id_regist": user_1["ct_user_id"]}
+http_result = requests.get(URL_, data=data, headers=dict(Referer=URL_))
+dcs = json.loads(http_result.content)["results"]
+print dcs
+LOG.info("query user register data centers successfully, the data centers is %s", dcs)
+return http_result
+
+活跃用户查询
+禁用用户
+激活用户
+初始化用户
+用户数据中心绑定
+用户数据中心解绑
+用户登陆
+用户登出
+修改密码
+
+create_rc_by_udc 过程
+udc_id = 5256
+
+from biz.account.models import *
+from biz.idc.models import CtUserPlatforms, SysPlatforms
+from biz.network.models import *
+from biz.instance.models import *
+from cloud.cloud_utils import *
+from cloud.universal_api.instance import UniversalInstance
+from cloud.universal_api.keystone import UniversalKeystone
+from cloud.universal_api.network import UniversalNetwork
+from cloud.universal_api.volume import UniversalVolume
+from cloud.universal_api.image import universal_image
+
+from openstack import connection
+from cloud.universal_api.ct_network import CTNetwork
+from cloud.universal_api.cs_network import CloudStackNetwork
+from cloud.utils import *
+from biz.work_order.models import WorkOrder
+from biz.work_order_item.models import WorkOrderItem
+from biz.floating.models import *
+from cloud.network_task import *
+ct_user_id = ""
+dc_id = ""
+user = User.objects.get(ct_user_id=ct_user_id)
+dc = SysPlatforms.objects.get(uuid=dc_id)
+udc=CtUserPlatforms.objects.get(user_id=user.id,sysplatforms_id=dc.id)
+rc = create_rc_by_udc(udc)
+conn = UniversalKeystone(rc).conn
+
+查备份
+    bs = list(conn.block_store.backups())
+    bss = [backup.to_dict() for backup in bs]
+
+
+def bingin():
+    try:
+        network=Network.objects.get(id=33)
+        print network.network_id
+        raise RuntimeError("can not get network uuid from Network")
+    except:
+        print network.network_id
+        network.network_id = ""
+        network.save()
+        print "OK....."
+vpc_name = user.username+"-vpc"
+cidr = "10.0.1.0/24"
+zones = get_cs_zone(rc)
+zone_id = zones[0].get("id")
+network = Network.objects.filter(description=cidr, name=vpc_name,ct_user_platforms_id=udc.id, zone_id=zone_id).first()
+
+dc = SysPlatforms.objects.get(id=209)
+rc=create_rc_by_dc(dc)
+conn=UniversalInstance(rc)
+inss=conn.find_server("sdfsdfsdf")
+
+
+
+network_id = "06d068e2-dd46-448b-a231-b1f24afe242b"
+network = Network.objects.get(network_id=network_id)
+udc = CtUserPlatforms.objects.get(id=network.ct_user_platforms_id)
+sysplatforms = SysPlatforms.objects.get(pk=int(udc.sysplatforms_id))
+
+user = User.objects.get(pk=udc.user_id)
+ct_user_id = user.ct_user_id
+
+pwd = passwordutils.pwd_crypt.encrypt(ct_user_id)
+rc = {}
+rc["auth_url"] = sysplatforms.service_url
+rc["project_domain_name"] = "Default"
+rc["project_name"] = udc.tenant_name
+rc["user_domain_name"] = "Default"
+rc["username"] = udc.keystone_user
+rc["password"] = pwd
+conn = connection.Connection(**rc)
+
+conn= UniversalInstance(rc)
+availabilities_ip = conn.network.network_ip_availabilities(network_id=network_id)
+availabilities_ip.next()
+
+#清理floating
+ips = ["cb404efc-23c0-45fa-9059-821f16a1143e",
+        "46d4f1f5-cc45-4501-a413-6f98f527bdd6"]
+for ip in ips:
+    floating=Floating.objects.get(uuid=ip)
+    rc = create_rc_by_floating(floating)
+    conn= UniversalInstance(rc).conn
+    conn.network.delete_ip(ip)
+
+
+
+
+
+
+172.143.18.141:12080/api/firewalls/query/?ct_user_id=a4f0e58b3a104b4b8fd1007a4152c5d3&os_id=93217b3effd5422b9b26a94045dda88f
+
+构造cloudstack rc
+1111
+rc = {
+    "username": "admin",
+    "password": "password",
+    "command": "login",
+    "domain": "/",
+
+    "response": "json",
+    "auth_url": "http://172.18.143.185:8080/client/api",
+}
+222
+params = {
+    "username": username,
+    "password": password,
+    "command": "login",
+    "domain": "/",
+    "response": "json",
+    "auth_url": api,
+}
+# sysplatforms = SysPlatforms.objects.get(pk=182)
+import requests
+session = requests.Session()
+url = "http://172.18.143.185:8080/client/api"
+resp = session.post(url, params=rc, verify="False")
+
+resp.content = {
+    loginresponse: {
+    timeout: "1800",
+    lastname: "cloud",
+    registered: "false",
+    username: "admin",
+    firstname: "admin",
+    domainid: "9499b7d4-3527-11e7-b291-005056aa8e4f",
+    userid: "d96f2948-3527-11e7-b291-005056aa8e4f",
+    type: "1",
+    sessionkey: "xr8NbEHj4J38GbVDj2uXrTmH81E=",
+    account: "admin"
+    }
+}
+{u'username': u'admin', u'account': u'admin', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+ u'firstname': u'admin', u'lastname': u'cloud', u'registered': u'false',
+ u'userid': u'd96f2948-3527-11e7-b291-005056aa8e4f', u'sessionkey': u'6fxTHLBGZ+HVzK9lEfC/zeey1L4=',
+ u'timeout': u'1800', u'type': u'1'}
+class CTNetwork(Network):
+    def __init__(self, rc):
+        self.rc = rc
+        self.conn = connection.Connection(**rc)
+    def networks(self):
+        networks = self.conn.network.networks()
+    def list_security_group_rules(self):
+        LOG.info("CTNetwork list security group rules")
+        sc_rule = self.conn.network.security_group_rules()
+
+user141 = [
+    ]
+import requests
+del_ct_user_ids = []
+url = "http://172.18.143.2:12121/api/users/delete/"
+for del_ct_user_id in del_ct_user_ids:
+    data = {"del_ct_user_id":del_ct_user_id}
+    result = requests.post(url,data=data)
+    print(result.status())
+
+
+登陆用户
+    'http://61.48.40.18:28017/client/api?command=listVirtualMachines&response=json&sessionkey=Fwf0Qy2MBs7nH4RKZmfDchPc3Oo%3D&username=zhangning'
+    response = {u'loginresponse': {u'username': u'zhangsi', u'account': u'zhangsi',
+                                   u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'firstname': u'defult',
+                                   u'lastname': u'defult', u'registered': u'false',
+                                   u'userid': u'8a88f81c-6f61-4af0-bbcc-30e081e851ad',
+                                   u'sessionkey': u'9dutb5BxLtGez7c3xHmgvCSqymY=', u'timeout': u'1800', u'type': u'0'}}
+
+    username = response.get('loginresponse').get('username')
+查询account
+    参数 非必需：name等
+    权限：需要user  说明：每个登陆的用户都只能查询自己的account，包括admin
+    response = handler2.listAccounts(name="zhangsi", sessionkey=sessionkey)
+    response = {u'listaccountsresponse': 
+                    {u'count': 1, u'account': [
+                    {u'secondarystoragetotal': 0, u'primarystorageavailable': u'200', u'domain': u'ROOT',
+                     u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'vpclimit': u'20', u'iplimit': u'20', u'memorytotal': 0,
+                     u'secondarystorageavailable': u'400', u'vmtotal': 0, u'cputotal': 0, u'vpctotal': 0, u'vmWindows': 0,
+                     u'id': u'4bee0983-1ff1-4445-9818-f4cbe595d9b3', u'networkavailable': u'20', u'projectlimit': u'Unlimited',
+                     u'networklimit': u'20', u'iptotal': 0, u'volumetotal': 0, u'snapshotlimit': u'20', u'state': u'enabled',
+                     u'networktotal': 0, u'accounttype': 0, u'cpuavailable': u'40', u'primarystoragetotal': 0, u'templatelimit': u'20',
+                     u'snapshottotal': 0, u'templateavailable': u'20', u'vmlimit': u'20', u'vpcavailable': u'20',
+                     u'primarystoragelimit': u'200', u'volumelimit': u'20', u'templatetotal': 0, u'secondarystoragelimit': u'400',
+                     u'user': [{u'username': u'zhangsi', u'account': u'zhangsi', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+                                u'firstname': u'defult', u'created': u'2017-10-20T15:57:09+0800', u'lastname': u'defult',
+                                u'iscallerchilddomain': False, u'domain': u'ROOT', u'email': u'zhangsi@qq.com', u'state': u'enabled',
+                                u'accounttype': 0, u'id': u'8a88f81c-6f61-4af0-bbcc-30e081e851ad', u'isdefault': False,
+                                u'accountid': u'4bee0983-1ff1-4445-9818-f4cbe595d9b3'}], 
+                     u'vmLinux': 0,
+                     u'projectavailable': u'Unlimited', u'isdefault': False, u'memoryavailable': u'40960', u'projecttotal': 0,
+                     u'volumeavailable': u'20', u'name': u'zhangsi', u'vmavailable': u'20', u'ipavailable': u'20',
+                     u'memorylimit': u'40960', u'cpulimit': u'40', u'snapshotavailable': u'20'}]}}
+    查询admin账户
+    response = {u'listaccountsresponse': {u'count': 1, u'account': [
+    {u'secondarystoragetotal': 114, u'primarystorageavailable': u'Unlimited', u'domain': u'ROOT',
+     u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'vpclimit': u'Unlimited', u'iplimit': u'Unlimited',
+     u'memorytotal': 194624, u'secondarystorageavailable': u'Unlimited', u'vmtotal': -76, u'cputotal': -53,
+     u'vpctotal': 1, u'vmWindows': 0, u'id': u'd96f0b84-3527-11e7-b291-005056aa8e4f', u'networkavailable': u'Unlimited',
+     u'projectlimit': u'Unlimited', u'networklimit': u'Unlimited', u'iptotal': 9, u'volumetotal': 147,
+     u'snapshotlimit': u'Unlimited', u'state': u'enabled', u'networktotal': 4, u'isdefault': True, u'accounttype': 1,
+     u'receivedbytes': 228, u'cpuavailable': u'Unlimited', u'primarystoragetotal': 102, u'templatelimit': u'Unlimited',
+     u'snapshottotal': 0, u'templateavailable': u'Unlimited', u'vmlimit': u'Unlimited', u'vpcavailable': u'Unlimited',
+     u'primarystoragelimit': u'Unlimited', u'vmstopped': 2, u'volumelimit': u'Unlimited', u'templatetotal': 16,
+     u'secondarystoragelimit': u'Unlimited', u'vmrunning': 3, u'vmLinux': 3, u'projectavailable': u'Unlimited',
+     u'sentbytes': 15792, u'memoryavailable': u'Unlimited', u'projecttotal': 0, u'volumeavailable': u'Unlimited',
+     u'name': u'admin', u'vmavailable': u'Unlimited', u'ipavailable': u'Unlimited', u'memorylimit': u'Unlimited',
+     u'cpulimit': u'Unlimited', u'snapshotavailable': u'Unlimited', u'user': [
+        {u'username': u'admin', u'account': u'admin', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+         u'firstname': u'admin', u'created': u'2017-05-10T18:24:52+0800', u'lastname': u'cloud',
+         u'iscallerchilddomain': False, u'domain': u'ROOT',
+         u'secretkey': u'C-oeFnRegRSFUtaVUxd9StJK5xsPAuc3JHJwrivDwN5PkGfqHkySJUNt9D_N2N3_LgM6AFNUYgsAEo97Fo4ofQ',
+         u'state': u'enabled',
+         u'apikey': u'y5E0JtJel2A9LSxA73wofkklqiTKCRo8s10ryT0fEmTG7lKA0W5UzNo_DTRWUFmHMxwHMj557whzYiNEcWh40g',
+         u'accounttype': 1, u'id': u'd96f2948-3527-11e7-b291-005056aa8e4f', u'isdefault': True,
+         u'accountid': u'd96f0b84-3527-11e7-b291-005056aa8e4f'}]}]}}
+
+    account_id = response.get("listaccountsresponse").get("account")[0].get("id")
+    user_id = response.get("listaccountsresponse").get("account")[0].get("user")[0].get("id")
+    error：
+        response = {u'listaccountsresponse': 
+                        {u'errorcode': 531, u'uuidList': [], u'cserrorcode': 4365, 
+                            u'errortext': u'Acct[0cfff941-f029-4565-a766-bb12850c7370-zhanger] does not have permission to operate with resource Acct[d96f0b84-3527-11e7-b291-005056aa8e4f-admin]'}}
+创建account 返回结果
+    参数 必须：'accounttype', 'email', 'firstname', 'lastname', 'password', 'username'
+    权限：需要admin  说明：只能admin账户创建 
+    args = {'accounttype': '0', 'email': '358631330@qq.com', 'firstname': 'ni', 'lastname': 'zhan',
+            'password': '358631330@qq.com', 'username': 'zhanni'}
+
+    response1 = handler.createAccount(args)
+    {u'createaccountresponse': {
+        u'account': {u'secondarystoragetotal': 0, u'primarystorageavailable': u'200', u'domain': u'ROOT',
+                     u'domainid': u'b4dfa1a0-b0c1-11e7-ad82-525400cab894', u'vpclimit': u'20', u'iplimit': u'20',
+                     u'memorytotal': 0, u'secondarystorageavailable': u'400', u'vmtotal': 0, u'cputotal': 0, u'vpctotal': 0,
+                     u'id': u'2020e7a2-993b-4b4c-b025-501ac355d5b7', u'networkavailable': u'20',
+                     u'projectlimit': u'Unlimited', u'networklimit': u'20', u'iptotal': 0, u'volumetotal': 0,
+                     u'snapshotlimit': u'20', u'state': u'enabled', u'networktotal': 0, u'accounttype': 0,
+                     u'cpuavailable': u'40', u'primarystoragetotal': 0, u'templatelimit': u'20', u'snapshottotal': 0,
+                     u'templateavailable': u'20', u'vmlimit': u'20', u'vpcavailable': u'20', u'primarystoragelimit': u'200',
+                     u'volumelimit': u'20', u'templatetotal': 0, u'secondarystoragelimit': u'400', 
+                     u'user': [
+                                {u'username': u'zhangning', u'account': u'zhangning', u'domainid': u'b4dfa1a0-b0c1-11e7-ad82-525400cab894',
+                                u'firstname': u'ning', u'created': u'2017-10-17T02:54:42-0400', u'lastname': u'zhang',
+                                 u'iscallerchilddomain': False, u'domain': u'ROOT', u'email': u'12312132@qq.com', u'state': u'enabled',
+                                 u'accounttype': 0, u'id': u'a3f31da9-d50d-433f-bd1a-82fabb68a483', u'isdefault': False,
+                                 u'accountid': u'2020e7a2-993b-4b4c-b025-501ac355d5b7'}], 
+                     u'projectavailable': u'Unlimited',
+                     u'isdefault': False, u'memoryavailable': u'40960', u'projecttotal': 0, u'volumeavailable': u'20',
+                     u'name': u'zhangning', u'vmavailable': u'20', u'ipavailable': u'0', u'memorylimit': u'40960',
+                     u'cpulimit': u'40', u'snapshotavailable': u'20'}}}
+
+    保存到本地表 用户注册信息username password 
+                account_id
+                user_id
+    account_id = response.get("createaccountresponse").get("account").get("id")
+    user_id = response.get("createaccountresponse").get("account").get("user")[0].get("id")
+    
+    if error:
+        response = {u'errorresponse': 
+                        {u'errorcode': 432, u'uuidList': [], u'cserrorcode': 9999,
+                         u'errortext': u'The given command does not exist or it is not available for user'}}
+        errortext=response.get("errorresponse").get("errortext")
+删除account 需要admin权限
+    参数 必须：id (account id)
+    权限：需要admin  说明：只能admin账户删除 异步任务 返回jobid
+    resp = handler2.command({"username": "admin", "password": "password"}, "login")
+    sessionkey = resp.get("loginresponse").get("sessionkey")
+    resp1 = handler2.deleteAccount(id = account_id, sessionkey=sessionkey)
+    resp1 = {u'deleteaccountresponse': {u'jobid': u'5a693647-db4e-4df6-b551-369678c0a224'}}
+    job_id = resp1.get("deleteaccountresponse").get("jobid")
+
+修改account 信息  
+    参数 必须：newname，id (account id)
+    权限：需要admin  说明：只能admin账户更改
+    response = handler.updateAccount(newname='zhangsiaccount', id="ac114d7e-5193-4de8-a931-28ecbcc91822", sessionkey=sessionkey)
+    response = {u'updateaccountresponse': {
+    u'account': {u'secondarystoragetotal': 0, u'primarystorageavailable': u'200', u'domain': u'ROOT',
+                 u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'vpclimit': u'20', u'iplimit': u'20',
+                 u'memorytotal': 0, u'secondarystorageavailable': u'400', u'vmtotal': 0, u'cputotal': 0, u'vpctotal': 0,
+                 u'vmWindows': 0, u'id': u'ac114d7e-5193-4de8-a931-28ecbcc91822', u'networkavailable': u'20',
+                 u'projectlimit': u'Unlimited', u'networklimit': u'20', u'iptotal': 0, u'volumetotal': 0,
+                 u'snapshotlimit': u'20', u'state': u'enabled', u'networktotal': 0, u'accounttype': 0,
+                 u'cpuavailable': u'40', u'primarystoragetotal': 0, u'templatelimit': u'20', u'snapshottotal': 0,
+                 u'templateavailable': u'20', u'vmlimit': u'20', u'vpcavailable': u'20', u'primarystoragelimit': u'200',
+                 u'volumelimit': u'20', u'templatetotal': 0, u'secondarystoragelimit': u'400', u'user': [
+                    {u'username': u'zhangsi', u'account': u'zhangsiaccount',
+                     u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'firstname': u'defult',
+                     u'created': u'2017-10-24T16:30:24+0800', u'lastname': u'defult', u'iscallerchilddomain': False,
+                     u'domain': u'ROOT', u'email': u'zhangsi@qq.com', u'state': u'enabled', u'accounttype': 0,
+                     u'id': u'70c22118-b522-4ff8-8c11-27e6fc1018a8', u'isdefault': False,
+                     u'accountid': u'ac114d7e-5193-4de8-a931-28ecbcc91822'}], u'vmLinux': 0, u'projectavailable': u'Unlimited',
+                         u'isdefault': False, u'memoryavailable': u'40960', u'projecttotal': 0, u'volumeavailable': u'20',
+                         u'name': u'zhangsiaccount', u'vmavailable': u'20', u'ipavailable': u'20', u'memorylimit': u'40960',
+                         u'cpulimit': u'40', u'snapshotavailable': u'20'}}}
+    account = response.get("updateaccountresponse").get("account")
+    error：
+        response = {u'errorresponse': 
+                        {u'errorcode': 432, u'uuidList': [], u'cserrorcode': 9999, 
+                            u'errortext': u'The given command does not exist or it is not available for user'}}
+        errortext = response.get("errorresponse").get("errortext")
+创建project 
+    参数 非必须：name，displaytext
+    权限：需要user  说明：默认创建在当前登陆的账户下
+    response = handler2.createProject(name='zhangerproject', displaytext='description', sessionkey=sessionkey)
+    response = {u'createprojectresponse': 
+                {u'id': u'7246b1f9-2bdc-4327-a898-ee20e07287f9', 
+                u'jobid': u'82a5520c-c47b-47dc-963f-f0b7212e1d93'}}
+    project_id = response.get("createprojectresponse").get("id")
+    job_id = response.get("createprojectresponse").get("jobid")
+
+删除project
+    参数 必须：id (project id)
+    权限：需要user  说明：默认删除在当前登陆的账户下,admin 可以删除其他账户下的project ，user不可以操作其他用户资源
+    response = handler2.deleteProject(id=project_id, sessionkey=sessionkey)
+    response = {u'deleteprojectresponse': {u'jobid': u'7a6c8758-cf21-4a7c-95af-67b4871da5da'}}
+    job_id = response.get("deleteprojectresponse").get("jobid")
+
+
+查看project
+    参数  无
+    权限：需要user  说明：列出当前account下的所有project
+    response = handler2.listProjects(sessionkey=sessionkey)
+    response = {u'listprojectsresponse': 
+                    {u'count': 1, 
+                     u'project': [
+                            {u'primarystorageavailable': u'200', u'domain': u'ROOT', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+                             u'vpclimit': u'20', u'iplimit': u'20', u'volumelimit': u'20', u'memorytotal': 0,
+                             u'secondarystorageavailable': u'400', u'vmtotal': 0, u'displaytext': u'description', u'vpctotal': 0,
+                             u'id': u'7246b1f9-2bdc-4327-a898-ee20e07287f9', u'cpuavailable': u'40', u'networklimit': u'20', u'iptotal': 0,
+                             u'volumetotal': 0, u'snapshotlimit': u'20', u'state': u'Disabled', u'networktotal': 0, u'vpcavailable': u'20',
+                             u'networkavailable': u'20', u'primarystoragetotal': 0, u'templatelimit': u'20', u'snapshottotal': 0,
+                             u'templateavailable': u'20', u'vmlimit': u'20', u'tags': [], u'secondarystoragetotal': 0, u'templatetotal': 0,
+                             u'memoryavailable': u'40960', u'account': u'zhanger', u'secondarystoragelimit': u'400', u'volumeavailable': u'20',
+                             u'name': u'zhangerproject', u'vmavailable': u'20', u'ipavailable': u'20', u'memorylimit': u'40960',
+                             u'primarystoragelimit': u'200', u'cputotal': 0, u'cpulimit': u'40', u'snapshotavailable': u'20'}]}}
+
+update project
+    参数 必须：id (project id)  非必须：name，displaytext
+    权限：需要user  说明：
+    response = handler2.updateProject(id = project_id, sessionkey=sessionkey)
+    response = {u'updateprojectresponse': {u'jobid': u'45a3c642-55b2-41c5-b2ba-cba99e325674'}}
+    project_job_id = response.get("updateprojectresponse").get("jobid")
+
+创建user
+    参数 必须：  username, email, password, firstname, lastname, account
+    权限：需要admin  说明：
+    response = handler.createUser(sessionkey=sessionkey, username='zhangda',
+                           email='zhangda.qq.com',
+                           password='zhangda',
+                           firstname='da',
+                           lastname='zhang',
+                           account="zhangning")
+    response = {u'createuserresponse': {
+        u'user': {u'username': u'zhangda', u'account': u'zhangning', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+                  u'firstname': u'da', u'created': u'2017-10-23T17:31:51+0800', u'lastname': u'zhang',
+                  u'iscallerchilddomain': False, u'domain': u'ROOT', u'email': u'zhangda@qq.com', u'state': u'enabled',
+                  u'accounttype': 0, u'id': u'a456ff04-9941-4bbd-a8b0-d4b603f394b8', u'isdefault': False,
+                  u'accountid': u'06031543-1281-495c-984c-6527112369b7'}}}
+
+删除user
+    参数 id  
+    权限：需要admin  说明：
+    response = handler2.deleteUser(id=user_id, sessionkey=sessionkey)
+    response= {u'deleteuserresponse': {u'success': u'true'}}
+    result = response.get("deleteuserresponse").get("success")
+
+更新user
+    参数 必须：id  可选：email, username, password, firstname, lastname,
+    权限：user 说明：
+    response = handler2.updateUser(id=user_id, email= "zhangdadaer.qq.cpom", sessionkey=sessionkey)
+    response = {u'updateuserresponse': {
+                    u'user': {u'username': u'zhangdaer', u'account': u'zhanger', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+                          u'firstname': u'daer', u'created': u'2017-10-24T11:00:51+0800', u'lastname': u'zhang',
+                          u'iscallerchilddomain': False, u'domain': u'ROOT', u'email': u'zhangdadaer.qq.cpom', u'state': u'enabled',
+                          u'accounttype': 0, u'id': u'8ce2e9c2-2de5-4892-8fb7-60dc299da40d', u'isdefault': False,
+                          u'accountid': u'0cfff941-f029-4565-a766-bb12850c7370'}}}
+    response.get("updateuserresponse").get("user")
+    error:
+        {u'updateuserresponse': {u'errorcode': 431, u'uuidList': [], u'cserrorcode': 4350, u'errortext': u'Lastname is empty'}}
+
+查询users 
+    参数 无
+    权限：需要admin  说明：需要admin权限查询，返回domainid相同的所有user
+    response = handler2.listUsers(sessionkey=sessionkey)
+    response = {u'listusersresponse': {u'count': 2, u'user': [
+    {u'username': u'admin', u'account': u'admin', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+     u'firstname': u'admin', u'created': u'2017-05-10T18:24:52+0800', u'lastname': u'cloud',
+     u'iscallerchilddomain': False, u'domain': u'ROOT',
+     u'secretkey': u'C-oeFnRegRSFUtaVUxd9StJK5xsPAuc3JHJwrivDwN5PkGfqHkySJUNt9D_N2N3_LgM6AFNUYgsAEo97Fo4ofQ',
+     u'state': u'enabled',
+     u'apikey': u'y5E0JtJel2A9LSxA73wofkklqiTKCRo8s10ryT0fEmTG7lKA0W5UzNo_DTRWUFmHMxwHMj557whzYiNEcWh40g',
+     u'accounttype': 1, u'id': u'd96f2948-3527-11e7-b291-005056aa8e4f', u'isdefault': True,
+     u'accountid': u'd96f0b84-3527-11e7-b291-005056aa8e4f'},
+    {u'username': u'ct_8694b8bb2e0a4c07b7b5128bcc2485ea', u'account': u'ct_8694b8bb2e0a4c07b7b5128bcc2485ea',
+     u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'firstname': u'wang',
+     u'created': u'2017-10-24T16:41:04+0800', u'lastname': u'09753f05cc3b4514bc7af33da0892475',
+     u'iscallerchilddomain': False, u'domain': u'ROOT', u'email': u'wyq111@111.com', u'state': u'enabled',
+     u'accounttype': 0, u'id': u'b92a9153-13ef-4490-8db2-328dc617ca6d', u'isdefault': False,
+     u'accountid': u'92210e78-832a-42db-a0ee-db638b98bfe8'}]}}
+    
+     error：应该是权限问题
+        response = {u'errorresponse': 
+                        {u'errorcode': 432, u'uuidList': [], u'cserrorcode': 9999, 
+                            u'errortext': u'The given command does not exist or it is not available for user'}}
+创建userkey
+    response = handler.registerUserKeys(id="a3f31da9-d50d-433f-bd1a-82fabb68a483")
+    print response
+    {u'registeruserkeysresponse': {u'userkeys': {
+        u'secretkey': u'_6p2dvVFyUL-FBfUkSKTOOkzsy3UpPLOwidXnPC5nX7P4bm-p1vOKDI9HAmga1m8dZ-OykRwJWe98cqkq82YPw',
+        u'apikey': u'8P7v6MxLaq-WCiy3nIuTZhkaar_IHwVjdJkWycey7SLQi1oKHztopBHKfycjKYh6sfKnFU2CGYDYbmexOA_PVQ'}}}
+    secretkey = response.get("registeruserkeysresponse").get("userkeys").get("secretkey")
+    apikey = response.get("registeruserkeysresponse").get("userkeys").get("apikey")
+
+
+   # listresp = {u'listsecuritygroupsresponse': {u'count': 1, u'securitygroup': [
+    #     {u'egressrule': [], u'account': u'zhangsi', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+    #      u'description': u'Default Security Group', u'tags': [], u'domain': u'ROOT', u'ingressrule': [],
+    #      u'id': u'acf947a1-10fa-4707-8ca3-e0b207c3b8c4', u'name': u'default'}]}}
+创建安全组 
+    参数 name
+    权限：需要user  说明：
+    response = user_network.create_security_group(security_group_name="zhangsisecuritygroup")
+    resp = {u'createsecuritygroupresponse': {u'securitygroup': {u'egressrule': [], u'account': u'zhangsi',
+                                                                u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+                                                                u'name': u'zhangsisecuritygroup', u'tags': [],
+                                                                u'domain': u'ROOT', u'ingressrule': [],
+                                                                u'id': u'78223d4e-0fc7-4f7f-ac9b-463e32578782'}}}
+    res = {u'account': u'ct_bac_c32c297c0df3407ca14197e19f2cfd7c',
+       u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'name': u'None', u'tags': [], u'domain': u'ROOT',
+       'security_group_rules': [], u'id': u'73a9788f-80b6-468b-a9d0-57aa5dd0ad7d'}                                                            
+查询安全组信息
+    参数 无
+    权限：需要user  说明：
+    response = user_network.list_security_group()
+    listresp = {u'listsecuritygroupsresponse': {u'count': 2, u'securitygroup': [
+        {u'egressrule': [], u'account': u'zhangsi', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+         u'description': u'Default Security Group', u'tags': [], u'domain': u'ROOT', u'ingressrule': [],
+         u'id': u'acf947a1-10fa-4707-8ca3-e0b207c3b8c4', u'name': u'default'},
+        {u'egressrule': [], u'account': u'zhangsi', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+         u'name': u'zhangsisecuritygroup', u'tags': [], u'domain': u'ROOT', u'ingressrule': [],
+         u'id': u'78223d4e-0fc7-4f7f-ac9b-463e32578782'}]}}
+
+删除安全组
+    参数 id or name
+    权限：需要user  说明：需要安全组id或者name，默认安全组不能删除，删除报错 "The network group default is reserved"
+    response = user_network.delete_security_group(name="xxxxxx")
+    deleterespon = {u'deletesecuritygroupresponse': {u'success': u'true'}}
+
+为此安全组设置入口规则
+    参数 securityGroupId or securityGroupName and cidrlist
+    权限：需要user  说明：securityGroupId or securityGroupName and cidrlist is required
+    response = user_network.authorizeSecurityGroupIngress(cidrlist="192.168.0.0/24",
+                                                          securityGroupId="89ee5e2b-c1ae-4608-b056-78b92f919bde")
+    resp = {u'authorizesecuritygroupingressresponse': {u'jobid': u'1d2747be-9523-44e6-b162-de112a476611'}}
+    jobid = response.get("authorizesecuritygroupingressresponse").get("jobid")
+    print("jobid is", jobid)
+    response = user_network.queryAsyncJobResult(jobid=jobid)
+    response = user_network.list_security_group()
+    print("list_security_group success,response is[%s]" % response)
+    response = {'listsecuritygroupsresponse': {'count': 3, 'securitygroup': [
+        {'egressrule': [], 'account': 'zhangsi', 'domainid': '9499b7d4-3527-11e7-b291-005056aa8e4f',
+         'description': 'Default Security Group', 'tags': [], 'domain': 'ROOT', 'ingressrule': [],
+         'id': 'acf947a1-10fa-4707-8ca3-e0b207c3b8c4', 'name': 'default'},
+        {'egressrule': [], 'account': 'zhangsi', 'domainid': '9499b7d4-3527-11e7-b291-005056aa8e4f',
+         'name': 'Egress', 'tags': [], 'domain': 'ROOT', 'ingressrule': [],
+         'id': 'a934be6e-fbe5-4f3a-9358-664479316cc2'},
+        {'egressrule': [], 'account': 'zhangsi', 'domainid': '9499b7d4-3527-11e7-b291-005056aa8e4f',
+         'name': 'ingress', 'tags': [], 'domain': 'ROOT', 'ingressrule': [
+            {'startport': 10000, 'cidr': '192.168.0.0/24', 'protocol': 'tcp', 'endport': 11000,
+             'ruleid': '89648c46-8e83-4270-b368-982d92271832'},
+            {'startport': 0, 'cidr': '192.168.0.0/24', 'protocol': 'all', 'endport': 0,
+             'ruleid': '64c4f92b-bdf3-497a-b8a9-625cfcabcdc5'}], 'id': '89ee5e2b-c1ae-4608-b056-78b92f919bde'}]}}
+    sc={"security_group_rules":[{'direction':'ingress',
+                                'protocol':'',
+                                'id':'0be15145-6f01-4c28-9898-4b1d3dcc797e',
+                                'ethertype':'IPv4',
+                                'port_range_max':'',
+                                'port_range_min':'',
+                                'remote_ip_prefix':''}]}
+    sc = {"security_group_rules":[]}
+    sc = {"security_group_rules":[{'direction':'ingress',
+                                'protocol':'',
+                                'id':'0be15145-6f01-4c28-9898-4b1d3dcc797e',
+                                'ethertype':'IPv4',
+                                'port_range_max':'',
+                                'port_range_min':'',
+                                'remote_ip_prefix':''}]}
+
+    resp = {'createsecuritygroupresponse': {'securitygroup': {'egressrule': [], 'account': 'zhangsi',
+                                                        'domainid': '9499b7d4-3527-11e7-b291-005056aa8e4f',
+                                                        'name': 'zhangsisecuritygroup', 'tags': [],
+                                                        'domain': 'ROOT', 'ingressrule': [],
+                                                        'id': '78223d4e-0fc7-4f7f-ac9b-463e32578782'}}}
+     
+    
+resp = {'createsecuritygroupresponse': {'securitygroup': {'egressrule': [{'startport': 10000, 'cidr': '192.168.0.0/24', 'protocol': 'tcp', 'endport': 11000,
+                                                                 'ruleid': '89648c46-8e83-4270-b368-982d92271832'}], 'account': 'zhangsi',
+                                                        'domainid': '9499b7d4-3527-11e7-b291-005056aa8e4f',
+                                                        'name': 'zhangsisecuritygroup', 'tags': [],
+                                                        'domain': 'ROOT', 'ingressrule':[
+                                                                {'startport': 10000, 'cidr': '192.168.0.0/24', 'protocol': 'tcp', 'endport': 11000,
+                                                                 'ruleid': '89648c46-8e83-4270-b368-982d92271832'},
+                                                                {'startport': 0, 'cidr': '192.168.0.0/24', 'protocol': 'all', 'endport': 0,
+                                                                 'ruleid': '64c4f92b-bdf3-497a-b8a9-625cfcabcdc5'}],
+                                                        'id': '78223d4e-0fc7-4f7f-ac9b-463e32578782'}}}
+resp = {'egressrule': 
+    [{'startport': 10000, 'cidr': '192.168.0.0/24', 'protocol': 'tcp', 'endport': 11000,
+                                                                 'ruleid': '89648c46-8e83-4270-b368-982d92271832'}], 'account': 'zhangsi',
+                                                        'domainid': '9499b7d4-3527-11e7-b291-005056aa8e4f',
+                                                        'name': 'zhangsisecuritygroup', 'tags': [],
+                                                        'domain': 'ROOT', 'ingressrule':[
+                                                                {'startport': 10000, 'cidr': '192.168.0.0/24', 'protocol': 'tcp', 'endport': 11000,
+                                                                 'ruleid': '89648c46-8e83-4270-b368-982d92271832'},
+                                                                {'startport': 0, 'cidr': '192.168.0.0/24', 'protocol': 'all', 'endport': 0,
+                                                                 'ruleid': '64c4f92b-bdf3-497a-b8a9-625cfcabcdc5'}],
+                                                        'id': '78223d4e-0fc7-4f7f-ac9b-463e32578782'}                        
+def getdict(rule):
+    dic = {}
+    dic['direction'] = "egress"
+    dic['protocol'] = rule.get("protocol")
+    dic['id'] = rule.get("ruleid")
+    dic['port_range_min'] = rule.get("startport")
+    dic['direction'] = rule.get("endport")
+    dic['remote_ip_prefix'] = rule.get("cidr")
+    return dic
+
+
+def get_security_group(resp):
+    sc = {"security_group_rules":[]}
+    res = {key:resp[key] for key in resp.keys() if key not in ["egressrule","ingressrule"]}
+    sc.update(res)
+    if isinstance(resp, dict):
+        egressrules = resp['egressrule']
+        for egress in egressrules:
+            egressdic = getdict(egress)
+            egressdic.update(direction="egress")
+            sc["security_group_rules"].append(egressdic)
+        ingressrules = resp['ingressrule']
+        for ingress in ingressrules:
+            ingressdic = getdict(ingress)
+            ingressdic.update(direction="ingress")
+            sc["security_group_rules"].append(ingressdic)
+    elif isinstance(resp, list): # todo to list security group deal with
+        for rule in resp:
+            egressrules = rule['egressrule']
+            for egress in egressrules:
+                egressdic = getdict(egress)
+                egressdic.update(direction="egress")
+                sc["security_group_rules"].append(egressdic)
+            ingressrules = rule['ingressrule']
+            for ingress in ingressrules:
+                ingressdic = getdict(ingress)
+                ingressdic.update(direction="ingress")
+                sc["security_group_rules"].append(ingressdic)
+    return sc
+
+get_security_group(resp)
+    
+
+从此安全组中删除入口规则
+    参数 id 
+    权限：需要user  说明：/////测试失败/////
+    response = user_network.revokeSecurityGroupIngress(id='466f2116-bfcf-4f7e-a819-744426cf3572')
+    print("revokeSecurityGroupIngress success,response is[%s]" % response)
+    jobid = response.get("authorizesecuritygroupingressresponse").get("jobid")
+    print("jobid is", jobid)
+    time.sleep(2)
+    response = user_network.queryAsyncJobResult(jobid=jobid)
+    print(response)
+    response = user_network.list_security_group()
+    print("list_security_group success,response is[%s]" % response)
+
+为此安全组的设置出口规则
+    参数 securityGroupId or securityGroupName and cidrlist
+    权限：需要user  说明：securityGroupId or securityGroupName and cidrlist is required
+
+    response = user_network.authorizeSecurityGroupEgress(cidrlist="192.168.0.1/26", securityGroupName="Egress")
+    print("authorizeSecurityGroupEgress success,response is[%s]" % response)
+    response = {u'authorizesecuritygroupegressresponse': {u'jobid': u'1d2be893-e1c2-4c03-ad6c-92ec1899bd41'}}
+    jobid = response.get("authorizesecuritygroupegressresponse").get("jobid")
+    errorresp = {u'errorcode': 530,
+                 u'errortext': u'At least one cidr or at least one security group needs to be specified'}
+    print("jobid is", jobid)
+    time.sleep(2)
+    response = user_network.queryAsyncJobResult(jobid=jobid)
+    print(response)
+    response = user_network.list_security_group()
+    print("list_security_group success,response is[%s]" % response)
+    response = {u'listsecuritygroupsresponse': {u'count': 3, u'securitygroup': [
+        {u'egressrule': [], u'account': u'zhangsi', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+         u'description': u'Default Security Group', u'tags': [], u'domain': u'ROOT', u'ingressrule': [],
+         u'id': u'acf947a1-10fa-4707-8ca3-e0b207c3b8c4', u'name': u'default'},
+        {u'egressrule': [], u'account': u'zhangsi', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+         u'name': u'Egress', u'tags': [], u'domain': u'ROOT', u'ingressrule': [],
+         u'id': u'a934be6e-fbe5-4f3a-9358-664479316cc2'},
+        {u'egressrule': [], u'account': u'zhangsi', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+         u'name': u'ingress', u'tags': [], u'domain': u'ROOT', u'ingressrule': [],
+         u'id': u'89ee5e2b-c1ae-4608-b056-78b92f919bde'}]}}
+从安全组中删除出口规则
+    参数 id or name
+    权限：需要user  说明：需要安全组id或者name，默认安全组不能删除，删除报错 "The network group default is reserved"
+    //////测试失败//////
+
+
+
+查询flavor 信息
+    请求接口  方式
+
+    result =    {u'listserviceofferingsresponse': {u'count': 12, u'serviceoffering': [
+                {u'iscustomized': False, u'name': u'yi-1C1G', u'created': u'2017-06-13T09:35:24+0800', u'storagetype': u'shared',
+                 u'limitcpuuse': False, u'cpuspeed': 1024, u'offerha': False, u'isvolatile': False, u'cpunumber': 1,
+                 u'memory': 1024, u'displaytext': u'yi-1C1G', u'issystem': False, u'id': u'ffb3c686-1e6a-457b-9b4a-c19f1d51aec1',
+                 u'defaultuse': False}, {u'iscustomized': False, u'name': u'baremental-2', u'created': u'2017-05-12T11:17:55+0800',
+                                         u'storagetype': u'shared', u'limitcpuuse': False, u'cpuspeed': 2000, u'offerha': False,
+                                         u'isvolatile': False, u'hosttags': u'host-93', u'cpunumber': 12,
+                                         u'deploymentplanner': u'BareMetalPlanner', u'memory': 98304,
+                                         u'displaytext': u'baremental-2', u'issystem': False,
+                                         u'id': u'60b38490-ce58-4f18-9107-16fa532dcb54', u'defaultuse': False,
+                                         u'serviceofferingdetails': {u'baremetaltag': u'true'}},
+                {u'iscustomized': False, u'name': u'2c2g', u'created': u'2017-06-14T09:23:40+0800', u'storagetype': u'shared',
+                 u'limitcpuuse': False, u'cpuspeed': 2000, u'offerha': False, u'isvolatile': False, u'cpunumber': 2,
+                 u'memory': 2000, u'displaytext': u'2c2g', u'issystem': False, u'id': u'3db2a3b7-9744-4f03-81f0-59938cc9a763',
+                 u'defaultuse': False},
+                {u'iscustomized': False, u'name': u'BM-baremental-2', u'created': u'2017-05-12T11:18:13+0800',
+                 u'storagetype': u'shared', u'limitcpuuse': False, u'cpuspeed': 1, u'offerha': False, u'isvolatile': False,
+                 u'hosttags': u'host-93', u'cpunumber': 1, u'memory': 32, u'displaytext': u'baremental-2', u'issystem': False,
+                 u'id': u'b93364d0-7041-4f91-8a6e-2558cf16de8a', u'defaultuse': False,
+                 u'serviceofferingdetails': {u'baremetalserviceofferingid': u'23', u'baremetaltag': u'true'}},
+                {u'iscustomized': False, u'name': u'Small Instance', u'created': u'2017-05-10T10:24:54+0800',
+                 u'storagetype': u'shared', u'limitcpuuse': False, u'cpuspeed': 500, u'offerha': False, u'isvolatile': False,
+                 u'cpunumber': 1, u'memory': 512, u'displaytext': u'Small Instance', u'issystem': False,
+                 u'id': u'd319909c-d4ce-4de8-b229-7a654782ff42', u'defaultuse': False},
+                {u'iscustomized': False, u'name': u'yy-1C1G', u'created': u'2017-05-19T17:24:20+0800', u'storagetype': u'shared',
+                 u'limitcpuuse': False, u'cpuspeed': 1500, u'offerha': False, u'isvolatile': False, u'cpunumber': 1,
+                 u'memory': 1024, u'displaytext': u'yy-1C1G', u'issystem': False, u'id': u'6fbc7d80-26c3-4a7e-8f92-0be0a51dfccc',
+                 u'defaultuse': False},
+                {u'iscustomized': False, u'name': u'BM-yi-baremental-1', u'created': u'2017-05-12T09:03:41+0800',
+                 u'storagetype': u'shared', u'limitcpuuse': False, u'cpuspeed': 1, u'offerha': False, u'isvolatile': False,
+                 u'hosttags': u'host-93', u'cpunumber': 1, u'memory': 32, u'displaytext': u'yi-baremental-1', u'issystem': False,
+                 u'id': u'ea07ac2d-b31c-42da-a576-36bddc1a67ab', u'defaultuse': False,
+                 u'serviceofferingdetails': {u'baremetalserviceofferingid': u'15', u'baremetaltag': u'true'}},
+                {u'domain': u'ROOT', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'name': u'BM-baremental-zone',
+                 u'created': u'2017-05-12T14:02:16+0800', u'storagetype': u'shared', u'limitcpuuse': False, u'cpuspeed': 1,
+                 u'offerha': False, u'isvolatile': False, u'hosttags': u'host-93', u'iscustomized': False, u'cpunumber': 1,
+                 u'memory': 32, u'displaytext': u'baremental-zone', u'issystem': False,
+                 u'id': u'4400f3d2-240f-4624-bf09-0d412760d99c', u'defaultuse': False,
+                 u'serviceofferingdetails': {u'baremetalserviceofferingid': u'25', u'baremetaltag': u'true'}},
+                {u'iscustomized': False, u'name': u'yi-baremental-1', u'created': u'2017-05-12T09:03:00+0800',
+                 u'storagetype': u'shared', u'limitcpuuse': False, u'cpuspeed': 2000, u'offerha': False, u'isvolatile': False,
+                 u'hosttags': u'host-93', u'cpunumber': 12, u'deploymentplanner': u'BareMetalPlanner', u'memory': 65536,
+                 u'displaytext': u'yi-baremental-1', u'issystem': False, u'id': u'b358d0fe-bb03-4d45-b77f-08cea6fef58c',
+                 u'defaultuse': False, u'serviceofferingdetails': {u'baremetaltag': u'true'}},
+                {u'domain': u'ROOT', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+                 u'name': u'bd35cc4f-6818-4b7a-9980-00375d7c95a5', u'created': u'2017-10-25T09:49:53+0800',
+                 u'storagetype': u'shared', u'limitcpuuse': False, u'cpuspeed': 1994, u'offerha': True, u'isvolatile': False,
+                 u'iscustomized': False, u'cpunumber': 1, u'defaultuse': False, u'memory': 256,
+                 u'displaytext': u'bd35cc4f-6818-4b7a-9980-00375d7c95a5', u'issystem': False,
+                 u'id': u'943c0018-bd71-4874-a9ca-a69c33c9656b', u'tags': u'FSTO'},
+                {u'iscustomized': False, u'name': u'baremental-zone', u'created': u'2017-05-12T14:00:05+0800',
+                 u'storagetype': u'shared', u'limitcpuuse': False, u'networkrate': 200, u'cpuspeed': 2000, u'offerha': False,
+                 u'isvolatile': False, u'hosttags': u'host-93', u'cpunumber': 12, u'deploymentplanner': u'BareMetalPlanner',
+                 u'memory': 98304, u'displaytext': u'baremental-zone', u'issystem': False,
+                 u'id': u'1a183a41-d0b3-4fce-bc06-b5c3f99ea70e', u'defaultuse': False,
+                 u'serviceofferingdetails': {u'baremetaltag': u'true'}},
+                {u'iscustomized': False, u'name': u'Medium Instance', u'created': u'2017-05-10T10:24:54+0800',
+                 u'storagetype': u'shared', u'limitcpuuse': False, u'cpuspeed': 1000, u'offerha': False, u'isvolatile': False,
+                 u'cpunumber': 1, u'memory': 1024, u'displaytext': u'Medium Instance', u'issystem': False,
+                 u'id': u'0e37b3b0-178f-4730-981a-202e3628b38d', u'defaultuse': False}]}}
+    name1 = result.get('listserviceofferingsresponse').get('serviceoffering')[0].get(name)
+
+创建flavor 
+    参数{"cpu":"2","price":"2000","name":"zhangning99","memory":"2000","os_id":"7f622b928d3011e7aebb005056aaa8be","ct_user_id":"bac_750e361b025a418a98b4b912dc826c80"}
+            ram = "2000"
+        name = "zhangning88"
+        
+
+    result = {u'createserviceofferingresponse': {
+                    u'serviceoffering': 
+                        {u'iscustomized': False, u'name': u'zhangning88', u'created': u'2017-11-09T15:54:07+0800',
+                         u'storagetype': u'shared', u'limitcpuuse': False, u'cpuspeed': 2000, u'offerha': False,
+                         u'isvolatile': False, u'cpunumber': 2, u'memory': 8096, u'displaytext': u'zhangning88',
+                         u'issystem': False, u'id': u'e4701648-6e1a-4353-89b1-9f419dd27938', u'defaultuse': False}}}
+    name = result.get('createserviceofferingresponse').get('serviceoffering').get('name')
+    id = result.get('createserviceofferingresponse').get('serviceoffering').get('id')
+
+
+查询VPCs
+    result = {u'listvpcsresponse': {u'count': 1, u'vpc': [
+        {u'account': u'admin', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+            u'name': u'VPC01',
+            u'service': [{u'name': u'SourceNat', u'provider': [{u'name': u'VpcVirtualRouter'}]},
+                          {u'name': u'Dns', u'provider': [{u'name': u'VpcVirtualRouter'}]},
+                          {u'name': u'Dhcp', u'provider': [{u'name': u'VpcVirtualRouter'}]},
+                          {u'name': u'UserData', u'provider': [{u'name': u'VpcVirtualRouter'}]},
+                          {u'name': u'StaticNat', u'provider': [{u'name': u'VpcVirtualRouter'}]},
+                          {u'name': u'NetworkACL', u'provider': [{u'name': u'VpcVirtualRouter'}]},
+                          {u'name': u'Vpn', u'provider': [{u'name': u'VpcVirtualRouter'}]},
+                          {u'name': u'Lb', u'provider': [{u'name': u'VpcVirtualRouter'}]},
+                          {u'name': u'PortForwarding', u'provider': [{u'name': u'VpcVirtualRouter'}]}],
+            u'tags': [],
+            u'domain': u'ROOT',
+            u'zoneid': u'c55b0059-cb0e-4cc3-ad30-6f04b8f9e975', 
+            u'network': [
+                {u'domain': u'ROOT', u'acltype': u'Account', u'specifyipranges': False,
+                u'related': u'68544253-db67-4cfc-ae04-1dfd20e8ebf9', u'zoneid': u'c55b0059-cb0e-4cc3-ad30-6f04b8f9e975',
+                u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'displaytext': u'vpcnet1',
+                u'aclid': u'c409b35c-3527-11e7-b291-005056aa8e4f', u'id': u'68544253-db67-4cfc-ae04-1dfd20e8ebf9',
+                u'canusefordeploy': True, u'physicalnetworkid': u'f26beff4-7bd9-4c2c-881b-b524b12c17ff',
+                u'networkdomain': u'cs2cloud.internal', 
+                u'service': [ {u'capability': [
+                                        {u'canchooseservicecapability': False, u'name': u'RedundantRouter', u'value': u'false'},
+                                        {u'canchooseservicecapability': False, u'name': u'SupportedSourceNatTypes', u'value': u'peraccount'}],
+                                u'name': u'SourceNat'}, 
+                            {u'capability': [
+                                    {u'canchooseservicecapability': False,u'name': u'AllowDnsSuffixModification',u'value': u'true'}],
+                                u'name': u'Dns'}, 
+                            {u'capability': [
+                                        {u'canchooseservicecapability': False,u'name': u'DhcpAccrossMultipleSubnets',u'value': u'true'}], 
+                                u'name': u'Dhcp'},
+                            {u'name': u'UserData'}, 
+                            {u'name': u'StaticNat'}, 
+                            {u'capability': [
+                                        {u'canchooseservicecapability': False,u'name': u'SupportedProtocols',u'value': u'tcp,udp,icmp'}],
+                                u'name': u'NetworkACL'}, 
+                            {u'capability': [
+                                        {u'canchooseservicecapability': False, u'name': u'VpnTypes', u'value': u's2svpn'},
+                                        {u'canchooseservicecapability': False, u'name': u'SupportedVpnTypes',
+                                         u'value': u'pptp,l2tp,ipsec'}],
+                                u'name': u'Vpn'}, 
+                            {u'capability': [
+                                        {u'canchooseservicecapability': False, u'name': u'SupportedLBIsolation', u'value': u'dedicated'},
+                                        {u'canchooseservicecapability': False, u'name': u'SupportedProtocols', u'value': u'tcp, udp'},
+                                        {u'canchooseservicecapability': False, u'name': u'SupportedLbAlgorithms',u'value': u'roundrobin,leastconn,source'},
+                                        {u'canchooseservicecapability': False, u'name': u'LbSchemes', u'value': u'Public'},
+                                        {u'canchooseservicecapability': False, u'name': u'SupportedStickinessMethods',
+                                            u'value': u'[{"methodname":"LbCookie","paramlist":[{"paramname":"cookie-name","required":false,"isflag":false,"description":" "},{"paramname":"mode","required":false,"isflag":false,"description":" "},{"paramname":"nocache","required":false,"isflag":true,"description":" "},{"paramname":"indirect","required":false,"isflag":true,"description":" "},{"paramname":"postonly","required":false,"isflag":true,"description":" "},{"paramname":"domain","required":false,"isflag":false,"description":" "}],"description":"This is loadbalancer cookie based stickiness method."},{"methodname":"AppCookie","paramlist":[{"paramname":"cookie-name","required":false,"isflag":false,"description":" "},{"paramname":"length","required":false,"isflag":false,"description":" "},{"paramname":"holdtime","required":false,"isflag":false,"description":" "},{"paramname":"request-learn","required":false,"isflag":true,"description":" "},{"paramname":"prefix","required":false,"isflag":true,"description":" "},{"paramname":"mode","required":false,"isflag":false,"description":" "}],"description":"This is App session based sticky method. Define session stickiness on an existing application cookie. It can be used only for a specific http traffic"},{"methodname":"SourceBased","paramlist":[{"paramname":"tablesize","required":false,"isflag":false,"description":" "},{"paramname":"expire","required":false,"isflag":false,"description":" "}],"description":"This is source based Stickiness method, it can be used for any type of protocol."}]'},
+                                        {u'canchooseservicecapability': False, u'name': u'HealthCheckPolicy', u'value': u'true'}],
+                                u'name': u'Lb'}, 
+                            {u'name': u'PortForwarding'}],
+            u'gateway': u'10.10.2.1', u'state': u'Allocated', u'type': u'Isolated', u'zonename': u'advance',
+            u'networkofferingavailability': u'Optional', u'networkofferingid': u'6699604c-47bd-4d15-aa22-9a67fd6a4907',
+            u'tags': [], u'displaynetwork': True,
+            u'networkofferingdisplaytext': u'Offering for Isolated Vpc networks with Source Nat service enabled',
+            u'traffictype': u'Guest', u'netmask': u'255.255.255.0', u'ispersistent': False, u'cidr': u'10.10.2.0/24',
+            u'restartrequired': False, u'broadcastdomaintype': u'Vlan', u'account': u'admin',
+            u'vpcid': u'6927f3c4-335a-4e9f-8b76-6fc8d928180b', u'name': u'vpcnet1', u'dns1': u'8.8.8.8',
+            u'networkofferingconservemode': False,
+            u'networkofferingname': u'DefaultIsolatedNetworkOfferingForVpcNetworks', u'issystem': False}],
+         u'state': u'Enabled', u'networkdomain': u'cs2cloud.internal', u'displaytext': u'VPC01',
+         u'vpcofferingid': u'2f3f4ba8-830a-42cd-b0e3-02c6acd0fc6e', u'cidr': u'10.10.0.0/16', u'restartrequired': False,
+         u'id': u'6927f3c4-335a-4e9f-8b76-6fc8d928180b', u'zonename': u'advance'}]}}
+
+
+
+创建instance
+    handler = CloudStack(api_url, apikey, secretkey)
+    job = handler.deployVirtualMachine({
+        'serviceofferingid': 'a135be64-e7af-4f0a-90a4-f416a05a26a4',
+        'templateid': 'a0b1e651-0c15-45d8-a229-a0761bfed679',
+        'zoneid': 'c55b0059-cb0e-4cc3-ad30-6f04b8f9e975'
+    })
+    {u'deployvirtualmachineresponse': {u'id': u'016e32a0-933d-48e9-8a31-153e5111aacb', u'jobid': u'1bd745bb-3a21-4384-afeb-f3559fc971c2'}}
+    {u'id': u'016e32a0-933d-48e9-8a31-153e5111aacb', u'jobid': u'1bd745bb-3a21-4384-afeb-f3559fc971c2'}
+    id = response.get('id')
+查询instance信息   给参数name 可以错误返回 空，id错误 报错
+    response = handler.listVirtualMachines({})
+    response = {u'listvirtualmachinesresponse': {u'count': 2, u'virtualmachine': [
+        {u'domain': u'ROOT', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'haenable': True,
+         u'templatename': u'CentOS5.3-x86_64', u'diskioread': 0, u'diskiowrite': 0, u'securitygroup': [],
+         u'zoneid': u'c55b0059-cb0e-4cc3-ad30-6f04b8f9e975', u'cpunumber': 1, u'passwordenabled': True,
+         u'id': u'016e32a0-933d-48e9-8a31-153e5111aacb', u'cpuused': u'48%', u'displayvm': True, u'state': u'Running',
+         u'guestosid': u'949e5a32-3527-11e7-b291-005056aa8e4f', u'networkkbswrite': 0, u'memory': 256,
+         u'serviceofferingid': u'a135be64-e7af-4f0a-90a4-f416a05a26a4', u'zonename': u'advance',
+         u'isdynamicallyscalable': True, u'tags': [], u'diskkbsread': 0, u'nic': [
+            {u'networkid': u'18531cfa-47fb-403e-8a0f-c76d9ae6f62a', u'macaddress': u'02:00:76:95:00:03',
+             u'isolationuri': u'vlan://1776', u'networkname': u'zhanni-network', u'gateway': u'10.1.1.1',
+             u'traffictype': u'Guest', u'broadcasturi': u'vlan://1776', u'netmask': u'255.255.255.0', u'type': u'Isolated',
+             u'ipaddress': u'10.1.1.35', u'id': u'387e0366-a12f-4d48-b549-c74ff6a6bb43', u'isdefault': True}],
+         u'cpuspeed': 1994, u'diskkbswrite': 0, u'templateid': u'a0b1e651-0c15-45d8-a229-a0761bfed679',
+         u'affinitygroup': [], u'account': u'zhanni', u'memusage': u'5.86%',
+         u'name': u'VM-016e32a0-933d-48e9-8a31-153e5111aacb', u'networkkbsread': 0, u'created': u'2017-10-19T10:35:33+0800',
+         u'hypervisor': u'VMware', u'rootdevicetype': u'ROOT', u'rootdeviceid': 0,
+         u'serviceofferingname': u'f62b6fd2-94c9-4693-8b2f-451a491bbd90', u'templatedisplaytext': u'CentOS5.3-x86_64'},
+
+        {u'domain': u'ROOT', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'haenable': True,
+         u'templatename': u'CentOS5.3-x86_64', u'diskioread': 0, u'diskiowrite': 0, u'securitygroup': [],
+         u'zoneid': u'c55b0059-cb0e-4cc3-ad30-6f04b8f9e975', u'cpunumber': 1, u'passwordenabled': True,
+         u'id': u'd823d0b0-832f-41b9-ba4c-4227fc2d6a29', u'cpuused': u'48%', u'displayvm': True, u'state': u'Running',
+         u'guestosid': u'949e5a32-3527-11e7-b291-005056aa8e4f', u'networkkbswrite': 0, u'memory': 256,
+         u'serviceofferingid': u'a135be64-e7af-4f0a-90a4-f416a05a26a4', u'zonename': u'advance',
+         u'isdynamicallyscalable': True, u'tags': [], u'diskkbsread': 0, u'nic': [
+            {u'networkid': u'18531cfa-47fb-403e-8a0f-c76d9ae6f62a', u'macaddress': u'02:00:62:4a:00:01',
+             u'isolationuri': u'vlan://1776', u'networkname': u'zhanni-network', u'gateway': u'10.1.1.1',
+             u'traffictype': u'Guest', u'broadcasturi': u'vlan://1776', u'netmask': u'255.255.255.0', u'type': u'Isolated',
+             u'ipaddress': u'10.1.1.79', u'id': u'b4a075bc-7433-4317-96ef-123db620cd95', u'isdefault': True}],
+         u'cpuspeed': 1994, u'diskkbswrite': 0, u'templateid': u'a0b1e651-0c15-45d8-a229-a0761bfed679',
+         u'affinitygroup': [], u'account': u'zhanni', u'memusage': u'2.73%',
+         u'name': u'VM-d823d0b0-832f-41b9-ba4c-4227fc2d6a29', u'networkkbsread': 0, u'created': u'2017-10-19T10:25:57+0800',
+         u'hypervisor': u'VMware', u'rootdevicetype': u'ROOT', u'rootdeviceid': 0,
+         u'serviceofferingname': u'f62b6fd2-94c9-4693-8b2f-451a491bbd90', u'templatedisplaytext': u'CentOS5.3-x86_64'}]}}
+
+    instance_id = response.[0].get("id")
+    instances = response.get("listvirtualmachinesresponse").get("virtualmachine")
+更新instance 
+    response = handler.updateVirtualMachine({"name":""})
+
+
+
+摧毁instance
+    response = handler.destroyVirtualMachine({"jobid":job_id})
+    response = {u'destroyvirtualmachineresponse': {u'jobid': u'82a0c110-6395-4376-89ae-efcb6c3f794e'}}
+    response = {u'destroyvirtualmachineresponse': {u'jobid': u'8557e4af-a0c2-47de-ba4f-5390541d2383'}}
+    job_id = response.get("destroyvirtualmachine" + )
+
+    查询jobid 任务 0成功 1进行中 2失败 暂且这样认为
+    response = handler.queryAsyncJobResult({"jobid": job_id})
+    response = handler.queryAsyncJobResult({"jobid": '82a0c110-6395-4376-89ae-efcb6c3f794e'})
+
+    response = {u'queryasyncjobresultresponse': {u'jobprocstatus': 0, u'created': u'2017-10-19T12:53:01+0800',
+                                                 u'cmd': u'org.apache.cloudstack.api.command.user.vm.DestroyVMCmd',
+                                                 u'userid': u'02930d2f-813f-4427-a8eb-974b2e8c7f6b', u'jobstatus': 0,
+                                                 u'jobid': u'82a0c110-6395-4376-89ae-efcb6c3f794e', u'jobresultcode': 0,
+                                                 u'jobinstanceid': u'd823d0b0-832f-41b9-ba4c-4227fc2d6a29',
+                                                 u'jobinstancetype': u'VirtualMachine',
+                                                 u'accountid': u'2170be56-12c0-4477-a55d-76749beab199'}}
+
+lsit异步任务                          6326.76    6460
+    jobs = handler.listAsyncJobs({}) 返回值
+
+    {u'listasyncjobsresponse': {u'count': 1,
+                                u'asyncjobs': [{u'jobprocstatus': 0, u'created': u'2017-10-17T03:59:22-0400',
+                                                             u'cmd': u'org.apache.cloudstack.api.command.user.vm.DeployVMCmd',
+                                                             u'userid': u'a3f31da9-d50d-433f-bd1a-82fabb68a483',
+                                                             u'jobstatus': 2,
+                                                             u'jobid': u'efadc1fd-3256-4d40-b061-4ba05616664d',
+                                                             u'jobresultcode': 530, u'jobresulttype': u'object',
+                                                             u'jobresult': {u'errorcode': 533,
+                                                                            u'errortext': u'Unable to create a deployment for VM[User|VM-7594983e-a96d-4ddd-8542-758d55eee062]'},
+                                                             u'accountid': u'2020e7a2-993b-4b4c-b025-501ac355d5b7'}]}}
+
+    jobs = response.get("listasyncjobsresponse").get("asyncjobs")
+    if jobs:
+        for job in jobs:
+            print  "%s : %s, status = %s" % (job['jobid'], job['cmd'], job['jobstatus'])
+
+
+查询异步任务
+    response = handler2.queryAsyncJobResult(jobid=project_job_id, sessionkey=sessionkey)
+    response = {u'queryasyncjobresultresponse': {u'jobprocstatus': 0, u'created': u'2017-10-23T17:03:21+0800',
+                                             u'cmd': u'org.apache.cloudstack.api.command.user.project.UpdateProjectCmd',
+                                             u'userid': u'0cdccf13-fac0-41ba-8c9b-9c1b1f257f12', u'jobstatus': 1,
+                                             u'jobid': u'539b93b7-219d-4fbe-b526-c299863f1c61', u'jobresultcode': 0,
+                                             u'jobresulttype': u'object', u'jobresult': {
+        u'project': {u'primarystorageavailable': u'200', u'domain': u'ROOT',
+                     u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f', u'vpclimit': u'20', u'iplimit': u'20',
+                     u'volumelimit': u'20', u'memorytotal': 0, u'secondarystorageavailable': u'400', u'vmtotal': 0,
+                     u'displaytext': u'description', u'vpctotal': 0, u'id': u'7246b1f9-2bdc-4327-a898-ee20e07287f9',
+                     u'cpuavailable': u'40', u'networklimit': u'20', u'iptotal': 0, u'volumetotal': 0,
+                     u'snapshotlimit': u'20', u'state': u'Active', u'networktotal': 0, u'vpcavailable': u'20',
+                     u'networkavailable': u'20', u'primarystoragetotal': 0, u'templatelimit': u'20',
+                     u'snapshottotal': 0, u'templateavailable': u'20', u'vmlimit': u'20', u'tags': [],
+                     u'secondarystoragetotal': 0, u'templatetotal': 0, u'memoryavailable': u'40960',
+                     u'account': u'zhanger', u'secondarystoragelimit': u'400', u'volumeavailable': u'20',
+                     u'name': u'zhangerproject', u'vmavailable': u'20', u'ipavailable': u'20', u'memorylimit': u'40960',
+                     u'primarystoragelimit': u'200', u'cputotal': 0, u'cpulimit': u'40', u'snapshotavailable': u'20'}},
+                                             u'accountid': u'0cfff941-f029-4565-a766-bb12850c7370'}}
+
+
+单独功能应该没什么问题  就是存本地数据库时user account project 相关数据怎么存？
+后面操作时看具体使用什么数据了    如user_id   account_id  project_id  等
+
+异步任务是返回id 和jobid，
+同步任务list 格式为[]
+nijdfjsldkjfj sdf sdfsdf
+其他任务返回是字典{"命令主体":{}} 推荐返回内字典
+
+
+auto test 
+注意:如果不需要依赖，则使用@ autotest()
+使用@ddisabled 来禁用测试
+使用@allowfail允许独立测试在测试失败后运行
+使用@ignoreapifail忽略对API返回值的检查
+
+TestResult方法介绍
+    1.         printErrors
+    作用：被TestRunner在执行玩测试内容的时候调用，打印错误信息，默认不输出任何信息
+    输入参数：无
+    输出参数：无
+    返回值：无
+    2.          startTest(self, test)
+    作用：在每个测试条目执行测试之前被调用，将测试条目个数加一，设置_mirrorOutput为False ，最后根据buffer参数，设置 sys.stderr 和sys.stdout，
+    输入参数：test  测试用例类的实例化对象
+    输出参数：
+    返回值：
+    3.         startTestRun
+    作用： 在runner开始执行测试用例之前被调用，默认不执行内容，和startTest不同，startTest是在Testcase子类调用。
+    输入参数：无
+    输出参数：无
+    返回值：无
+    4.         stopTest (self, test)
+    作用： 在测试用例执行测试条目之后被调用，如果处于buffer状态，并且mirrorOutput为真，即测试条目执行失败或异常，则将原来缓存的数据进行输出。然后将缓存数据清空，并_mirrorOutput置为False
+    输入参数：test  测试用例类的实例化对象
+    输出参数：无
+    返回值：无
+    5  stopTestRun
+    作用： 在runner执行完所有的测试用例后被调用，默认不执行内容，和stopTest不同，stopTest是在Testcase子类调用。
+    输入参数：无
+    输出参数：无
+    返回值：无
+    6.         addError(self, test, err)
+    作用： 在测试用例类执行完测试条目错误或异常后被调用，
+    输入参数：test  测试用例类的实例化对象
+    Err 是根据sys.exc_info（）返回的对象， 是一个三元组，（exctype, value, tb） exctype是异常类型，value 是具体的异常数据，tb 是traceback的内容
+    输出参数：无
+    返回值：无
+    7.         addFailure(self, test, err)
+    作用：在测试用例类执行完测试条目失败后被调用，，默认不执行内容，和stopTest不同，stopTest是在Testcase子类调用。
+    输入参数：test  测试用例类的实例化对象
+    Err 是根据sys.exc_info（）返回的对象， 是一个三元组，（exctype, value, tb） 
+    exctype是异常类型，value 是具体的异常数据，tb 是traceback的内容，如果处在buffer 
+    为真的情况下，还还会将当前的sys.stdout 和sys.stderr的内容也一并合并保存在failture的成员变量列表中的字符串内容中。
+    输出参数：无
+    返回值：无
+    8.         addError (self, test, err)
+    作用：在测试用例类执行完测试条目失败后被调用，，默认不执行内容，和stopTest不同，stopTest是在Testcase子类调用。
+    输入参数：test  测试用例类的实例化对象
+    Err 是根据sys.exc_info（）返回的对象， 是一个三元组，（exctype, value, tb） 
+    exctype是异常类型，value 是具体的异常数据，tb 是traceback的内容，如果处在buffer 
+    为真的情况下，还还会将当前的sys.stdout 和sys.stderr的内容也一并合并保存在error的成员变量列表中的字符串内容中。
+    输出参数：无
+    返回值：无
+    9.         addSuccess (self, test)
+    作用：在测试用例类执行完测试条目成功后被调用，，默认不执行内容
+    输入参数：test  测试用例类的实例化对象
+    输出参数：无
+    返回值：无
+    10.         addSkip（ self, test, reason):
+    作用：在测试用例类执行的测试条目被skip后被调用，将该条目添加到 skipped 列表中
+    输入参数：test  测试用例类的实例化对象 reson 是skip的原因
+    输出参数：无
+    返回值：无
+    11.     addExpectedFailure (self, test, err):
+    作用：在测试用例类执行的测试条目期望的失败发生后被调用，将该条目添加到expectedFailures列表中
+    输入参数：test  测试用例类的实例化对象 err是 该失败的情况
+    输出参数：无
+    返回值：无
+    12.     addUnexpectedSuccess (self, test):
+    作用：在测试用例类执行的测试条目期望的失败发生后被调用，将该条目添加到expectedFailures列表中
+    输入参数：test  测试用例类的实例化对象 err是 该失败的情况
+    输出参数：无
+    返回值：无
+    13.     wasSuccessful
+    作用：通过判断failures和errors列表是否为空，判断所有测试条目是否执行成功
+    输入参数： 无
+    输出参数：无
+    返回值：无
+    14.     stop
+    作用： shouldStop设置为True，用于终止测试
+    输入参数： 无
+    输出参数：无
+    返回值：无
+    15.     _exc_info_to_string (self, err, test):
+    作用：  将err 异常数据整理成字符串，并且如果有buffer为真，将sys.stdout 和sys.stderr的数据也添加到返回的字符串中
+    输入参数： 无
+    输出参数：无
+    返回值：字符串
+    16.     _is_relevant_tb_level(self, tb):
+    作用：  将err 异常数据整理成字符串，并且如果有buffer为真，将sys.stdout 和sys.stderr的数据也添加到返回的字符串中
+    输入参数： 无
+    输出参数：无
+    返回值：字符串
+    17.     _count_relevant_tb_levels(self, tb):
+    作用：  获取traceback的层次数
+    输入参数： 无
+    输出参数：无
+    返回值：traceback的层次数
+    18, __repr__
+    作用：  返回一个显示测试项执行的数目以及测试失败的条目和异常的条目的个数。
+    输入参数： 无
+    输出参数：无
+    返回值：字符串
+    注释：
+    addError和addFailure  以及
+    addUnexpectedSuccess 函数 都有装饰器@failfast，有了该装饰器，则在实际调用 上述三个函数的时候，都会被封装一层 ,额外添加的功能就是会被用在发生错误或失败的时候停止测试。
+    def failfast(method):
+        @wraps(method)
+        def inner(self, *args, **kw):
+            if getattr(self, 'failfast', False):
+                self.stop()
+            return method(self, *args, **kw)
+        return inner
+
+
+
+
+
+self.requests = {'hypervisor':'VMware','startvm':True}
+
+self.requests = copy.copy(self.requests)
+if not self.requests.has_key('displayname'):
+    self.requests['displayname'] = self.name
+self.requests['serviceofferingid'] = self.ServiceOffering.id
+self.requests['templateid'] = self.Template.id
+self.requests['zoneid'] = self.Zone.id
+if hasattr(self,'AffinityGroup'):
+    if isinstance(self.AffinityGroup, TestCase):
+        self.requests['affinitygroupids'] = self.AffinityGroup.id
+    elif hasattr(self.AffinityGroup, '__iter__'):
+        self.requests['affinitygroupids'] = ','.join(ag.id for ag in self.AffinityGroup)
+if isinstance(self.Network, TestCase):
+    self.requests['networkids'] = self.Network.id
+elif hasattr(self.Network, '__iter__'):
+    self.requests['networkids'] = ','.join(n.id for n in self.Network)
+if hasattr(self, 'DiskOffering'):
+    self.requests['diskofferingid'] = self.DiskOffering.id
+return [self.createResourceWithPostfix(self.name, self.requests, handler.deployVirtualMachine)]
+
+
+self.requests = {'hypervisor':'VMware','startvm':True}
+hypervisor = 'VMware'
+ifconfig.hypervisor
+
+self.requests['hypervisor'] = 'VMware'
+self.requests['startvm'] = True
+self.requests['serviceofferingid'] = ServiceOffering.id
+self.requests['templateid'] = Template.id
+self.requests['zoneid'] = Zone.id
+self.requests['name'] = name
+    self.requests['displayname'] = self.name
+self.requests['networkids']  = Network.id or [ids,]
+self.requests['diskofferingid'] = DiskOffering.id
+self.requests['size'] = size
+
+
+VpcOffering id
+    [handler.listVPCOfferings({'isdefault' : 'true', 'name' : self.name})]
+
+vpc id
+    self.requests['vpcofferingid'] = self.VpcOffering.id
+    self.requests['zoneid'] = self.Zone.id
+    return [self.createResourceWithPostfix(self.name, self.requests, handler.createVPC)]
+
+
+createNetwork
+
+def cidr_to_netmask(cidr):
+    network, net_bits = cidr.split('/')
+    host_bits = 32 - int(net_bits)
+    netmask = socket.inet_ntoa(struct.pack('!I', (1 << 32) - (1 << host_bits)))
+    return network, netmask
+
+test  
+    # import json
+
+    # s = {"orderId": 23, "workOrderConfig": "{"payPattern":"u6708"}", "serviceTag": "CVMS", "resourceType": "VM", "resourceDescription": "", "workOrderNo": 19, "masterOrderId": "eea816a0-b446-4234-a227-2b003f998dfb", "workOrderId": "WO20171208090758640274FMkh", "msghandler_url": "http://172.18.143.43:8895", "systemOfferingIds": {"System Offering For Software Router": "53db3c3e-2136-4579-8424-3497b9ed751e"}, "workOrderType": 1, "cycleType": 3, "resourceInfo": "", "workOrderItems": [{"orderId": 23, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{"vmNumber": 1, "sysVolumeType": "SATA", "platformId": "7f61019a8d3011e7aebb005056aaa8be", "securityGroupId": null, "imageId": "357fb0ae-3543-4893-9d1f-ef0d04da60dd", "cpuNum": "1", "keyPairId": null, "cycleType": 5, "osType": 0, "sysVolumeSize": 40, "networkId": "", "cycleCnt": 1, "rootPassword": "123456", "zoneId": "0d86f114-7153-4d71-a835-7916a41ab0b7", "memSize": "1", "networkCards": [{}], "vmName": "zhangtestyi-OMS", "imageType": 0}", "workOrderItemId": 19, "resourceDescription": "CPU: 1u4e2a, u5185u5b58: 1G, OS: CentOS6.4", "masterOrderId": "eea816a0-b446-4234-a227-2b003f998dfb", "workOrderId": 19, "innerOrderItemId": 23, "masterResourceId": "3a8c8b81-6379-4ba9-a3c3-4b86aca84237", "workOrderItemNo": 19, "cycleType": 5, "master": true, "salesEntryId": 5, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 19, "resourceId": "18c3cea4-a7b8-430a-aaae-31597081952c", "resourceType": "VM", "productId": 5}], "accountType": "1", "resourceId": "3a8c8b81-6379-4ba9-a3c3-4b86aca84237", "innerOrderId": 19, "userId": "bacf0dd10047f664298a2f85c280ce5693a", "accountId": "bac3c2c9bef941a47bd889015bc35578cee"}
+    # s = json.dumps(s)
+    s={'msg':'{"orderId": 23, "workOrderConfig": "{\\"payPattern\\":\\"\\u6708\\"}", "serviceTag": "CVMS", "resourceType": "VM", "resourceDescription": "", "workOrderNo": 19, "masterOrderId": "eea816a0-b446-4234-a227-2b003f998dfb", "workOrderId": "WO20171208090758640274FMkh", "msghandler_url": "http://172.18.143.43:8895", "systemOfferingIds": {"System Offering For Software Router": "53db3c3e-2136-4579-8424-3497b9ed751e"}, "workOrderType": 1, "cycleType": 3, "resourceInfo": "", "workOrderItems": [{"orderId": 23, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\\"vmNumber\\": 1, \\"sysVolumeType\\": \\"SATA\\", \\"platformId\\": \\"7f61019a8d3011e7aebb005056aaa8be\\", \\"securityGroupId\\": null, \\"imageId\\": \\"357fb0ae-3543-4893-9d1f-ef0d04da60dd\\", \\"cpuNum\\": \\"1\\", \\"keyPairId\\": null, \\"cycleType\\": 5, \\"osType\\": 0, \\"sysVolumeSize\\": 40, \\"networkId\\": \\"\\", \\"cycleCnt\\": 1, \\"rootPassword\\": \\"123456\\", \\"zoneId\\": \\"0d86f114-7153-4d71-a835-7916a41ab0b7\\", \\"memSize\\": \\"1\\", \\"networkCards\\": [{}], \\"vmName\\": \\"zhangtestyi-OMS\\", \\"imageType\\": 0}", "workOrderItemId": 19, "resourceDescription": "CPU: 1\\u4e2a, \\u5185\\u5b58: 1G, OS: CentOS6.4", "masterOrderId": "eea816a0-b446-4234-a227-2b003f998dfb", "workOrderId": 19, "innerOrderItemId": 23, "masterResourceId": "3a8c8b81-6379-4ba9-a3c3-4b86aca84237", "workOrderItemNo": 19, "cycleType": 5, "master": true, "salesEntryId": 5, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 19, "resourceId": "18c3cea4-a7b8-430a-aaae-31597081952c", "resourceType": "VM", "productId": 5}], "accountType": "1", "resourceId": "3a8c8b81-6379-4ba9-a3c3-4b86aca84237", "innerOrderId": 19, "userId": "bac9eabf2308ee0410980e05c48af0a77eb", "accountId": "bac3c2c9bef941a47bd889015bc35578cee"}'
+{'msg':'{"orderId": 60, "workOrderConfig": "{\"payPattern\":\"\u6708\"}", "serviceTag": "CVMS", "resourceType": "VM", "resourceId": "2493e0f1-ff5f-4f80-bbf6-8c852e4aedc6", "workOrderNo": 42, "masterOrderId": "87b632bb-ff7a-4e2c-8e0e-637e22c34227", "workOrderId": "WO20171214074649656662xb0y", "msghandler_url": "http://172.18.143.43:8895", "systemOfferingIds": {"System Offering For Software Router": "53db3c3e-2136-4579-8424-3497b9ed751e"}, "workOrderType": 1, "cycleType": 3, "resourceInfo": "", "workOrderItems": [{"orderId": 60, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\"dataVolumes\": {\"type\": \"SATA\", \"size\": \"80\"}, \"cycleCnt\": 1, \"platformId\": \"sjif259a8d3011e7aebb005056aaa8be\", \"volumeName\": \"OMS-Volume\", \"volumeType\": \"SATA\", \"number\": \"1.0\", \"backupVolumeId\": null, \"cycleType\": 5, \"volumeSize\": \"80\", \"volumeNumber\": 1, \"workOrderCount\": 1}", "workOrderItemId": 82, "resourceDescription": "SATA\u5b58\u50a8: 80G", "masterOrderId": "87b632bb-ff7a-4e2c-8e0e-637e22c34227", "workOrderId": "WO20171214074649656662xb0y", "innerOrderItemId": 113, "masterResourceId": "2493e0f1-ff5f-4f80-bbf6-8c852e4aedc6", "workOrderItemNo": 82, "cycleType": 5, "master": false, "salesEntryId": 4, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 55, "resourceId": "5656019a-6728-41be-97ad-120b778efb8f", "resourceType": "EBS", "productId": 4}, {"orderId": 60, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\"vmNumber\": 1, \"sysVolumeType\": \"SATA\", \"platformId\": \"sjif259a8d3011e7aebb005056aaa8be\", \"securityGroupId\": null, \"imageId\": \"357fb0ae-3543-4893-9d1f-ef0d04da60dd\", \"cpuNum\": \"1\", \"keyPairId\": null, \"cycleType\": 5, \"osType\": 0, \"sysVolumeSize\": 40, \"networkId\": \"\", \"cycleCnt\": 1, \"rootPassword\": \"123456\", \"zoneId\": \"0d86f114-7153-4d71-a835-7916a41ab0b7\", \"memSize\": \"1\", \"networkCards\": [{}], \"vmName\": \"MyHost-OMS1\", \"imageType\": 0}", "workOrderItemId": 83, "resourceDescription": "CPU: 1\u4e2a, \u5185\u5b58: 1G, OS: CentOS6.4", "masterOrderId": "87b632bb-ff7a-4e2c-8e0e-637e22c34227", "workOrderId": "WO20171214074649656662xb0y", "innerOrderItemId": 114, "masterResourceId": "2493e0f1-ff5f-4f80-bbf6-8c852e4aedc6", "workOrderItemNo": 83, "cycleType": 5, "master": true, "salesEntryId": 5, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 55, "resourceId": "7e9cef89-2cc5-44fb-8e03-12989ad7c37a", "resourceType": "VM", "productId": 5}, {"orderId": 60, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\"dataVolumes\": {\"type\": \"SSD\", \"size\": \"40\"}, \"cycleCnt\": 1, \"platformId\": \"sjif259a8d3011e7aebb005056aaa8be\", \"volumeName\": \"OMS-Volume\", \"volumeType\": \"SSD\", \"number\": \"1.0\", \"backupVolumeId\": null, \"cycleType\": 5, \"volumeSize\": \"40\", \"volumeNumber\": 1, \"workOrderCount\": 1}", "workOrderItemId": 84, "resourceDescription": "SSD: SSD\u5b58\u50a8", "masterOrderId": "87b632bb-ff7a-4e2c-8e0e-637e22c34227", "workOrderId": "WO20171214074649656662xb0y", "innerOrderItemId": 115, "masterResourceId": "2493e0f1-ff5f-4f80-bbf6-8c852e4aedc6", "workOrderItemNo": 84, "cycleType": 5, "master": false, "salesEntryId": 3, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 55, "resourceId": "a11c3b09-f8fa-4c98-8e93-44e2508b889f", "resourceType": "EBS", "productId": 3}, {"orderId": 60, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\"platformId\": \"sjif259a8d3011e7aebb005056aaa8be\", \"cycleType\": 5, \"newBandwidthValue\": \"2\", \"cycleCnt\": 1}", "workOrderItemId": 85, "resourceDescription": "\u5e26\u5bbd\u72ec\u4eab: 2M", "masterOrderId": "87b632bb-ff7a-4e2c-8e0e-637e22c34227", "workOrderId": "WO20171214074649656662xb0y", "innerOrderItemId": 116, "masterResourceId": "2493e0f1-ff5f-4f80-bbf6-8c852e4aedc6", "workOrderItemNo": 85, "cycleType": 5, "master": false, "salesEntryId": 6, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 55, "resourceId": "4b81bbbc-a7c6-4d88-b64d-160bb0a89dfa", "resourceType": "NETWORK", "productId": 6}], "accountType": "1", "resourceDescription": "", "innerOrderId": 55, "userId": "bac9eabf2308ee0410980e05c48af0a77eb", "accountId": "bacedc3cefb4da54b3790d2013e4734b0ef"}'
+    sr={'msg':s}
+    data = {"msg":sr}
+
+    ret = requests.post(url, data=data)
+
+    ret.content
+7f61019a8d3011e7aebb005056aaa8be
+{'msg': '{"orderId": 63, "workOrderConfig": "{\\"payPattern\\":\\"\\u6708\\"}", "serviceTag": "CVMS", "resourceType": "VM", "resourceDescription": "", "workOrderNo": 44, "masterOrderId": "17ee099d-5ce8-4f21-a8fd-0711bfb783a2", "workOrderId": "WO20171215025125947759iYkl", "msghandler_url": "http://172.18.143.43:8895", "systemOfferingIds": {"System Offering For Software Router": "53db3c3e-2136-4579-8424-3497b9ed751e"}, "workOrderType": 1, "cycleType": 3, "resourceInfo": "", "workOrderItems": [{"orderId": 63, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\\"dataVolumes\\": {\\"type\\": \\"SATA\\", \\"size\\": \\"80\\"}, \\"cycleCnt\\": 1, \\"platformId\\": \\"sjif259a8d3011e7aebb005056aaa8be\\", \\"volumeName\\": \\"OMS-Volume\\", \\"volumeType\\": \\"SATA\\", \\"number\\": \\"1.0\\", \\"backupVolumeId\\": null, \\"cycleType\\": 5, \\"volumeSize\\": \\"80\\", \\"volumeNumber\\": 1, \\"workOrderCount\\": 1}", "workOrderItemId": 90, "resourceDescription": "SATA\\u5b58\\u50a8: 80G", "masterOrderId": "17ee099d-5ce8-4f21-a8fd-0711bfb783a2", "workOrderId": "WO20171215025125947759iYkl", "innerOrderItemId": 125, "masterResourceId": "4dd4596f-27d8-4590-b338-e6f163054d40", "workOrderItemNo": 90, "cycleType": 5, "master": false, "salesEntryId": 4, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 58, "resourceId": "4a0b7210-7618-4fb7-a0f6-5ab3250a352f", "resourceType": "EBS", "productId": 4}, {"orderId": 63, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\\"vmNumber\\": 1, \\"sysVolumeType\\": \\"SATA\\", \\"platformId\\": \\"sjif259a8d3011e7aebb005056aaa8be\\", \\"securityGroupId\\": null, \\"imageId\\": \\"357fb0ae-3543-4893-9d1f-ef0d04da60dd\\", \\"cpuNum\\": \\"1\\", \\"keyPairId\\": null, \\"cycleType\\": 5, \\"osType\\": 0, \\"sysVolumeSize\\": 40, \\"networkId\\": \\"\\", \\"cycleCnt\\": 1, \\"rootPassword\\": \\"123456\\", \\"zoneId\\": \\"0d86f114-7153-4d71-a835-7916a41ab0b7\\", \\"memSize\\": \\"1\\", \\"networkCards\\": [{}], \\"vmName\\": \\"MyHost-OMS123\\", \\"imageType\\": 0}", "workOrderItemId": 91, "resourceDescription": "CPU: 1\\u4e2a, \\u5185\\u5b58: 1G, OS: CentOS6.4", "masterOrderId": "17ee099d-5ce8-4f21-a8fd-0711bfb783a2", "workOrderId": "WO20171215025125947759iYkl", "innerOrderItemId": 126, "masterResourceId": "4dd4596f-27d8-4590-b338-e6f163054d40", "workOrderItemNo": 91, "cycleType": 5, "master": true, "salesEntryId": 5, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 58, "resourceId": "11eb286b-daa6-49e6-afeb-08e3c825c82f", "resourceType": "VM", "productId": 5}, {"orderId": 63, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\\"dataVolumes\\": {\\"type\\": \\"SSD\\", \\"size\\": \\"40\\"}, \\"cycleCnt\\": 1, \\"platformId\\": \\"sjif259a8d3011e7aebb005056aaa8be\\", \\"volumeName\\": \\"OMS-Volume\\", \\"volumeType\\": \\"SSD\\", \\"number\\": \\"1.0\\", \\"backupVolumeId\\": null, \\"cycleType\\": 5, \\"volumeSize\\": \\"40\\", \\"volumeNumber\\": 1, \\"workOrderCount\\": 1}", "workOrderItemId": 92, "resourceDescription": "SSD: SSD\\u5b58\\u50a8", "masterOrderId": "17ee099d-5ce8-4f21-a8fd-0711bfb783a2", "workOrderId": "WO20171215025125947759iYkl", "innerOrderItemId": 127, "masterResourceId": "4dd4596f-27d8-4590-b338-e6f163054d40", "workOrderItemNo": 92, "cycleType": 5, "master": false, "salesEntryId": 3, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 58, "resourceId": "4ea3618f-1972-4eae-9bed-9f14595d2642", "resourceType": "EBS", "productId": 3}, {"orderId": 63, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\\"platformId\\": \\"sjif259a8d3011e7aebb005056aaa8be\\", \\"cycleType\\": 5, \\"newBandwidthValue\\": \\"2\\", \\"cycleCnt\\": 1}", "workOrderItemId": 93, "resourceDescription": "\\u5e26\\u5bbd\\u72ec\\u4eab: 2M", "masterOrderId": "17ee099d-5ce8-4f21-a8fd-0711bfb783a2", "workOrderId": "WO20171215025125947759iYkl", "innerOrderItemId": 128, "masterResourceId": "4dd4596f-27d8-4590-b338-e6f163054d40", "workOrderItemNo": 93, "cycleType": 5, "master": false, "salesEntryId": 6, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 58, "resourceId": "3a7cd974-39a9-428d-a33c-cdb13ca05208", "resourceType": "NETWORK", "productId": 6}], "accountType": "1", "resourceId": "4dd4596f-27d8-4590-b338-e6f163054d40", "innerOrderId": 58, "userId": "bac9eabf2308ee0410980e05c48af0a77eb", "accountId": "bacedc3cefb4da54b3790d2013e4734b0ef"}'}
+{'msg': '{"orderId": 64, "workOrderConfig": "{\\"payPattern\\":\\"\\u6708\\"}", "serviceTag": "CVMS", "resourceType": "VM", "resourceDescription": "", "workOrderNo": 45, "masterOrderId": "27ee099d-5ce8-4f21-a8fd-0711bfb783a2", "workOrderId": "WO201712150251259477594321", "msghandler_url": "http://172.18.143.43:8895", "systemOfferingIds": {"System Offering For Software Router": "53db3c3e-2136-4579-8424-3497b9ed751e"}, "workOrderType": 1, "cycleType": 3, "resourceInfo": "", "workOrderItems": [{"orderId": 63, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\\"dataVolumes\\": {\\"type\\": \\"SATA\\", \\"size\\": \\"80\\"}, \\"cycleCnt\\": 1, \\"platformId\\": \\"sjif259a8d3011e7aebb005056aaa8be\\", \\"volumeName\\": \\"OMS-Volume\\", \\"volumeType\\": \\"SATA\\", \\"number\\": \\"1.0\\", \\"backupVolumeId\\": null, \\"cycleType\\": 5, \\"volumeSize\\": \\"80\\", \\"volumeNumber\\": 1, \\"workOrderCount\\": 1}", "workOrderItemId": 90, "resourceDescription": "SATA\\u5b58\\u50a8: 80G", "masterOrderId": "27ee099d-5ce8-4f21-a8fd-0711bfb783a2", "workOrderId": "WO201712150251259477594321", "innerOrderItemId": 125, "masterResourceId": "4dd4596f-27d8-4590-b338-e6f163054d40", "workOrderItemNo": 90, "cycleType": 5, "master": false, "salesEntryId": 4, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 58, "resourceId": "4a0b7210-7618-4fb7-a0f6-5ab3250a352f", "resourceType": "EBS", "productId": 4}, {"orderId": 63, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\\"vmNumber\\": 1, \\"sysVolumeType\\": \\"SATA\\", \\"platformId\\": \\"sjif259a8d3011e7aebb005056aaa8be\\", \\"securityGroupId\\": null, \\"imageId\\": \\"357fb0ae-3543-4893-9d1f-ef0d04da60dd\\", \\"cpuNum\\": \\"1\\", \\"keyPairId\\": null, \\"cycleType\\": 5, \\"osType\\": 0, \\"sysVolumeSize\\": 40, \\"networkId\\": \\"\\", \\"cycleCnt\\": 1, \\"rootPassword\\": \\"123456\\", \\"zoneId\\": \\"0d86f114-7153-4d71-a835-7916a41ab0b7\\", \\"memSize\\": \\"1\\", \\"networkCards\\": [{}], \\"vmName\\": \\"MyHost-OMS123\\", \\"imageType\\": 0}", "workOrderItemId": 91, "resourceDescription": "CPU: 1\\u4e2a, \\u5185\\u5b58: 1G, OS: CentOS6.4", "masterOrderId": "27ee099d-5ce8-4f21-a8fd-0711bfb783a2", "workOrderId": "WO201712150251259477594321", "innerOrderItemId": 126, "masterResourceId": "4dd4596f-27d8-4590-b338-e6f163054d40", "workOrderItemNo": 91, "cycleType": 5, "master": true, "salesEntryId": 5, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 58, "resourceId": "11eb286b-daa6-49e6-afeb-08e3c825c82f", "resourceType": "VM", "productId": 5}, {"orderId": 63, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\\"dataVolumes\\": {\\"type\\": \\"SSD\\", \\"size\\": \\"40\\"}, \\"cycleCnt\\": 1, \\"platformId\\": \\"sjif259a8d3011e7aebb005056aaa8be\\", \\"volumeName\\": \\"OMS-Volume\\", \\"volumeType\\": \\"SSD\\", \\"number\\": \\"1.0\\", \\"backupVolumeId\\": null, \\"cycleType\\": 5, \\"volumeSize\\": \\"40\\", \\"volumeNumber\\": 1, \\"workOrderCount\\": 1}", "workOrderItemId": 92, "resourceDescription": "SSD: SSD\\u5b58\\u50a8", "masterOrderId": "27ee099d-5ce8-4f21-a8fd-0711bfb783a2", "workOrderId": "WO201712150251259477594321", "innerOrderItemId": 127, "masterResourceId": "4dd4596f-27d8-4590-b338-e6f163054d40", "workOrderItemNo": 92, "cycleType": 5, "master": false, "salesEntryId": 3, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 58, "resourceId": "4ea3618f-1972-4eae-9bed-9f14595d2642", "resourceType": "EBS", "productId": 3}, {"orderId": 63, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\\"platformId\\": \\"sjif259a8d3011e7aebb005056aaa8be\\", \\"cycleType\\": 5, \\"newBandwidthValue\\": \\"2\\", \\"cycleCnt\\": 1}", "workOrderItemId": 93, "resourceDescription": "\\u5e26\\u5bbd\\u72ec\\u4eab: 2M", "masterOrderId": "27ee099d-5ce8-4f21-a8fd-0711bfb783a2", "workOrderId": "WO201712150251259477594321", "innerOrderItemId": 128, "masterResourceId": "4dd4596f-27d8-4590-b338-e6f163054d40", "workOrderItemNo": 93, "cycleType": 5, "master": false, "salesEntryId": 6, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 58, "resourceId": "3a7cd974-39a9-428d-a33c-cdb13ca05208", "resourceType": "NETWORK", "productId": 6}], "accountType": "1", "resourceId": "4dd4596f-27d8-4590-b338-e6f163054d40", "innerOrderId": 58, "userId": "bac9eabf2308ee0410980e05c48af0a77eb", "accountId": "bacedc3cefb4da54b3790d2013e4734b0ef"}'}
+
+http://192.168.13.180/ 注册用户账号密码
+    ZNTEST123TEST@qq.com  ZNTEST123TEST@qq.com  仅注册 什么都没有创建
+msg={
+  u'workOrderType': 1,
+  u'resourceType': u'VM',
+
+  u'resourceId': u'4dd4596f-27d8-4590-b338-e6f163054321', #应该没用，用主资源的（VM、NETWORK）
+  u'workOrderId': u'WO201712150251259477594321', # todo
+  u'userId': u'bac9eabf2308ee0410980e05c48af0a77eb', # 用户
+  u'accountId': u'bacedc3cefb4da54b3790d2013e4734b0ef', #
+  u'orderId': 84,
+  u'workOrderItems': [
+                        {
+                          u'resourceType': u'VM',
+                          u'resourceId': u'11eb286b-daa6-49e6-afeb-08e3c8254321', # 每个子项不同
+                          u'workOrderItemId': 106, # 每个子项不同
+                          u'workOrderItemConfig': u'{"vmNumber": 1, "sysVolumeType": "SATA", "platformId": "sjif259a8d3011e7aebb005056aaa8be", "securityGroupId": null, "imageId": "357fb0ae-3543-4893-9d1f-ef0d04da60dd", "cpuNum": "1", "keyPairId": null, "cycleType": 5, "osType": 0, "sysVolumeSize": 40, "networkId": "", "cycleCnt": 1, "rootPassword": "123456", "zoneId": "0d86f114-7153-4d71-a835-7916a41ab0b7", "memSize": "1", "networkCards": [{}], "vmName": "MyHost-OMS123", "imageType": 0}',
+                          # same with main order
+                          u'workOrderId': u'WO201712150251259477594321', # 一个工单一个
+                          u'innerOrderId': 80,
+                          u'orderId': 83,
+                          u'masterResourceId': u'4dd4596f-27d8-4590-b338-e6f163012345',
+                          u'masterOrderId': u'27ee099d-5ce8-4f21-a8fd-0711bfb12345',
+                          # useless
+                          u'resourceAction': 0,
+                          u'serviceTag': u'CVMS',
+                          u'cycleType': 5,
+                          u'resourceDescription': u'CPU: 1\u4e2a, \u5185\u5b58: 1G, OS: CentOS6.4',
+                          u'salesEntryId': 5,
+                          u'productId': 5
+                          u'resourceInfo': u'',
+                          u'master': True,
+                          u'workOrderItemNo': 100, 
+                          u'orderItemId': u'',
+                          u'innerOrderItemId': 126, 
+                        },
+                        {
+                          u'orderId': 63,
+                          u'serviceTag': u'CVMS',
+                          u'orderItemId': u'',
+                          u'masterResourceId': u'4dd4596f-27d8-4590-b338-e6f163012345',
+                          u'workOrderItemId': 106, #
+                          u'resourceDescription': u'\u5e26\u5bbd\u72ec\u4eab: 2M',
+                          u'masterOrderId': u'27ee099d-5ce8-4f21-a8fd-0711bfb12345',
+                          u'workOrderId': u'WO201712150251259477594321', #
+                          u'innerOrderItemId': 130,
+                          u'workOrderItemConfig': u'{"platformId": "sjif259a8d3011e7aebb005056aaa8be", "cycleType": 5, "newBandwidthValue": "2", "cycleCnt": 1}',
+                          u'workOrderItemNo': 101,
+                          u'cycleType': 5,
+                          u'master': False,
+                          u'salesEntryId': 6,
+                          u'resourceInfo': u'',
+                          u'resourceAction': 0,
+                          u'innerOrderId': 80,
+                          u'resourceId': u'3a7cd974-39a9-428d-a33c-cdb13ca54321', #
+                          u'resourceType': u'NETWORK',
+                          u'productId': 6
+                        },
+                        {
+                          u'orderId': 86,
+                          u'serviceTag': u'CVMS',
+                          u'orderItemId': u'',
+                          u'masterResourceId': u'993fe244-ce55-4e7c-8f78-65d1d6567db1',
+                          u'workOrderItemId': 139,#
+                          u'resourceDescription': u'SSD: SSD\u5b58\u50a8',
+                          u'masterOrderId': u'c590994f-4460-41c7-8e74-2357b995a138',
+                          u'workOrderId': u'WO20171218064746223026mREz',#
+                          u'innerOrderItemId': 175,
+                          u'workOrderItemConfig': u'{"dataVolumes": {"type": "SSD", "size": "10"}, "cycleCnt": 1, "platformId": "sjif259a8d3011e7aebb005056aaa8be", "volumeName": "OMS-Volume", "volumeType": "SSD", "number": "1.0", "zoneId": "0d86f114-7153-4d71-a835-7916a41ab0b7", "backupVolumeId": null, "cycleType": 5, "volumeSize": "10", "volumeNumber": 1, "workOrderCount": 1}',
+                          u'workOrderItemNo': 139,
+                          u'cycleType': 5,
+                          u'master': False,
+                          u'salesEntryId': 3,
+                          u'resourceInfo': u'',
+                          u'resourceAction': 0,
+                          u'innerOrderId': 80,
+                          u'resourceId': u'72ac4aa9-7ca4-458f-a1b1-1ea2a082d9ee',#
+                          u'resourceType': u'EBS',
+                          u'productId': 3
+                        }],
+  u'workOrderConfig': u'{"payPattern":"\u6708"}',
+
+  u'serviceTag': u'CVMS',
+  u'resourceDescription': u'',
+  u'masterOrderId': u'27ee099d-5ce8-4f21-a8fd-0711bfb12345',
+  u'msghandler_url': u'http://172.18.143.43:8895', 
+  u'systemOfferingIds': {
+  u'System Offering For Software Router': u'53db3c3e-2136-4579-8424-3497b9ed751e'
+  },
+  u'cycleType': 3,
+  u'resourceInfo': u'',
+
+  u'accountType': u'1',
+  u'workOrderNo': 55,
+  u'innerOrderId': 80,
+  
+
+}
+msg={"msg":json.dumps(msg)}
+ret = requests.post("http://172.18.143.9:12121/api/msg/order/", data=msg)
+
+
+VM  workOrderItemConfig = {u'vmNumber': 1, u'networkId': u'', u'sysVolumeSize': 40, u'sysVolumeType': u'SATA',
+                 u'zoneId': u'0d86f114-7153-4d71-a835-7916a41ab0b7', u'cycleCnt': 1,
+                 u'platformId': u'sjif259a8d3011e7aebb005056aaa8be', u'securityGroupId': None,
+                 u'imageId': u'357fb0ae-3543-4893-9d1f-ef0d04da60dd', u'cpuNum': u'1', u'cycleType': 5, 
+                 u'imageType': 0,u'rootPassword': u'123456', u'osType': 0, u'memSize': u'1', 
+                 u'keyPairId': None,u'vmName': u'MyHost-OMS123',
+                 u'networkCards': [{}]}
+
+NETWORK   workOrderItemConfig= {u'platformId': u'sjif259a8d3011e7aebb005056aaa8be', u'cycleType': 5, u'newBandwidthValue': u'2', u'cycleCnt': 1}
+
+EBS  workOrderItemConfig = {u'dataVolumes': {u'type': u'SSD', u'size': u'10'}, u'cycleCnt': 1, u'platformId': u'sjif259a8d3011e7aebb005056aaa8be', 
+                           u'volumeName': u'OMS-Volume', u'volumeType': u'SSD', u'number': u'1.0', u'zoneId': u'0d86f114-7153-4d71-a835-7916a41ab0b7',
+                           u'backupVolumeId': None, u'cycleType': 5, u'volumeSize': u'10', u'volumeNumber': 1, u'workOrderCount': 1}
+
+
+
+
+
+
+
+
+
+
+{
+  u'orderId': 86,
+  u'workOrderConfig': u'{"payPattern":"\u6708"}',
+  u'resourceDescription': u'',
+  u'serviceTag': u'CVMS',
+  u'resourceType': u'VM',
+  u'resourceId': u'993fe244-ce55-4e7c-8f78-65d1d6567db1',
+  u'masterOrderId': u'c590994f-4460-41c7-8e74-2357b995a138',
+  u'workOrderId': u'WO20171218064746223026mREz',
+  u'msghandler_url': u'http://172.18.143.43:8895',
+  u'systemOfferingIds': {
+    u'System Offering For Software Router': u'53db3c3e-2136-4579-8424-3497b9ed751e'
+  },
+  u'workOrderType': 1,
+  u'cycleType': 3,
+  u'resourceInfo': u'',
+  u'workOrderItems': [
+    {
+      u'orderId': 86,
+      u'serviceTag': u'CVMS',
+      u'orderItemId': u'',
+      u'masterResourceId': u'993fe244-ce55-4e7c-8f78-65d1d6567db1',
+      u'workOrderItemId': 138,
+      u'resourceDescription': u'CPU: 1\u4e2a, \u5185\u5b58: 1G, OS: CentOS6.4',
+      u'masterOrderId': u'c590994f-4460-41c7-8e74-2357b995a138',
+      u'workOrderId': u'WO20171218064746223026mREz',
+      u'innerOrderItemId': 174,
+      u'workOrderItemConfig': u'{"vmNumber": 1, "sysVolumeType": "SATA", "platformId": "sjif259a8d3011e7aebb005056aaa8be", "securityGroupId": null, "imageId": "357fb0ae-3543-4893-9d1f-ef0d04da60dd", "cpuNum": "1", "keyPairId": null, "cycleType": 5, "osType": 0, "sysVolumeSize": 40, "networkId": "", "cycleCnt": 1, "rootPassword": "123456", "zoneId": "0d86f114-7153-4d71-a835-7916a41ab0b7", "memSize": "1", "networkCards": [{}], "vmName": "MyHost-OMS123", "imageType": 0}',
+      u'workOrderItemNo': 138,
+      u'cycleType': 5,
+      u'master': True,
+      u'salesEntryId': 5,
+      u'resourceInfo': u'',
+      u'resourceAction': 0,
+      u'innerOrderId': 80,
+      u'resourceId': u'4e6e5a28-fe54-4932-984c-9e5970f1124d',
+      u'resourceType': u'VM',
+      u'productId': 5
+    },
+    {
+      u'orderId': 86,
+      u'serviceTag': u'CVMS',
+      u'orderItemId': u'',
+      u'masterResourceId': u'993fe244-ce55-4e7c-8f78-65d1d6567db1',
+      u'workOrderItemId': 139,
+      u'resourceDescription': u'SSD: SSD\u5b58\u50a8',
+      u'masterOrderId': u'c590994f-4460-41c7-8e74-2357b995a138',
+      u'workOrderId': u'WO20171218064746223026mREz',
+      u'innerOrderItemId': 175,
+      u'workOrderItemConfig': u'{"dataVolumes": {"type": "SSD", "size": "10"}, "cycleCnt": 1, "platformId": "sjif259a8d3011e7aebb005056aaa8be", "volumeName": "OMS-Volume", "volumeType": "SSD", "number": "1.0", "zoneId": "0d86f114-7153-4d71-a835-7916a41ab0b7", "backupVolumeId": null, "cycleType": 5, "volumeSize": "10", "volumeNumber": 1, "workOrderCount": 1}',
+      u'workOrderItemNo': 139,
+      u'cycleType': 5,
+      u'master': False,
+      u'salesEntryId': 3,
+      u'resourceInfo': u'',
+      u'resourceAction': 0,
+      u'innerOrderId': 80,
+      u'resourceId': u'72ac4aa9-7ca4-458f-a1b1-1ea2a082d9ee',
+      u'resourceType': u'EBS',
+      u'productId': 3
+    },
+    {
+      u'orderId': 86,
+      u'serviceTag': u'CVMS',
+      u'orderItemId': u'',
+      u'masterResourceId': u'993fe244-ce55-4e7c-8f78-65d1d6567db1',
+      u'workOrderItemId': 140,
+      u'resourceDescription': u'\u5e26\u5bbd\u72ec\u4eab: 2M',
+      u'masterOrderId': u'c590994f-4460-41c7-8e74-2357b995a138',
+      u'workOrderId': u'WO20171218064746223026mREz',
+      u'innerOrderItemId': 176,
+      u'workOrderItemConfig': u'{"platformId": "sjif259a8d3011e7aebb005056aaa8be", "cycleType": 5, "newBandwidthValue": "2", "cycleCnt": 1}',
+      u'workOrderItemNo': 140,
+      u'cycleType': 5,
+      u'master': False,
+      u'salesEntryId': 6,
+      u'resourceInfo': u'',
+      u'resourceAction': 0,
+      u'innerOrderId': 80,
+      u'resourceId': u'2ab64680-a8df-4428-9c3c-2ccc0717682f',
+      u'resourceType': u'NETWORK',
+      u'productId': 6
+    }
+  ],
+  u'accountType': u'1',
+  u'workOrderNo': 65,
+  u'innerOrderId': 80,
+  u'userId': u'af6a7ec3cc904b798031c9604a86b2d3',
+  u'accountId': u'5a27b42ada094b7ca0f66f78fba0e7e3'
+}
+
+SUPER-PC 
+
+risize jobid   7bc26d0a-729f-4aaf-b4da-1bd18e63d17f
+
+django model save 的前后value 对比和do something
+    def __init__(self, *args, **kwargs):
+        super(MyClass, self).__init__(*args, **kwargs)
+        self.__important_fields = ['target_type', 'target_id', 'target_object', 'number', 'chain', 'expiration_date']
+        for field in self.__important_fields:
+            setattr(self, '__original_%s' % field, getattr(self, field))
+
+    def has_changed(self):
+        for field in self.__important_fields:
+            orig = '__original_%s' % field
+            if getattr(self, orig) != getattr(self, field):
+                return True
+        return False
+    然后在模型保存方法中：
+
+    def save(self, force_insert=False, force_update=False, commit=True):
+        # Prep the data
+        obj = super(MyClassForm, self).save(commit=False)
+
+        if obj.has_changed():
+
+            # If we're down with commitment, save this shit
+            if commit:
+                obj.save(force_insert=True)
+
+        return obj
+
+a4e283e6-73da-436c-b461-b29b94f3df41   jobid
+a4e283e6-73da-436c-b461-b29b94f3df41   jobid
+
+ tail -500000 /var/log/ecscloud/celery_task.log | grep --color=auto '149a6a19-44a0-491c-83e8-32fb4f42e6b1' -A 2 -B 2
+
+  889  cd /mnt/
+  890  mkdir jdkdocker
+  891  cd jdkdocker/
+  892  ll
+  893  vi Dockerfile
+  894  docker build -it jdktest .
+  895  docker build -t jdktest .
+  896  docker ps
+  897  docker imags
+  898  docker images
+  899  docker run -it jdktest bash
+  900  docker ps
+  901  docker ps -a
+  902  df -h
+  903  docker ps
+  904  docker exec -it ecs_dev2 bash
+  905  docker ps
+  906  docker stop ecs_dev2
+  907  cd /mnt/ecs
+  908  cd /mnt/ecs_dev2/
+        cd /mnt/ecs_dev2/ 
+  963  ll
+  964  svn up
+  965  docker build -t ecs_dev2:v1 .
+  966  svn up
+  967  docker build -t ecs_dev2:v1 .
+  968  docker build -t ecs_dev2:v1229 .
+  969  vi run.sh
+  970  ll
+  971  vi exec.sh
+  972  docker ps -a
+  973  docker sop ecs_dev2
+  974  docker stop ecs_dev2
+  975  docker rm ecs_dev2
+  976  ./run.sh
+  977  ./exec.sh
+  978  docker exec -it ecs_dev2 bash
+  979  ll
+  980  docker stop ecs_dev2 && docker rm ecs_dev2
+
+
+默认安全组
+firewall =  {
+  'name': u'default',
+  'created_at': u'2017-12-18T06:50:11Z',
+  'updated_at': u'2017-12-18T06:50:12Z',
+  'security_group_rules': [{
+                              u'remote_group_id': None,
+                              u'direction': u'ingress',
+                              u'protocol': u'tcp',
+                              u'description': u'',
+                              u'tags': [
+                                
+                              ],
+                              u'ethertype': u'IPv4',
+                              u'remote_ip_prefix': u'0.0.0.0/0',
+                              u'port_range_max': 3389,
+                              u'updated_at': u'2017-12-18T06:50:12Z',
+                              u'security_group_id': u'3f59a758-6a49-426c-b51e-6c6cfe9c2a66',
+                              u'port_range_min': 3389,
+                              u'revision_number': 0,
+                              u'tenant_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+                              u'created_at': u'2017-12-18T06:50:12Z',
+                              u'project_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+                              u'id': u'165405ea-1f41-4e8a-be8e-9254191c053a'
+                            },
+                            {
+                              u'remote_group_id': None,
+                              u'direction': u'egress',
+                              u'protocol': None,
+                              u'description': None,
+                              u'tags': [
+                                
+                              ],
+                              u'ethertype': u'IPv4',
+                              u'remote_ip_prefix': None,
+                              u'port_range_max': None,
+                              u'updated_at': u'2017-12-18T06:50:12Z',
+                              u'security_group_id': u'3f59a758-6a49-426c-b51e-6c6cfe9c2a66',
+                              u'port_range_min': None,
+                              u'revision_number': 0,
+                              u'tenant_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+                              u'created_at': u'2017-12-18T06:50:12Z',
+                              u'project_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+                              u'id': u'41b515af-1ea7-414b-83e8-1f6ee825e780'
+                            },
+                            {
+                              u'remote_group_id': None,
+                              u'direction': u'ingress',
+                              u'protocol': u'icmp',
+                              u'description': u'',
+                              u'tags': [
+                                
+                              ],
+                              u'ethertype': u'IPv4',
+                              u'remote_ip_prefix': u'0.0.0.0/0',
+                              u'port_range_max': None,
+                              u'updated_at': u'2017-12-18T06:50:12Z',
+                              u'security_group_id': u'3f59a758-6a49-426c-b51e-6c6cfe9c2a66',
+                              u'port_range_min': None,
+                              u'revision_number': 0,
+                              u'tenant_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+                              u'created_at': u'2017-12-18T06:50:12Z',
+                              u'project_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+                              u'id': u'712b8a40-3564-4967-afb9-dc39eddd7fbf'
+                            },
+                            {
+                              u'remote_group_id': None,
+                              u'direction': u'ingress',
+                              u'protocol': u'tcp',
+                              u'description': u'',
+                              u'tags': [
+                                
+                              ],
+                              u'ethertype': u'IPv4',
+                              u'remote_ip_prefix': u'0.0.0.0/0',
+                              u'port_range_max': 22,
+                              u'updated_at': u'2017-12-18T06:50:12Z',
+                              u'security_group_id': u'3f59a758-6a49-426c-b51e-6c6cfe9c2a66',
+                              u'port_range_min': 22,
+                              u'revision_number': 0,
+                              u'tenant_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+                              u'created_at': u'2017-12-18T06:50:12Z',
+                              u'project_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+                              u'id': u'e697e72f-04ca-4f77-8631-4f59cbdfc152'
+                            },
+                            {
+                              u'remote_group_id': u'3f59a758-6a49-426c-b51e-6c6cfe9c2a66',
+                              u'direction': u'ingress',
+                              u'protocol': None,
+                              u'description': None,
+                              u'tags': [
+                                
+                              ],
+                              u'ethertype': u'IPv4',
+                              u'remote_ip_prefix': None,
+                              u'port_range_max': None,
+                              u'updated_at': u'2017-12-18T06:50:12Z',
+                              u'security_group_id': u'3f59a758-6a49-426c-b51e-6c6cfe9c2a66',
+                              u'port_range_min': None,
+                              u'revision_number': 0,
+                              u'tenant_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+                              u'created_at': u'2017-12-18T06:50:12Z',
+                              u'project_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+                              u'id': u'e8324f21-38de-4c9e-be09-b21f855b71b7'
+                            }],
+  'location': None,
+  'revision_number': 5,
+  'project_id': u'ebc7412e1ffc47b8a6e969bbcae832c8',
+  'id': u'3f59a758-6a49-426c-b51e-6c6cfe9c2a66',
+  'description': u'Default security group'
+}

@@ -1,0 +1,607 @@
+创建用户
+useradd docker
+设置密码
+passwd docker
+创建目录
+sudo mkdir /home/docker
+更新库
+sudo apt-get update
+安装所有必须和可选的包
+sudo apt-get install linux-image-generic-lts-trusty
+重启系统
+sudo reboot
+查看你是否安装了wget
+which wget
+如果wget没有安装，先升级包管理器，然后再安装它。
+$ sudo apt-get update $ sudo apt-get install wget
+获取最新版本的 Docker 安装包
+wget -qO- https://get.docker.com/ | sh
+系统会提示你输入sudo密码，输入完成之后，就会下载脚本并且安装Docker及依赖包。
+验证 Docker 是否被正确的安装
+sudo docker run hello-world
+
+
+
+docker常用命令
+docker images 查看镜像
+docker ps 查看容器
+docker ps -a 查看所有容器，包括没有运行的
+docker rm 删除容器
+docker rmi 删除镜像
+docker build 新建镜像
+docker run 运行容器
+docker stop 停止容器
+docker logs 查看日志
+docker load 导入镜像
+docker save 导出镜像
+docker commit 容器生成镜像
+docker restart 容器重启
+
+pull 镜像
+
+执行镜像  docker run -i -t -v /root/software/:/mnt/software/ 25c5298b1a36 /bin/bash 
+
+生成容器：docker commit 57c312bbaad1 javaweb:0.1
+						容器id   生成 镜像名 tag
+
+执行容器：docker run -d -p 8081:8080 --name javaweb javaweb:0.1 /root/run.sh
+-d：表示以“守护模式”执行/root/run.sh脚本，此时 Tomcat 控制台不会出现在输出终端上。
+-p：表示宿主机与容器的端口映射，此时将容器内部的 8080 端口映射为宿主机的 58080 端口，这样就向外界暴露了 58080 端口，可通过 Docker 网桥来访问容器内部的 8080 端口了。
+--name：表示容器名称，用一个有意义的名称命名即可。
+关于 Docker 网桥的内容，需要补充说明一下。实际上 Docker 在宿主机与容器之间，搭建了一座网络通信的桥梁，我们可通过宿主机 IP 地址与端口号来映射容器内部的 IP 地址与端口号，
+
+用一行命令大扫除：
+docker kill $(docker ps -q) ; 
+docker rm $(docker ps -a -q) ; 
+docker rmi $(docker images -q -a)
+
+运行tomcat 容器后
+# docker exec -t -i dev_tomcat /bin/bash
+// docker exec意思是：在dev_tomcat下面运行一个命令，在这里，运行的是/bin/bash
+// -t 表示分配一个pseudo-TTY，-i 表示可交互
+// 运行之后，提示符就变成了，tomcat这个image的默认工作目录是/usr/local/tomcat，自动打开：
+root@94e167c8b2b8:/usr/local/tomcat#
+root@94e167c8b2b8:/usr/local/tomcat# cd webapps/
+// 进入webapps里面，看看是不是几个默认的应用都在里面
+root@94e167c8b2b8:/usr/local/tomcat/webapps# ls
+ROOT  docs  examples  host-manager  manager
+
+tomcat 设置登陆密码  进入conf/tomcat-users.xml
+<role rolename="manager-gui"/>
+<user username="tomcat" password="s3cret" roles="manager-gui"/>
+
+上传失败 设置上传大小
+/opt/tomcat/webapps/manager/WEB-INF
+
+单点登陆前keystore生成
+这里需要使用JDK安装包下的keytool工具生成证书文件keystore，以命令方式换到目录%TOMCAT_HOME%,在command命令行输入如下命令： 
+keytool -genkey -alias tomcat_key -keyalg RSA -storepass changeit -keystore server.keystore -validity 36500
+此时会提示用户输入姓名，组织等信息，如下所示，只输入localhost作为name，其余回车即可
+这样就会在当前路径下生成一个名为server.keystore的证书文件，这个文件会在后面tomcat的server.xml配置文件中用到。
+简单解释下这个命令的含义：
+-genkey 生成证书指令
+ -alias 证书的别名为tomcat_key 
+-keyalg 生成证书的算法是RSA 
+-storepass 证书的密码changeit 
+-keystore 生成的证书文件是server.keystore 这里也可以指定具体的路径，如在Mac下：~/Document表示用户目录下的Document文件夹下
+-validity 36500 证书的有效期，单位是天，这里指定的是100年
+
+
+在Tomcat的server.xml配置文件中进行如下配置：
+<Connector SSLEnabled="true" clientAuth="false"   
+           maxThreads="150" port="8443"   
+           protocol="org.apache.coyote.http11.Http11NioProtocol"   
+           scheme="https" secure="true" sslProtocol="TLS"  
+           keystoreFile="/Users/cruise/Documents/ISG/apache-tomcat-8.0.32/server.keystore"   
+           keystorePass="changeit" /> 
+
+这里的keystoreFile需要指定上一步生成的证书文件，keystorePass对应生成文件的时候设置的密码。
+
+
+
+
+
+# tar xvzf libsodium-1.0.1.tar.gz
+# cd libsodium-1.0.1
+# ./autogen.sh
+# ./configure --prefix=/usr/local 
+# make --jobs=`grep processor /proc/cpuinfo | wc -l`
+# make install
+
+docker run -it --name=app -p 8083:8000 -v /code:/usr/src/app --link=redis:db django bash
+
+
+docker build -t (name) 
+./run.sh
+./exec.sh
+docker exec -it ecs_name bash
+本云管平台部署docker
+安装docker
+	1)安装Docker命令
+		yum install  -y docker
+	2)安装之后启动Docker服务，并让它随系统启动自动加载
+		sudo service docker start
+		sudo chkconfig docker on
+
+下载镜像
+	docker pull docker.io/registry:2.4.1
+
+配置和启动images
+	mkdir /data/registry -p
+	docker run -d -p 5000:5000 --privileged -v /data/registry:/tmp/registry:rw docker.io/library/registry:2.4.1
+
+修改所有需要访问私库的docker的配置文件
+	vi /etc/sysconfig/docker
+	增加
+	INSECURE_REGISTRY='--insecure-registry 192.168.10.247:5000
+	172.18.143.37:5000为私库地址
+
+重启docker
+systemctl restart docker.service
+
+查看当前私库中所有镜像
+curl -XGET http://192.168.10.247:5000/v2/_catalog
+
+
+
+	3.3	上传并导入docker镜像
+	1）	上传镜像备份文件ecscloud_allinstall.tar到服务器172.18.143.37和172.18.143.43上；
+	2）	导入镜像备份文件
+	docker load < ecscloud_allinstall.tar
+	查看导入的镜像信息
+	docker images
+	REPOSITORY            TAG                 IMAGE ID            CREATED             SIZE
+	<none>                <none>              eff3c4a13427        7 weeks ago        877.6 MB
+	3）	将导入的镜像上传到私库
+	docker tag eff3c4a13427 172.18.143.37:5000/ecscloud_allinstall
+	执行下面命令将镜像上传到私库中
+	docker push 172.18.143.37:5000/ecscloud_allinstall
+	3.4	工单子系统环境准备
+	3.4.1	启动docker容器
+	docker run -itd --name pricloud_gongdan -p 8022:22 -p 8081:8081 -p 8082:8082  -p 8083:8083  -v /data/mnt:/mnt:rw  -v /etc/localtime:/etc/localtime:ro 172.18.143.37:5000/ecscloud_allinstall  /usr/sbin/init  
+
+	3.4.2	启动相关基础服务
+	systemctl enable ntpd.service
+	systemctl enable rabbitmq-server.service
+	systemctl enable memcached.service
+	systemctl enable sshd.service
+
+	systemctl start ntpd.service
+	systemctl start rabbitmq-server.service
+	systemctl start memcached.service
+	systemctl start sshd.service
+
+	3.4.3	Virtualenv环境安装
+	（1）	安装virtualenv
+	pip install virtualenv
+	如果没有pip，需要安装pip（https://pip.pypa.io/en/stable/installing/）：
+	下载 get-pip.py.
+	然后执⾏行：python get-pip.py
+	（2）	到任意⽬目录下执⾏行virtualenv .venv
+	⽐比如cd /var/www/ecscloud_web
+	使⽤用系统依赖，执⾏行 virtualenv --system-site-packages .venv
+	不使⽤用系统依赖，执⾏行 virtualenv .venv
+	virtualenv .venv会安装python pip等⼯工具
+	（3）	安装工程所使用的依赖包
+	一般来讲，会把所有的依赖包放到一个txt⽂文件中，这个txt⽂文件一般也不需要⼿手动编写，可以到项⽬的目录执行:pip freeze > requirements.txt生成一个。
+	首先source .venv/bin/activate,激活虚拟环境
+	再执行：pip install -r requirements.txt
+	如果报错执行yum  install gcc-c++之后再安装
+
+	3.4.4	安装os团队提供的sdk
+	pip uninstall python-openstacksdk
+	source /var/www/ecscloud_web/.venv/bin/activate
+	pip install python-openstacksdk.tar.gz 
+
+
+	3.4.5	安装工单系统核心模块
+	（1）	数据库初始化
+	在mysql数据库中执行如下命令
+	drop database if exists  cloud_web;
+	create database cloud_web CHARACTER SET utf8;
+	grant all privileges on cloud_web.* to 'cloud_web'@'%' identified by 'password' with grant option;
+	drop database if exists  cloud_web_idc;
+	create database cloud_web_idc CHARACTER SET utf8;
+	grant all privileges on cloud_web_idc.* to 'cloud_web'@'%' identified by 'password' with grant option;
+	flush privileges;
+
+
+	（2）	上传代码并安装
+	将前面制作好的虚拟环境.venv放在/mnt目录，同时将工单系统的发布代码ecscloud_web上传到docker环境的/mnt目录。
+
+	mkdir /var/www/ecscloud_web
+	cd /var/www/ecscloud_web
+	ln -s /mnt/ecscloud_web/ecscloud_web ecscloud_web
+	ln -s /mnt/.venv .venv
+
+	groupadd ecscloud
+	useradd ecscloud -g ecscloud -m -d /home/ecscloud
+	mkdir -p /var/log/ecscloud
+	chown -R ecscloud:ecscloud /var/log/ecscloud
+	chmod a+x -R /var/www/ecscloud_web/.venv
+	chown -R ecscloud:ecscloud /var/log/ecscloud
+	chgrp -R ecscloud /var/log/ecscloud
+
+
+	rabbitmqctl add_user ecscloud_web password
+	rabbitmqctl add_vhost ecscloud
+	rabbitmqctl set_permissions -p ecscloud ecscloud_web ".*" ".*" ".*"
+
+	cd /mnt/ecscloud_web/
+	cp celery/celeryd.conf /etc/default/celeryd
+	cp celery/celeryd /etc/init.d/celeryd
+	cp celery/celerybeat /etc/init.d/celerybeat
+	chmod +x /etc/init.d/celeryd
+	/etc/init.d/celeryd restart
+	/etc/init.d/celeryd status
+	chmod +x /etc/init.d/celerybeat
+	/etc/init.d/celerybeat stop
+	/etc/init.d/celerybeat start
+	/etc/init.d/celerybeat status
+
+
+	cd /var/www/ecscloud_web/
+	source .venv/bin/activate
+	/var/www/ecscloud_web/.venv/bin/python ecscloud_web/manage.py migrate_settings
+	/var/www/ecscloud_web/.venv/bin/python ecscloud_web/manage.py migrate --database default
+	/var/www/ecscloud_web/.venv/bin/python ecscloud_web/manage.py migrate --database idc
+	/var/www/ecscloud_web/.venv/bin/python ecscloud_web/manage.py init_flavor
+
+	3.4.6	安装工单系统消息处理模块
+	cd /mnt/ecscloud_web/msghandler
+	执行
+	sh setup.sh
+
+	3.5	启动相关程序
+	3.5.1	配置文件修改
+	（1）	消息转发模块配置
+	根据实际情况修改配置文件/mnt/ecscloud_web/msghandler/msghandler/settings.py
+
+	# 获取消息的配置
+	WORKORDER_RABBITMQ_PROP = {
+	"rabbitmq.host": "192.168.13.100",
+	"rabbitmq.vhost": "billing",
+	"rabbitmq.username": "billing",
+	"rabbitmq.password": "billing",
+	"rabbitmq.port": 5672,
+	"rabbitmq.exchange_name": "message_router",
+	"rabbitmq.exchange_type": "topic",
+	"rabbitmq.exchange_durable": True,
+	"rabbitmq.exchange_auto_delete": False,
+	"rabbitmq.queue_durable": False,
+	"rabbitmq.queue_auto_delete": False,
+	"rabbitmq.queue_exclusive": False,
+	"rabbitmq.routing_key_list": ["VMS1.workOrderResourceAMQP", "VMS1.noticeResInstanceAMQ"],
+	"rabbitmq.prefetch_count": 32
+	}
+
+	WORKORDER_RABBITMQ_REPORT = {
+	"rabbitmq.host": "192.168.13.100",
+	"rabbitmq.vhost": "billing",
+	"rabbitmq.username": "billing",
+	"rabbitmq.password": "billing",
+	"rabbitmq.port": 5672,
+	"rabbitmq.exchange_name": "message_router",
+	"rabbitmq.exchange_type": "topic",
+	"rabbitmq.exchange_durable": True,
+	"rabbitmq.exchange_auto_delete": False,
+	"rabbitmq.queue_durable": False,
+	"rabbitmq.queue_auto_delete": False,
+	"rabbitmq.queue_exclusive": False,
+	"rabbitmq.routing_key": "workorder.confirmWorkOrder",
+	"rabbitmq.prefetch_count": 32
+	}
+
+	# Log
+	log_file_path = '/var/log/msghandler.log'
+
+	# 工单核心模块web地址
+	ecs_addr = "http://172.18.143.37:8080"
+	# Thread Pool Size
+	thread_pool_size = 8
+
+	（2）	工单系统核心模块配置
+	根据实际情况修改/mnt/ecscloud_web/ecscloud_web/ecscloud_web/local/default_settings.py中的数据库配置。
+
+	DATABASES = {
+	'default': {
+	    'ENGINE': 'django.db.backends.mysql',
+	    'NAME': "cloud_web",
+	    'USER': "cloud_web",
+	    'PASSWORD': "password",
+	    'HOST': "127.0.0.1",
+	    'PORT': "3306",
+	    'TEST_CHARSET': 'utf8',
+	    'OPTIONS': {
+	        'init_command': 'SET storage_engine=INNODB',
+	    }
+	},
+	'idc': {
+	    'ENGINE': 'django.db.backends.mysql',
+	    'NAME': "cloud_web_idc",
+	    'USER': "cloud_web",
+	    'PASSWORD': "password",
+	    'HOST': "127.0.0.1",
+	    'PORT': "3306",
+	    'TEST_CHARSET': 'utf8',
+	    'OPTIONS': {
+	        'init_command': 'SET storage_engine=INNODB',
+	    }
+	}
+	}
+
+	3.5.2	启动工单子系统的核心模块
+
+	docker镜像中已经安装好了apache，在/etc/httpd/conf/httpd.conf的末尾增加如下配置信息
+
+	<VirtualHost *:8080>
+	#ServerName pricloud_workorder
+
+	## Vhost docroot
+	## Alias declarations for resources outside the DocumentRoot
+
+	ErrorLog /var/log/ecscloud_error.log
+	CustomLog /var/log/ecscloud_access.log combined
+
+	## Directories, there should at least be a declaration for /var/www/
+
+	## Server aliases
+	ServerAlias localhost
+
+	WSGIScriptAlias / /var/www/ecscloud_web/ecscloud_web/ecscloud.wsgi
+	WSGIDaemonProcess ecscloud user=ecscloud group=ecscloud processes=3 threads=10 python-path=/var/www/ecscloud_web/.venv/lib/python2.7/site-packages
+	WSGIProcessGroup ecscloud
+
+	Alias /static/admin /var/www/ecscloud_web/.venv/lib/python2.7/site-packages/django/contrib/admin/static/admin
+	Alias /static/rest_framework /var/www/ecscloud_web/.venv/lib/python2.7/site-packages/rest_framework/static/rest_framework
+	Alias /static /var/www/ecscloud_web/ecscloud_web/render/static
+
+	</VirtualHost>
+
+	然后重新启动apache
+	systemctl restart httpd.service
+
+	3.5.3	启动工单子系统的消息处理模块
+	执行如下命令
+	systemctl daemon-reload
+	systemctl restart msghandler
+	4	统一认证和权限管理部署
+	4.1	项目部署地址
+	项目分为2个部分：ctg_sysmgr_portal,cas，都部署在：172.18.143.43,
+	具体地址为：/root/apache-tomcat-7.0.78/。
+	4.2	项目访问地址
+	系统管理：http://172.18.143.43:18080/ctg-sysmgr-portal-web/cas
+	认证中心：http://172.18.143.43:18080/cas/login
+	端口可在tomcat的service.xml中修改
+	4.3	项目关键配置
+	CAS: 
+	cas/WEB_INF/classes/conf/jdbc.properties:
+	 
+	修改数据库配置，确保正确链接到数据库。
+	ctg_sysmgr_portal:
+		ctg-sysmgr-portal-web/WEB-INF/classes/conf/jdbc.properties:
+		ctg-sysmgr-portal-web/WEB-INF/classes/conf/pasp-security.jdbc.properties
+		修改数据库配置，确保正确连接到数据库。
+
+
+		ctg-sysmgr-portal-web/WEB-INF/classes/conf/pasp-security.properties：
+		#系统编码，当前系统在系统管理中的编码
+	system.code=1
+	#是否开启调试模式，true|false，调试模式可直接访问，不做认证
+	system.debug = false
+
+	#权限管理的使用模式， db|sso，默认db模式
+	security.mode=sso
+
+	######### db mode start #########################
+	#登录页面url
+	loginUrl = /console/dist/#/login
+	#用户登录成功后重定向的url
+	successUrl = /index.jsp
+	#用户退出后的跳转页面
+	logoutUrl = /console/dist/#/login
+	#鉴权失败时重定向的url
+	unauthorizedUrl = /unauth
+	# 配置未登录访问地址 删除
+	notLoginUrl = /unauth
+
+	# shiro 过滤器配置
+	filter =     /unauth = anon\n \
+	            /login = anon\n \
+	            /logout = logout\n \
+	            /console/dist/** = anon\n \
+	            /** = user
+	######### db mode end #############################
+
+	########## sso mode start #########################
+	casServerUrlPrefix = https://server.cas.com:8446/cas
+	casService = http://ctg.ae.com:8088/ctg-sysmgr-portal-web/cas
+	loginUrl =  https://server.cas.com:8446/cas?service=http://ctg.ae.com:8088/ctg-sysmgr-portal-web/cas
+	unauthorizedUrl = https://server.cas.com:8446/cas?service=http://ctg.ae.com:8088/ctg-sysmgr-portal-web/cas
+	notLoginUrl = /unauth
+	successUrl = /console/dist/#/corp
+	logoutUrl = https://server.cas.com:8446/cas/logout?service=http://ctg.ae.com:8088/ctg-sysmgr-portal-web/cas
+	filter =     /cas = cas \n \
+	            /unauth = anon\n \
+	            /login = anon\n \
+	            /logout = logout\n \
+	            /** = user
+	########## sso mode end #########################
+
+	#session共享模式  mem(本地内存模式)|mix混合模式（缓存和本地组合）|cache(纯缓存) 默认:mem
+	session.mode = mix
+	#session persistent interval(ms)，session写入缓存的间隔
+	session.persistent.interval=1000
+	#session cacheManager bean id，框架只提供接口，实现需要开发人员自己开发，默认:pasp-cacheManager
+	session.cacheManager=sysmgr-cacheManager
+
+	#session超时时间
+	session.globalSessionTimeout = 1800000
+	#session 检查间隔时间
+	session.sessionValidationInterval = 1800000
+	session.deleteInvalidSessions = true
+	session.sessionValidationSchedulerEnabled = true
+	session.sessionIdCookieEnabled = true
+
+	session.cookie.httpOnly = true
+	session.cookie.maxAge = -1
+	session.cookie.name = PSESSIONID
+
+	#密码加密算法
+	password.algorithmName=md5
+	#密码加密的迭代次数
+	password.hashIterations=1
+
+	rememberMe.name = rememberMe
+	rememberMe.httpOnly = true
+	rememberMe.maxAge = 2592000
+	修改登录时使用的方法，其中db暂不可用，需使用sso的方式，注释掉bd模式的内容，将sso模式的内容修改为正确的cas配置。
+	4.4	项目部署步骤
+	1.将打包好的war包上传到指定目录：/root/apache-tomcat-7.0.78/webapps
+	2.到/root/apache-tomcat-7.0.78/bin 执行./startup 命令
+	3.执行 tail -200f ../logs/catalina.out 命令 观看tomcat输出，如果无报错，则项目启动成功。
+
+Dockerfile 文件解析
+	FROM centos:7  #基于哪个镜像 # ADD将文件<src>拷贝到container的文件系统对应的路径<dest>
+	ENV container docker #用来设置环境变量 
+	RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
+	systemd-tmpfiles-setup.service ] || rm -f $i; done); \
+	rm -f /lib/systemd/system/multi-user.target.wants/*;\
+	rm -f /etc/systemd/system/*.wants/*;\
+	rm -f /lib/systemd/system/local-fs.target.wants/*; \
+	rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+	rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+	rm -f /lib/systemd/system/basic.target.wants/*;\
+	rm -f /lib/systemd/system/anaconda.target.wants/*;
+	VOLUME [ "/sys/fs/cgroup" ] # 可以将本地文件夹或者其他container的文件夹挂载到container中。
+	RUN yum install -y \
+	    yum-plugin-fastestmirror \
+	    net-tools wget openssh-server  ntp git svn dos2unix expect \
+	    centos-release-openstack-newton \
+	    https://rdoproject.org/repos/rdo-release.rpm
+	RUN yum upgrade -y  # RUN 安装软件用
+	RUN yum install -y \
+	    python-openstackclient  openstack-selinux \
+	    python2-PyMySQL memcached python-memcached \
+	    openldap openldap-devel libffi-devel python-pip python-devel \
+	    gcc-c++ libcurl-devel mariadb mariadb-devel mariadb-server 
+	RUN yum upgrade -y
+	RUN sed -i 's/^\(SELINUX=\s*\).*$/\1disabled/' /etc/selinux/config
+	RUN yum install -y rabbitmq-server
+	RUN mkdir -p /var/www/ecscloud_web
+	COPY .venv.tar.gz /mnt
+	RUN tar xf /mnt/.venv.tar.gz -C /var/www/ecscloud_web/
+	COPY ecscloud_web /var/www/ecscloud_web
+	COPY celery /var/www/celery
+	RUN groupadd ecscloud &&\
+	    useradd ecscloud -g ecscloud -m -d /home/ecscloud &&\
+	    mkdir -p /var/log/ecscloud &&\
+	    chown -R ecscloud:ecscloud /var/log/ecscloud &&\
+	    chmod a+x -R /var/www/ecscloud_web/.venv &&\
+	    chown -R ecscloud:ecscloud /var/log/ecscloud &&\
+	    chgrp -R ecscloud /var/log/ecscloud
+	RUN cp /var/www/celery/celeryd.conf /etc/default/celeryd &&\
+	    cp /var/www/celery/celeryd /etc/init.d/celeryd &&\
+	    cp /var/www/celery/celerybeat /etc/init.d/celerybeat &&\
+	    chmod +x /etc/init.d/celeryd && chmod +x /etc/init.d/celerybeat
+	RUN rpm -Uvh http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+	RUN yum -y install nginx
+	RUN /bin/bash -c "source /var/www/ecscloud_web/.venv/bin/activate;pip install uwsgi -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
+	RUN /bin/bash -c "source /var/www/ecscloud_web/.venv/bin/activate;pip install ipaddr -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
+	RUN /bin/bash -c "source /var/www/ecscloud_web/.venv/bin/activate;pip install pika -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
+	RUN /bin/bash -c "source /var/www/ecscloud_web/.venv/bin/activate;pip install django-cors-headers -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
+	RUN /bin/bash -c "source /var/www/ecscloud_web/.venv/bin/activate;pip install python-memcached==1.54 -i http://pypi.douban.com/simple --trusted-host pypi.douban.com"
+	COPY python-openstacksdk.tar.gz /var/www
+	RUN /bin/bash -c "source /var/www/ecscloud_web/.venv/bin/activate;pip uninstall --yes openstacksdk;pip install /var/www/python-openstacksdk.tar.gz"
+	COPY nginx_conf/ecs_nginx.conf /etc/nginx/conf.d
+	RUN mkdir -p /etc/ecscloud_web
+	RUN /bin/bash -c "source /var/www/ecscloud_web/.venv/bin/activate;python /var/www/ecscloud_web/manage.py collectstatic --noinput"
+	RUN find /var/www/ecscloud_web/biz -path "*/migrations/*.py" -not -name "__init__.py" -delete
+	RUN find /var/www/ecscloud_web/biz -path "*/migrations/*.pyc"  -delete
+	RUN systemctl enable ntpd.service &&\
+	    systemctl enable rabbitmq-server.service &&\
+	    systemctl enable memcached.service &&\
+	    systemctl enable sshd.service &&\
+	    systemctl enable nginx.service
+	CMD ["/usr/sbin/init"] # container启动时执行的命令 多条则只执行最后一条CMD.
+
+  922  df -h
+  923  cd /mnt/
+  924  ll
+  925  mkdir testfr
+  926  ll
+  927  cd testfr/
+  928  ll
+  929  cat build_and_run.sh
+  930  docker images
+  931  ll
+  932  cat build_and_run.sh
+  933  docker ps
+  934  vi default.conf
+  935  chmod +x build_and_run.sh
+  936  ./build_and_run.sh
+  937  vi Dockerfile
+  938  ./build_and_run.sh
+  939  cat build_and_run.sh
+  940  docker run -d -p 9936:8080 -v default.conf:/etc/nginx/conf.d frtest
+  941  docker ps
+  942  curl 127.0.0.1:9936
+  943  docker exec -it sleepy_dubinsky bash
+  944  ll
+  945  cat default.conf
+  946  docker run -d -p 9937:8080 -v default.conf:/etc/nginx/conf.d/:ro frtest
+  947  docker ps
+  948  ll
+  949  mkdir conf
+  950  cp default.conf conf/
+  951  ll
+  952  docker run -d -p 9938:8080 -v `pwd`/conf:/etc/nginx/conf.d frtest
+  953  docker ps
+  954  ll
+  955  vi conf/default.conf
+  956  docker ps
+  957  docker exec -it 3c6a466 bash
+  958  docker run -d -p 9939:8080 -v `pwd`/conf:/etc/nginx/conf.d:rw frtest
+  959  docker ps
+  960  ll
+  961  docker ps
+  962  curl 127.0.0.1:9939
+  963  docker exec -it d350
+  964  docker exec -it d350 bash
+  965  ll
+  966  cat build_and_run.sh
+  967  bi default.conf
+  968  :q
+  969  vi Dockerfile
+  970  docker run -d -p 9940:8080 -v `pwd`/conf:/etc/nginx/conf.d:rw frtest
+  971  docker ps
+  972  cat Dockerfile
+  973  docker ps
+  974  docker stio 8d7f
+  975  docker stop 8d7f
+  976  docker stop d350
+  977  docker stop 3c6a
+  978  docker stop e424
+  979  docker ps
+  980  docker stop ddb2
+  981  ecsvenv
+  982  ecsshell
+  983  cd /mnt/ecs
+  984  cd /mnt/testfr/
+  985  ll
+  986  ecsvenv
+  987  evshell
+  988  ecsshell
+  989  docker images
+  990  docker ps
+  991  docker images
+  992  ll
+  993  cd /mnt/ecscloud_web/
+  994  ll
+  995  ./run
+  996  chmod +x run.sh
+  997  ./run
+  998  ll
+  999  ./run.sh
+ 1000  vi exec.sh
+ 1001  history

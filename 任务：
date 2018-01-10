@@ -1,0 +1,1210 @@
+任务：
+1. link_user_to_dc_task 异常处理，不抛出
+2. 增加逻辑删除字段
+3. 测试用例：ut，st
+4. users 增加接口 ： add_dc  delete_dc
+5. 日志及异常信息的整理
+6. 垃圾代码的清理
+8. OS相关 代码检视，及相关异常的补充(租户和用户是否存在的判断)
+
+
+1. 完成**模块的A、B和C开发任务，D和E开发任务进度XX%;
+2.本周联调发现问题X个，分别是XX, 已经解决的是XX,未解决的是XX;
+3.本周编写测试用例XX个，其中ut有X个，st有X个；
+4.本周完善和优化X模块的代码，做了XX方式的优化;
+
+1.完成 用户中心和数据中心的 
+	a.增加逻辑删除字段
+2.users 增加接口 ： add_dc  delete_dc
+3.用户中心和数据中心 日志及异常信息的整理
+4.用户中心和数据中心 垃圾代码的清理
+5.link_user_to_dc_task 异常抛出的处理
+
+
+这个是上周的工作任务。其中3是长期任务，大家在群里说下上周除了3之外的完成情况。  2017/8/7
+1. rest api的返回改为使用周圣杰写的通用返回函数（重复逻辑尽量抽象为一个函数）
+2. 日志整理以及异常信息日志的规范（日志信息都需要打印日志，并打印调用链）
+3. 补充测试用例ut和st（每个函数都要有用例，每个rest api也要有用例）
+4. 冗余代码清理，代码逻辑优化，增加相关异常处理
+
+当os中有用户信息，而工单系统的数据库中没有用户信息时，再次创建用户时，用户表中会新增数据，但是用户数据中心表中无数据。缺陷需要修复
+创建租户和用户的时候， 你先去os里面查下对应租户和用户是否存在， 如果存在直接返回成功，别创建了。
+
+获取项目最好是给一个  project["name"] = "ct_%s" % user.ct_account_id
+keystone_task中函数写成ut按照unittest 来写
+
+数据，用户
+1,  用户相关的  日志 exception  增加
+2, billing 相关代码删除
+3, email 用户是否可以更改，
+4, update to all dc 的优化
+5, user_detail_remove   many=True  修改
+6, del_user 改参数
+7, func 开始时添加LOG request.data 
+8，创建数据中心把错误信息一起返回给前端
+9，整理用户相关垃圾代码。
+
+
+
+
+1.biz/urls.py 用户相关的urls未整理，并添加注释.
+	删除当前所有不⽤用的url，以及对应的代码实现.添加注释.
+2.获取所有⽤用户/api/users/list
+	a.代码未添加注释
+		整个函数的注释，
+
+	b.关键代码未注释
+缺少必要的注释，说明当前函数与请求信息，关键代码也未做注释
+
+3.创建⽤用户/api/users/create/
+a.代码未添加注释
+整个函数的注释
+b.调⽤用keystone_task时，未捕获异常。
+c.link_user_to_all_dc_task
+⾸首先，当某个⽤用户在⼀一个dc内注册失败时，应当忽略。其次，因⽤用户注册时，采取的是异步策略，当⽤用户在某个dc注
+册时，如何处理，这个需要讨论。
+
+4.更新⽤用户/api/users/update/
+按照之前与console的讨论，更新⽤用户，只需要更新django⽤用户即可，⽆无需同步到openstack中。
+a.缺少整个函数的注释
+缺少对关键代码的注释和⽇日志
+5.获取单个⽤用户/api/users/query
+a.缺少整个函数的注释
+缺少对关键代码的注释和⽇日志
+6.删除用户/api/users/delete
+a.缺少整个函数的注释
+缺少对关键代码的注释和⽇日志
+b.task异常未捕获
+当某个用户在某个dc中删除失败时，后续dc如何处理，需要讨论。
+用户管理中的，其他问题：
+1.多余代码没有删除
+2.import部分需要整理
+
+
+8.11 
+把数据中心和用户中心的update 方式改为put
+
+用户创建时  
+
+判定：只能是两个同时指向一个用户时证明用户存在允许用户逻辑删除的恢复，否则直接返回用户已存在
+user = User.objects.filter(Q(ct_user_id = ct_user_id) | Q(ct_account_id=ct_account_id)).exclude(deleted=1)
+
+
+
+8/14
+用户创建时 ct_user_id  ct_account_id  取任意一个来确定用户，如果每个都指向一个用户就会取出两个则返回user已存在error
+取出一个时判断是否为逻辑删除user，是则更新user，否则create new user
+
+创建用户的逻辑更改：
+	创建时同步执行  遍历所有资源池并生成 每个资源池的 udc (user-datacenter) 这时udc.status=0
+		每生成一个udc后 异步执行link，在os 生成project 和 user 并返回，
+		拿到后 完善 udc.tenant_uuid = tenant.id  udc.keystone_user_uuid = u.id  并保存  这时udc.status=1
+		再执行 edit_default_security_group(user, udc) 完成后 这时udc.status=2 表示用户在该资源池创建成功
+
+用户删除：
+	仅仅在user表中deleted置1,表示删除，不再执行unlink
+
+8/15
+1 目前，请求数据中心/api/datacenters/CRUD，用户验证信息随便一个可用ct_user_id,os_id就可以 ，，，不合适 ******
+#2 创建datacenter的返回值results是空    应该返回的是创建信息 现在去确认 已确认没问题
+
+
+
+
+@全体成员  搞个优先级：
+（1）代码检视相关修改没有搞完的先搞那个 
+（2）日志完善  
+（3）销毁处理： 用户模块不需要关注销毁的处理，销毁处理是网络模块、存储模块和云主机模块的事情 
+（4）按照规范编写测试用例  
+（5）异步任务处理
+
+销毁模块暂时只内部使用，提供一个统一的销毁的rest api即可。 
+如果是网络模块的销毁， 需要销毁当前租户的密钥对、安全组规则、路由、网关、浮动ip， 子网和网络。 主要是顺序要对
+如果是存储模块的销毁，先销毁硬盘备份，在将所有的数据盘解除绑定，然后再销毁。 同时要销毁快照 ，不需要销毁系统盘
+
+8/16
+udc  的st ，1 测试全部正常的过程 add  del  {update}  list   query （status字段 0:失败，2成功）udc.user_id,udc.sysplatforms_id  去执行add
+			2 测试错误的user,dc 出现预估结果  status=2成功
+			3 测试正确的dc ，user， 出现正常结果
+
+8/18  	在用户中心补充  更新用户
+		数据中心测试用例中补充 部分数据中心无法访问 创建租户
+		跑通 测试用例即可
+
+8/21 数据中心  增加资源池的状态state判断，1为正常，0为异常不能使用。
+
+8/22 用户中心 增加 后续自动加字段功能
+
+	userinfo = json.loadss(qeruest.data)
+	#提取主要字段
+	try:
+		ct_user_id = userinfo.get('ct_user_id', None)
+		ct_account_id = userinfo.get('ct_account_id', -1)
+		username = userinfo['username']
+		password = userinfo['password']
+		mobile = userinfo['mobile']
+		email = userinfo['email']
+	except:
+		pass
+	# 提取extra内容
+
+8/24
+ 	1後續增加字段功能 將額外字段保存至 extra表字段内
+ 	2 輸出為同級内容
+
+8/28
+	1. 用戶顯示時不用顯示所在的數據中心 V
+	2. 前段再次請求用戶所在的數據中心  V
+		再次請求顯示用戶所在的失敗的數據中心 V 包括没有记录的，不能只看status 的状态 V
+	3. 在配置中過濾測試賬戶，可用來調用清除接口來 清除測試數據。V 
+
+	5. 增加一个删除testuser 的接口，用来删除测试用户 X 已更改配置信息TEST_STATUS=True  废弃
+
+	4. 根据文档中的错误码的值，修改下错误码信息。
+	函數為
+		def common_error_response(err_msg, error_code=-1):
+	    	response = format_response_results(None, [], err_msg, error_code, "FAILED")
+	    	return Response(response)
+
+	6. 用户的测试用例的修正 V
+
+	7. 编写租户的测试用例
+
+
+8/29用户相关意见
+	
+	现网：  1.不允许删除
+		V	2.forse_delete  a.资源清理API     
+							b.os删除， 
+							c.用户表和用户数据中心表清理
+		V	3.查询：只查用户表
+		V	4.修改：只修改用户表少量字段（写文档）！！还是写不能修改的参数吧。。。后续新增字段还不清楚*** 
+					不能修改的参数为  ct_account_id ct_user_id
+		V	5.创建：a.之前无用户， 创建用户，用户数据中心表去os创建租户
+					b.已有用户  报错
+			6.用户数据中心管理：a.查询（成功注册的DCs 和 注册失败的DCs）（如何确定os DC的状态，DC是否能用需讨论）***暂时可以通过查看state=1 os维护
+								状态同步问题  应该由OS维护#/暂时意见：让用户登陆后调用接口 执行 用户初始化 不合适
+								b.新增dc的接口  （如果新增了DC ，何如去ADD）//在查询后可手动点击 add 接口
+								c.修改DC  （当os DC 信息更改后 当前数据是否需要随之更改？）
+								d.删除DC （当os升级后与当前数据不匹配的情况下需处理）
+
+			7. 考虑： 用户注册时的DC 状态错误时 不注册OS 也不生成相关DC记录 //失败就失败吧，可以手动查看结果
+			8. 再次請求顯示用戶所在的失敗的數據中心 V 包括没有记录的，不能只看status 的状态 /已完善，对注册失败资源池显示(包括新建资源池)
+			9. 用户初始化接口完善，对
+
+8/30 对已经删除的资源池   用户数据中心表数据   怎样去同步？
+	 用户注册后在Os中会有什么具体的操作，仅仅增加了表的用户数据还是直接有用户相关资源？还是在相关资源列表中生成用户信息？
+
+用户注册处理过程
+
+	1. 获取数据 a.["ct_user_id","ct_account_id",("username","password","mobile","email"空值判断)]
+	   获取不定参数存入extra字段
+	
+	2. a.查找用户，存在返回错误，
+	   b.对email 查询，存在返回错误
+	   c.开始创建用户
+	
+	3. 创建新用户列表，同步执行 link_user_to_all_dc_task(user)
+
+		a. 查询type=2，state=1的数据中心，遍历数据中心列表，异步执行 link_user_to_dc_task.delay(user, dc)
+		b. 查询用户数据中心表是否存在，不存在就先创建，status=0
+		c. 通过rc 先查询，有租户或用户就拿到向下执行，没有租户或用户就执行OS创建租户或用户信息
+		d. 将拿到的租户ID和用户ID保存到用户数据中心表中，status=1
+		e. 执行edit_default_security_group，绑定 icmp， status=2
+
+	5. 创建用户成功，返回创建后的用户信息。
+
+用户删除过程 
+	1. url(r'^users/delete/', account_view.forse_delete),
+	2. 获取参数 del_ct_user_id
+		查询用户，不存在返回错误，存在执行
+	3.	a.对用户所有资源清理  
+		b.os信息删除， 
+		c.用户数据中心表清理
+	4. 删除用户信息表数据
+
+用户查询
+	接口：/api/users/query/
+	参数 ct_user_id
+	返回用户的所有信息
+所有用户查询：
+	接口 /api/users/list/  请求方式为GET
+	无参数 返回所有用户的信息
+	有参数 /api/users/list/?key=username&value=t&key=mobile&value=0&key=city&value=1
+	参数可以为字段名或者新加字段名，字段名输入有误返回空。值支持模糊查询。
+
+用户修改
+	参数 ct_user_id  可修改username password mobile email等
+	"ct_account_id","ct_user_id",这两个参数不能修改,其他的都可以修改
+	用户 update
+	接口：/api/users/update/ 方式为POST
+	参数：ct_user_id  其他需要修改或添加什么就传什么参数和值就行了
+
+用户的action 功能接口整合
+	#活跃用户查询{"action":"active_users","ct_user_id" :"024e604491544f8a8c5476709f7f80b0","os_id":"666cc8ea257311e79148005056aaa8cc"}
+	#禁用用户{"action":"deactivate_user","user_id":"736"}
+	#激活用户{"action":"activate_user","user_id":"736"}
+	初始化用户{"action":"initialize_user","user_id":"736"}
+	初始化所有用户{"action":"initialize_all_user","ct_user_id" :"024e604491544f8a8c5476709f7f80b0","os_id":"666cc8ea257311e79148005056aaa8cc"}
+	用户数据中心绑定{"action":"dc_register_user","user_id":"736","sysplatforms_id":"181"}
+	用户数据中心解绑{"action":"dc_unregister_user","user_id":"736","sysplatforms_id":"181"}
+	# 用户登陆{"action":"login_user","username":"testtest@qq.com","password":"TESTtest123"}  邮箱登陆
+	# 用户登出{"action":"logout_user","ct_user_id" :"024e604491544f8a8c5476709f7f80b0","os_id":"666cc8ea257311e79148005056aaa8cc"}
+	# 修改密码{"action":"change_password","user_id":"736","old_password":"testuser1","new_password":"testusertest","firm_password":"testusertest"}
+	请求方式为POST
+	参数为 action
+
+用户数据中心管理：  
+	a.查询  方式为GET
+	/api/datacenters/query/
+	查询注册成功的数据中心
+	参数为 user_id_regist      传用户的ct_user_id
+	
+	查询注册失败的数据中心
+	参数为 user_id_unregist    传用户的ct_user_id
+
+	b.新增UDC的接口 
+	/api/user-datacenter/create/
+	参数 user_id  sysplatforms_id 两张表的ID
+	说明：如果新增了资源池 ，可以执行用户初始化功能，也可以在查询后可手动点击本接口
+
+	d.删除UDC 
+	/api/user-datacenter/delete/
+	参数 user_id  sysplatforms_id 两张表的ID
+	在某数据中心注销用户时执行，在查询后可手动点击本接口
+	或者当os升级后与当前数据不匹配的情况下执行本接口，清理该数据中心下的用户资源
+	
+	c.修改UDC  （当os DC 信息更改后 当前表信息是否需要随之更改？）
+	执行用户初始化，自动更新用户数据中心表，不建议直接修改本表，所以不提供接口
+
+
+数据中心表管理：
+	a.查询
+	接口：/api/users/query/
+	参数  ct_user_id
+
+	b.添加
+
+	c.删除
+	接口：/api/datacenters/delete/
+	参数："id" or "uuid"
+	说明：查询数据中心，没有返回错误信息
+		  查询数据中心表中是否有用户注册，有就返回错误，禁止删除
+		  删除数据中心表数据
+
+	d.修改
+
+
+
+9/1 action 整合几个接口
+
+9/4 写一个用户相关文档
+	需要在testcase_user中补充udc的相关用例
+
+	同时当前我们的前端登录机制 你需要想杨冬冬了解 你需要重构下登录接口
+	就是兼容当前王小乾他们的验证机制，同时兼容之前的用户名和密码登录机制
+	需要提供登录接口并测试，要在测试用例中补充用例
+
+	1 action 修改密码问题 没问题
+	2 regist datacenter 问题 已解决
+
+	3 注册资源池status =1 的情况怎么解决？
+
+	将udc 的功能加入users action 中
+
+9/5 action 接口整合
+	用户登陆
+	用户登出
+	活跃用户查询
+	禁用用户
+	激活用户
+	用户初始化
+	修改用户密码
+	用户数据中心绑定
+	用户数据中心解绑
+
+	写一个用户注册和登陆接口
+	更新用户相关的API接口说明
+
+	用户相关功能都搞定后  就尝试将工单系统接入统一认证。 和吴飘、叶智能一起联调下
+	要考虑用户的角色 有管理员和普通用户
+
+二.统一认证子系统
+1.开发任务：CAS-server加入系统校验，没归属系统的用户禁止登陆系统   进度：30%
+2.开发任务：CAS-servere修改返回信息，添加角色信息   进度：10%
+@吴飘 统一认证的自动部署完成后，  后续和我一块写二期paas的设计文档，同时以消息中间件为例，做一个saas应用，调用云公司的paas接口，同时绑定消息中间件服务。
+
+9/12 1.对用户附加字段的过滤功能，如某城市的用户 完成
+	/api/users/list/?key=city&value=8110100  
+	用户列表过滤 接口为/api/users/list/ 
+	方式为GET  参数为key value 如 {"key":"city","value":"8110100"}
+
+	2.对镜像同步代码重构  完成测试
+	#问题：发现同步镜像时，生成image信息失败，已解决 不用提出，原数据大小写问题，不会复现，也可忽略大小写（）
+
+	3.对错误码进行补充
+	对原函数的错误码重构  
+
+	imageTypes = all_image_type.filter(name=openStackImage.name) #不区分大小写
+	imageTypes = filter(lambda x: x.name == openStackImage.name, [imageType for imageType in all_image_type]) #区分大小写
+
+	用户解绑数据中心，需先检查用户的资源是否允许解绑?//
+
+	单点登陆 
+	用户发送请求： 172.18.143.2:12121/api/user/login/
+
+	请求地址： http://172.18.143.43:8080/cas/login?service=http://172.18.143.2:12121/
+			  
+	接收 ： http://172.18.143.2:12121/login/?next=/%3Fticket%3DST-14-WBfiz0aaNfNW1ToBHUY3-cas02.zsj.cas001
+
+	再次请求： http://172.18.143.43:8080/cas/serviceValidate?service=http://172.143.18.2:12121&ticket=ST-8-qbjz3TBwxkWlN3a9vehZ-cas02.zsj.cas001
+
+	退出请求  http://172.18.143.43:8080/cas/logout?service=http://172.18.143.2:12121
+
+
+	统一认证接口：
+	统一认证服务器： http://172.18.143.43:8080/cas/
+	测试用户：admin, 密码：111111
+	登陆： /caslogin/  请求方式为GET
+	登出： /caslogout/ 请求方式为GET
+
+
+	9/19 用户查询list接口优化
+		接口 /api/users/list/  请求方式为GET
+		无参数 返回所有用户的信息
+		有参数 /api/users/list/?key=username&value=t&key=mobile&value=0&key=city&value=1
+		参数可以为字段名或者新加字段名，字段名输入有误返回空。值支持模糊查询。
+
+	9/20  一键初始化所有用户
+	新增数据中心 后所有用户的初始化接口   
+
+	9/21 一键清除所有逻辑删除用户  删除305个用户 cost [0:19:08.369176] seconds 平均一个用户3秒
+
+
+9/25 1. 将SysPlatformDetails 表中注释掉 ext_net相关代码
+	 2. 发现对于原有防火墙的用户进行初始化时报错问题
+	 n1526 # todo 创建前应加判断否则返回已存在的错误信息 或者先判断是否存在，存在就拿到rule.id
+
+1.对于原有防火墙的用户进行初始化时报错问题的修复
+2.清除数据中心ext_net相关代码
+3.一键初始化所有用户接口
+
+
+9/30   搞个定时任务检测下数据中心是否正常，并更新数据中心的状态
+	  1.检测数据中心标中的管理员  登录信息是否可用
+	  2.检查数据中心os的  相关服务是否可用；
+	  3.检测当前os的配额是否可用
+	  4.其他可以想到的
+
+第一步完成1和2 更新数据中心状态  
+第二步点击数据中心的详情， 可以看到数据中心的整个资源的使用情况和剩余资源有多少。
+第三步  os的服务不可用时，列出哪些可用，哪些不可用。也是在数据中心明细中看到
+
+第三步的整个资源的使用情况和剩余资源 梁冠宇来做  
+相关功能要加到数据中心里面
+做一个用户资源的汇总功能吧。包括二部分：
+（1）不用花钱的资源。vpc、keypair、云主机规格、安全组等等 
+（2）要钱的资源，与工单相关的。云主机、弹性ip和存储。
+要求是每种资源，都有一个总数的统计。还有这种资源的明细，包括uuid、名称信息和对应的工单子项id和工单id等字段。
+类似这样的返回值
+vpc 5个， 明细 {uuid=1, name="name1", 工单id="fdsf", 工单子项id=“ddsff”}
+keypair  ***
+
+
+api:
+/api/instances/openstack_check_inits/
+参数：
+{"keystone_public_url":"http://172.18.211.101:10006/v3","ct_user_id":"bac_2182d822c34f4c27b1f836fee0325901","os_id":"93217b3effd5422b9b26a94045dda88f"}
+test
+error
+[dict["name"] for dict in types_list]
+
+10-9 问题总结：
+	1.镜像同步时目前仅同步一部分的问题。
+	2.查询云主机时需要通过子网ip来获取云主机，代码提交时覆盖了，需要恢复
+		并且需要根据子网，查看子网下的云主机及详情：包含云主机id、云主机的私有ip、弹性ip、安全组、云主机的名称
+	3.创建工单可能需要时间，没出来他们就重发工单，导致最后生成2个可用主机，看是否有问题？
+	4.跟云主机一起购买的弹性IP为什么到期时间不一样？
+	查询数据库发现云主机到期时间和浮动IP到期时间一致，检查其他
+	5.子网的详情里也给返回可用区吧，希望和云主机详情一样
+	  云主机有可用区和网络有没有可用区没有必然联系，应该不用管
+
+10-10 
+	增加剩余ip查询接口 /api/networks/action/
+	请求方式为POST
+	参数 action  network_uuid  ct_user_id  os_id
+	例如 {"action":"network_ip_availabilities","network_uuid":"687726b9-bd46-4a5e-b9c9-0f4e155c9999","ct_user_id":"d5cde804f9c34bdfac7a7659af19c890","os_id":"93217b3effd5422b9b26a94045dda88f"}
+	返回
+    response = {
+    "errorcode": "SUCCESS",
+    "msg": "Get availabilities ip success",
+    "errstatus": 0,
+    "results": [
+        {
+            "used_ips": 7,
+            "name": null,
+            "subnet_ip_availability": [
+                {
+                    "used_ips": 7,
+                    "subnet_id": "01c1c6a5-cfa2-42bd-a75d-d142f3bc8cbd",
+                    "subnet_name": "默认子网",
+                    "ip_version": 4,
+                    "usable_ips": 246,
+                    "cidr": "172.31.0.0/24",
+                    "total_ips": 253
+                }
+            ],
+            "network_id": "687726b9-bd46-4a5e-b9c9-0f4e155c9999",
+            "total_ips": 253,
+            "location": null,
+            "usable_ips": 246,
+            "project_id": "ecdd5fc4b87f4122bb837ba8adca0b45",
+            "network_name": "默认网络",
+            "id": null
+        }
+    ]
+}
+
+	#每次创建rc 87b21480-8be5-4185-9a21-54b4fab2a0f8
+	cloud_utils.py rc 
+	network.py 
+
+cloudstack联调环境
+http://172.18.143.185:8080/client/
+admin/password
+
+ rc兼容cloudstack  在开发分支上面来做
+url = "http://172.18.143.185:8080/client/api"
+apikey = "Pvt79qRHHjR0xfg6yAxHtIHCxx5S2CypLaXwI72t2_oyvIMvpcBnlrzguYr06HOMTRZSDpMFMldF-_KORNrvug"
+secret = 'CbbH3SunjgM7we-M-mQlee4i6IVQ1j4IVhogoDOL0gphtlN1z_S6MD0aTTh7S3PbJciiIQlU3T6Z-Xu6IrveqQ'
+apikey=Pvt79qRHHjR0xfg6yAxHtIHCxx5S2CypLaXwI72t2_oyvIMvpcBnlrzguYr06HOMTRZSDpMFMldF-_KORNrvug&command=listVirtualMachines&response=json&signature=MGeJ4hs0lIrarYRAM1jPWzt8YfI%3D
+username=admin&domain=%2F&auth_url=http%3A%2F%2F172.18.143.185%3A8080%2Fclient%2Fapi&command=login&password=password&response=json
+540e8a96377348de90354e6a8a6aa67b
+
+
+问题 怎么调用sessionkey来使用
+
+	udc.tenant_uuid = apikey
+    udc.keystone_user_uuid = secret
+
+    通过创建rc 调用接口执行cloudapi 操作
+null=None
+ips = [
+            {
+                "used_ips": 7,
+                "name": null,
+                "subnet_ip_availability": [
+                    {
+                        "used_ips": 7,
+                        "subnet_id": "01c1c6a5-cfa2-42bd-a75d-d142f3bc8cbd",
+                        "subnet_name": "默认子网",
+                        "ip_version": 4,
+                        "cidr": "172.31.0.0/24",
+                        "total_ips": 253
+                    }
+                ],
+                "network_id": "687726b9-bd46-4a5e-b9c9-0f4e155c9999",
+                "total_ips": 253,
+                "location": null,
+                "project_id": "ecdd5fc4b87f4122bb837ba8adca0b45",
+                "network_name": "默认网络",
+                "id": null
+            }
+        ]
+
+for i in ips:
+	i["usable_ips"] = i["total_ips"]-i["used_ips"]
+	for sub in i["subnet_ip_availability"]:
+		sub["usable_ips"] = sub["total_ips"]-sub["used_ips"]
+
+a = [{'usable_ips': 246,
+      'used_ips': 7,
+      'name': None,
+      'subnet_ip_availability': [
+          {'usable_ips': 246,
+           'used_ips': 7,
+           'subnet_id': '01c1c6a5-cfa2-42bd-a75d-d142f3bc8cbd',
+           'subnet_name': '\xc4\xac\xc8\xcf\xd7\xd3\xcd\xf8', 'ip_version': 4, 'cidr': '172.31.0.0/24',
+           'total_ips': 253}],
+      'network_id': '687726b9-bd46-4a5e-b9c9-0f4e155c9999', 'network_name': '\xc4\xac\xc8\xcf\xcd\xf8\xc2\xe7',
+      'project_id': 'ecdd5fc4b87f4122bb837ba8adca0b45',
+      'total_ips': 253, 'id': None, 'location': None}]
+
+import netcidr
+
+
+
+vlan环境
+1
+dns 服务
+网络 管理网(vr) public网 来宾网(虚拟机使用) 存储网
+VPC 就有vr了
+2种（隔离网）和VPC网络
+创建VPC  子网（全通和全不通 下发到vr）  配置都有了 ipcp
+router不用创建
+VPC network
+network  子网subnet
+zone_id 
+
+用户模块 新增管理员登陆接口 返回可用的 ct_user_id  和os_id
+
+11/7 编写单元测试 
+	test/ut/native  test_user_mgr.py  
+
+11/9 #编写 test_recurity_group_mgr.py
+	 编写flavor 相关代码   完成
+	 编写instance相关代码
+
+11/13
+请教下clouds tack的instance的创建流程 参考OS
+1 创建flavor拿到id     createserviceofferingresponse
+2 获取image id
+3 获取network    cloudstack VPC
+4 给密钥，没有就算了
+5 绑定默认安全组  
+6 磁盘size 
+完成instance创建 
+现在的情况是1 已完成，2 暂时使用固定的， 
+3  之前os是获取network uuid 获取不到就执行下面步骤
+a, 创建network（VPC）
+b，创建subnet 
+c，创建router
+d，等等
+那cloudstack 的VPC创建还需要subnet和router吗？
+5的默认安全组还需要去手动绑定吗？
+
+11月20日
+
+过去两个月中对cloudstack的api接口进行熟悉和相关测试，
+并将对原有代码进行更新，增加对CloudStack相关功能的支持，
+完成cloudstack 中rc模块，用户模块，filewall模块，flavor模块的支持及相关ut
+instance模块正在调试和完善
+
+
+instance 状态  
+1starting
+2Error 
+3Running
+
+5Stopped
+6Destroyed
+7Expunging
+
+deployVirtualMachine (A) #部署虚拟机
+destroyVirtualMachine (A) #删除虚拟机
+rebootVirtualMachine (A) # 重启虚拟机  id
+startVirtualMachine (A) #开启虚拟机   id
+stopVirtualMachine (A) #停止虚拟机   id
+resetPasswordForVirtualMachine (A) # 虚拟机重新设置密码               虚拟机必须处于“已停止”状态，模板必须已经支持该功能才能使此命令生效。[异步]
+updateVirtualMachine #更新虚拟机
+listVirtualMachines #虚拟机列表
+getVMPassword  #获取密码 id
+restoreVirtualMachine (A)# 将VM还原到原始模板/ ISO或新模板/ ISO      virtualmachineid  templateid
+changeServiceForVirtualMachine #为虚拟机更改服务   id serviceofferingid (details=[])   虚拟机必须处于“已停止”状态才能使此命令生效。
+scaleVirtualMachine (A) #将虚拟机扩展到新的服务产品。  id serviceofferingid (details=[]) 虚拟机必须处于“已停止”状态才能使此命令生效。
+
+assignVirtualMachine  分配虚拟机  account  domainid virtualmachineid    admin_user
+migrateVirtualMachine (A) 将虚拟机迁移到另一个主机，或将VM的硬盘迁移到不同的资源池 virtualmachineid （hostid storageid）  admin_user
+migrateVirtualMachineWithVolume (A ) 迁移VMwolume到另一个主机 hostid virtualmachineid （migrateto）admin_user
+recoverVirtualMachine  恢复虚拟机 id  admin_user
+expungeVirtualMachine (A)  删除虚拟机，一旦删除就不能恢复  id  admin_user
+cleanVMReservations (A) 在数据库中清理VM保留。 不要参数，admin_user
+
+addNicToVirtualMachine (A) #通过创建NIC将VM添加到指定的网络  networkid  virtualmachineid  (ipaddress)
+removeNicFromVirtualMachine (A) #从指定的虚拟机删除网络NIC   nicid  virtualmachineid 
+updateDefaultNicForVirtualMachine (A) #更改VM上的默认NIC    nicid  virtualmachineid
+
+
+
+
+
+"reboot": _server_reboot,
+"hard_reboot": _server_hard_reboot,
+"terminate": _server_delete,
+"power_on": _server_start,
+"power_off": _server_stop,
+"restore": _server_unpause,
+"pause": _server_pause,
+
+	"reboot": _("Instance Reboot"),
+	"power_on": _("Instance Power On"),
+	"power_off": _("Instance Power Off"),
+"vnc_console": _("Instance VNC"),
+"bind_floating": _("Instance Bind Floating"),
+"unbind_floating": _("Instance Unbind Floating"),
+"change_firewall": _("Instance Change Firewall"),
+"attach_volume": _("Instance Attach Volume"),
+"detach_volume": _("Instance Detach Volume"),
+"terminate": _("Instance Terminate"),
+"launch": _("Instance Launch"),
+"create_server_interface":_("Instance Create Server Interface"), //
+"delete_server_interface": _("Instance Delete Server Interface"),
+'get_server_interface':_("Instance Get Server Interface"),
+'get_server_interfaces': _("Instance Get Server Interfaces"),
+'get_server_ips': _("Instance Get Server ips"),
+'add_security_group_to_server': _("Instance Add Security Group to Server"),
+'remove_security_group_from_server': _("Instance Remove Security Group from Server"),
+'add_fixed_ip_to_server': _("Instance Add Fixed to Server"),
+'remove_fixed_ip_from_server': _("Instance Remove Fixed from Server"),
+"update": _("Instance update name"),
+"rebuild": _("Instance rebuild server"),
+	"change_server_password": _("Instance change password"),
+"resize": _("Instance resize"),
+"renew": _("Instance renew"),
+"upload_volume_image": _("Instance upload_volume_image"),
+"hard_reboot": _("Instance hard reboot"),
+"live_migrate": _("Instance live migrate"),
+
+
+
+流程
+1 创建一个用户（默认link数据中心）
+
+2 创建instance  
+需要的参数：没有去创建
+    if not self.requests.has_key('displayname'):
+        self.requests['displayname'] = self.name
+    self.requests['serviceofferingid'] = self.ServiceOffering.id
+    self.requests['templateid'] = self.Template.id
+    self.requests['zoneid'] = self.Zone.id
+
+    'affinitygroupids' =  AffinityGroup.id  or [ids,]
+    'networkids'  = Network.id or [ids,]
+    'DiskOffering' = DiskOffering.id
+
+
+11/22	keypair 增删改查
+		security group 增删改查
+
+
+请问下cloudstack
+原始返回
+{u'listsecuritygroupsresponse': {u'count': 1, u'securitygroup': [
+        {u'egressrule': [], u'account': u'zhangsi', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+         u'description': u'Default Security Group', u'tags': [], u'domain': u'ROOT', u'ingressrule': [],
+         u'id': u'acf947a1-10fa-4707-8ca3-e0b207c3b8c4', u'name': u'default'}]}}
+暂时返回：
+[{u'egressrule': [], u'account': u'zhangsi', u'domainid': u'9499b7d4-3527-11e7-b291-005056aa8e4f',
+ u'description': u'Default Security Group', u'tags': [], u'domain': u'ROOT', u'ingressrule': [],
+ u'id': u'acf947a1-10fa-4707-8ca3-e0b207c3b8c4', u'name': u'default'}
+ ]
+
+还是使用原始的返回格式吗？
+
+11/29 floating 的增加和删除
+	add IPtoNIC
+	floating action
+		allocate  分配   action中无
+		release   释放    暂时先放一放
+		associate  绑定    暂时不做
+		disassociate  解绑   暂时不做
+		renew      更新   action中无
+		refund     退款   action中无
+	#绑定公网IP资源类型 instance 或者 loadbalancer 负载均衡
+
+
+
+
+部署OpenStack KVM
+部署相关测试软件
+部署 升级至KVM
+
+1半虚拟化驱动：virtio, Vmware Tools
+
+2memory ballooning可以动态调整guest的内存的大小
+	如果有-m参数，则向更大的内存调整时无效的，但是可以往小的里面调整
+
+虚拟化
+	1 内存虚拟化管理 Memory Ballooning 
+	2 硬盘虚拟化virtio_blk
+	3 网络设备虚拟化virtio_net
+
+
+virt-builder
+可以快速的创建虚拟机镜像
+update-guestfs-appliance
+查看所有的镜像类型
+virt-builder –list
+创建一个Image
+virt-builder fedora-20 -o myfedora.img --format qcow2 --size 20G 
+设置root password, 放在文件里面
+virt-builder fedora-20 --root-password file:/tmp/rootpw
+设置hostname
+virt-builder fedora-20 --hostname virt.example.com
+安装软件
+virt-builder fedora-20 –install “apache2“
+第一次启动运行脚本
+virt-builder fedora-20 --firstboot /tmp/yum-update.sh
+virt-ls -a myfedora.img /root/
+virt-cat -a myfedora.img /root/.bash_profile
+virt-copy-in -a myfedora.img desktop.xml /root/
+virt-copy-out -a myfedora.img /root/.bash_profile ./
+virt-df -a myfedora.img
+
+
+virt-list-filesystems -a myfedora.img
+virt-list-partitions myfedora.img
+virt-ls -a myfedora.img /root/
+virt-cat -a myfedora.img /root/.bash_profile
+virt-copy-in -a myfedora.img desktop.xml /root/
+virt-copy-out -a myfedora.img /root/.bash_profile ./
+virt-df -a myfedora.img
+
+
+virt-list-filesystems -a myfedora.img
+virt-list-partitions myfedora.img
+
+
+
+instances
+# flavors
+images # 创建私有镜像
+# keypairs
+# azs 
+networks
+subnets
+# ports
+lbs 负载均衡
+
+firewalls
+# firewall_rules
+# account
+users
+# datacenters
+# workflows
+# workflow-instances
+# price-rules
+# msg
+# resources
+# imagetype
+# volumetype
+# volumebackups
+volumes
+
+
+
+
+1
+然后安装到指定的目录中
+
+sh install.sh -d /home/cc/spec
+1
+最后运行shrc脚本 
+查看SHELL变量，如果是BASH的话，source shrc，如果是CSHELL的话，source cshrc
+
+source shrc
+1
+将config目录下的 Example-linux64-amd64-gcc41.cfg配置文件复制下，命名为gcc41.cfg，由于gem5运行spec需要静态可执行文件，所以将gcc41.cfg文件修改：
+
+COPTIMIZE = -O2
+CXXOPTIMIZE = -O2
+FOPTIMIZE = -O2
+改为
+COPTIMIZE = -O2 -static
+CXXOPTIMIZE = -O2 -static
+FOPTIMIZE = -O2 -static
+
+在config目录下 编译其中的一个benchmark：
+
+runspec --config=gcc41.cfg --action=build --tune=base perlbench 
+
+
+请教下clouds tack的instance的创建流程 参考OS
+1 创建flavor拿到id   或者直接传入flavor id   createserviceofferingresponse
+2 获取image id
+3 获取network    cloudstack VPC
+4 给密钥，没有就算了
+5 绑定默认安全组  
+
+完成instance创建 
+现在的情况是1 已完成，2 暂时使用固定的， 
+3  之前os是获取network uuid 获取不到就执行下面步骤
+a, 创建network（VPC）
+b，创建subnet 
+c，创建router
+d，等等
+那cloudstack 的VPC创建还需要subnet和router吗？
+5的默认安全组还需要去手动绑定吗？
+
+创建VPC过程，#，
+	listzones # zoneid
+	listvpcofferings # vpcofferingid   {"id": "63a0e32c-6c55-4f86-9871-c53d89bcad0e", "name": "Default VPC offering"}
+	createvpc #command=createVPC  name  displaytext  zoneid  cidr=10.0.1.0%2F16  vpcofferingid=63a0e32c-6c55-4f86-9871-c53d89bcad0e
+	queryasyncjobresult  
+	# { "queryasyncjobresultresponse" : {"accountid":"e4e39fee-cb7b-11e7-84ab-005056aa8e4f","userid":"e4e3c5c8-cb7b-11e7-84ab-005056aa8e4f","cmd":"org.apache.cloudstack.api.command.user.vpc.CreateVPCCmd","jobstatus":2,"jobprocstatus":0,"jobresultcode":530,"jobresulttype":"object","jobresult":{"errorcode":530,"errortext":"STORAGE_VIRTUAL_ROUTER"},"created":"2017-12-06T10:46:49+0800","jobid":"0d2030e3-7a9a-4dbf-9aff-9acab90c8197"} }
+	# jobstatus=2 执行结果状态  
+	# "jobresult":{"errorcode":530,"errortext":"STORAGE_VIRTUAL_ROUTER"}
+	http://172.18.143.185:8080/client/api?command=createVPC&response=json&sessionkey=Hbh18LCKwNozx108n7fX6OKvl4M%3D&name=ningdefault-sub_test02&displaytext=ningdefault-sub_test02&zoneid=7cac1ccc-e515-4d7a-9fda-e3b94d363605&cidr=10.1.0.0%2F24&vpcofferingid=63a0e32c-6c55-4f86-9871-c53d89bcad0e&_=1512552813716
+	创建子网
+	pass
+
+
+
+创建隔离网络  （创建VPC后直接加上ACL规则，创建subnet后直接绑定上ACL规则）
+	创建VPC（隔离网络）
+		listzones # zoneid name=advance
+		listvpcofferings # vpcofferingid  {"id": "63a0e32c-6c55-4f86-9871-c53d89bcad0e", "name": "Default VPC offering"}
+		cidr="10.0.1.0/24"
+		createvpc #command=createVPC  name  displaytext  zoneid    vpcofferingid=63a0e32c-6c55-4f86-9871-c53d89bcad0e
+		queryasyncjobresult  
+		# { "queryasyncjobresultresponse" : {"accountid":"e4e39fee-cb7b-11e7-84ab-005056aa8e4f","userid":"e4e3c5c8-cb7b-11e7-84ab-005056aa8e4f","cmd":"org.apache.cloudstack.api.command.user.vpc.CreateVPCCmd","jobstatus":2,"jobprocstatus":0,"jobresultcode":530,"jobresulttype":"object","jobresult":{"errorcode":530,"errortext":"STORAGE_VIRTUAL_ROUTER"},"created":"2017-12-06T10:46:49+0800","jobid":"0d2030e3-7a9a-4dbf-9aff-9acab90c8197"} }
+		# jobstatus=2 执行结果状态  
+		# "jobresult":{"errorcode":530,"errortext":"STORAGE_VIRTUAL_ROUTER"}
+		也可以查询下VPC id  有的话继续  没有的话就再查询 超时跳过
+
+	创建ACL（隔离网络） #放置位置 和是否有绑定过程
+	listNetworkACLLists  vpcid listAll=true 
+		http://172.18.143.185:8080/client/api?command=listNetworkACLLists&response=json&sessionkey=8odzdDqETofm6satn3S0CQWlsBE%3D&vpcid=27c2e5ab-e101-4f3c-80cb-ca8131b23985&listAll=true&page=1&pagesize=30&_=1512627578297
+
+	createNetworkACLList  vpcid  name=ningdefault-ACL_test&description=ningdefault-ACL_test
+		http://172.18.143.185:8080/client/api?command=createNetworkACLList&vpcid=27c2e5ab-e101-4f3c-80cb-ca8131b23985&response=json&sessionkey=8odzdDqETofm6satn3S0CQWlsBE%3D&name=ningdefault-ACL_test&description=ningdefault-ACL_test&_=1512627714887
+		{ "createnetworkacllistresponse" : {"id":"57a37e87-590b-4aa2-ae59-993c9d7a1978","jobid":"30132f52-4e9f-4ae8-99ea-1b0c04038f75"} }
+		http://172.18.143.189:8080/client/api?command=deleteNetworkACLList&id=0a3cd8ea-efb0-4b98-a228-5a0999526dff&response=json&sessionkey=Wvr%2BERyQzUG%2BaWZ8gWqOetMuNgU%3D&_=1515147508136
+			{ "deletenetworkacllistresponse" : {"jobid":"9a40afdb-cfd5-47bb-b818-f57def303512"} }
+			http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=4d095ca1-cead-4e21-b870-e3bba4bf81d2&response=json&sessionkey=Wvr%2BERyQzUG%2BaWZ8gWqOetMuNgU%3D&_=1515148504717
+			错误返回{ "queryasyncjobresultresponse" : {"accountid":"09b350d0-fe3c-4bdb-bfbe-f46aa185bb31","userid":"b40c9e50-73a7-4f4e-8466-2ad3cc5c5328","cmd":"org.apache.cloudstack.api.command.user.network.DeleteNetworkACLListCmd","jobstatus":2,"jobprocstatus":0,"jobresultcode":530,"jobresulttype":"object","jobresult":{"errorcode":530,"errortext":"ACL is not empty. Cannot delete network ACL: bb3d355d-6ed5-43cd-ba36-7cb15c0f6492"},"created":"2018-01-05T18:35:39+0800","jobid":"4d095ca1-cead-4e21-b870-e3bba4bf81d2"} }
+			正确返回{ "queryasyncjobresultresponse" : {"accountid":"09b350d0-fe3c-4bdb-bfbe-f46aa185bb31","userid":"b40c9e50-73a7-4f4e-8466-2ad3cc5c5328","cmd":"org.apache.cloudstack.api.command.user.network.DeleteNetworkACLListCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"success":true},"created":"2018-01-05T18:37:18+0800","jobid":"94d78e6b-25ef-4be7-8a63-4b944a9f86d3"} }
+
+
+	createNetworkACL  "number"=1  "cidrlist"=0.0.0.0%2F0 (cidr)  "action"="Allow"  "protocol"="tcp"  "startport"=1  "endport"=79  "traffictype"="Ingress"  "aclid"="58291f88-e1ba-4b22-9ffc-1711646aa9ba"
+		http://172.18.143.185:8080/client/api?command=createNetworkACL&response=json&sessionkey=XzJvkvZKEwkIRysfBcDQcUHEQr8%3D&number=01&cidrlist=0.0.0.0%2F0&action=Allow&protocol=tcp&startport=1&endport=79&traffictype=Ingress&aclid=58291f88-e1ba-4b22-9ffc-1711646aa9ba&_=1512628620909http://172.18.143.185:8080/client/api?command=createNetworkACL&response=json&sessionkey=XzJvkvZKEwkIRysfBcDQcUHEQr8%3D&number=01&cidrlist=0.0.0.0%2F0&action=Allow&protocol=tcp&startport=1&endport=79&traffictype=Ingress&aclid=58291f88-e1ba-4b22-9ffc-1711646aa9ba&_=1512628620909
+	createNetworkACL  "number"=6  "cidrlist"=0.0.0.0%2F0 (cidr)  "action"="Allow"  "protocol"="udp"  "startport"=1  "endport"=65535  "traffictype"="Ingress"  "aclid"="58291f88-e1ba-4b22-9ffc-1711646aa9ba"
+		http://172.18.143.185:8080/client/api?command=createNetworkACL&response=json&sessionkey=XzJvkvZKEwkIRysfBcDQcUHEQr8%3D&number=6&cidrlist=0.0.0.0%2F0&action=Allow&protocol=udp&startport=1&endport=65535&traffictype=Ingress&aclid=58291f88-e1ba-4b22-9ffc-1711646aa9ba&_=1512628968891
+			http://172.18.143.185:8080/client/api?command=queryAsyncJobResult&jobId=d36576c0-6e54-43cb-846d-4ba0439e0961&response=json&sessionkey=XzJvkvZKEwkIRysfBcDQcUHEQr8%3D&_=1512628623950
+			result = { "queryasyncjobresultresponse" : {"accountid":"e4e39fee-cb7b-11e7-84ab-005056aa8e4f","userid":"e4e3c5c8-cb7b-11e7-84ab-005056aa8e4f","cmd":"org.apache.cloudstack.api.command.user.network.CreateNetworkACLCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"networkacl":{"id":"89972728-a03a-4f29-a487-d23217a6bf5d","protocol":"tcp","startport":"1","endport":"79","traffictype":"Ingress","state":"Active","cidrlist":"0.0.0.0/0","tags":[],"aclid":"58291f88-e1ba-4b22-9ffc-1711646aa9ba","number":1,"action":"Allow"}},"created":"2017-12-07T14:35:27+0800","jobid":"d36576c0-6e54-43cb-846d-4ba0439e0961"} }
+	createNetworkACL  "number"=7   "cidrlist"=0.0.0.0%2F24       "action"="Allow"  "protocol"="icmp" "icmptype"=8  "icmpcode"=-1  "traffictype"="Ingress"  "aclid"="58291f88-e1ba-4b22-9ffc-1711646aa9ba" 
+		http://172.18.143.185:8080/client/api?command=createNetworkACL&response=json&sessionkey=XzJvkvZKEwkIRysfBcDQcUHEQr8%3D&number=7&cidrlist=0.0.0.0%2F24&action=Allow&protocol=icmp&icmptype=8&icmpcode=-1&traffictype=Ingress&aclid=58291f88-e1ba-4b22-9ffc-1711646aa9ba&_=1512629406692
+			{ "createnetworkaclresponse" : {"id":"577db9a9-be42-4245-b485-e37d93ad5db0","jobid":"3808bd59-e6f2-4034-aa9e-7ea590425cf5"} }
+			http://172.18.143.185:8080/client/api?command=queryAsyncJobResult&jobId=3808bd59-e6f2-4034-aa9e-7ea590425cf5&response=json&sessionkey=XzJvkvZKEwkIRysfBcDQcUHEQr8%3D&_=1512629409738
+				{ "queryasyncjobresultresponse" : {"accountid":"e4e39fee-cb7b-11e7-84ab-005056aa8e4f","userid":"e4e3c5c8-cb7b-11e7-84ab-005056aa8e4f","cmd":"org.apache.cloudstack.api.command.user.network.CreateNetworkACLCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"networkacl":{"id":"577db9a9-be42-4245-b485-e37d93ad5db0","protocol":"icmp","traffictype":"Ingress","state":"Active","cidrlist":"0.0.0.0/24","icmptype":8,"icmpcode":-1,"tags":[],"aclid":"58291f88-e1ba-4b22-9ffc-1711646aa9ba","number":7,"action":"Allow"}},"created":"2017-12-07T14:48:33+0800","jobid":"3808bd59-e6f2-4034-aa9e-7ea590425cf5"} }
+
+
+	http://172.18.143.189:8080/client/api?command=createNetworkACLList&vpcid=1c5ca0a2-4bb7-4237-b8dc-b54082909a30&response=json&sessionkey=ZDUEFSewUH7lJYcb4kpD1mndxvc%3D&name=delete_&description=delete&_=1512649803868
+	{ "createnetworkacllistresponse" : {"id":"57a37e87-590b-4aa2-ae59-993c9d7a1978","jobid":"30132f52-4e9f-4ae8-99ea-1b0c04038f75"} }
+	创建network（隔离网络）
+	createNetwork  zoneId  vpcid  domainid  account=admin  networkOfferingId=094a46d7-198f-41b1-b2ff-b1f0e3639aff  name  displayText  gateway=10.1.0.1  netmask=255.255.255.0  aclid=58291f88-e1ba-4b22-9ffc-1711646aa9ba
+		createNetwork&response=json&sessionkey=j7X9HK%2F0ovqKNDyjicA30H%2BlpU8%3D&zoneId=7cac1ccc-e515-4d7a-9fda-e3b94d363605&vpcid=27c2e5ab-e101-4f3c-80cb-ca8131b23985&domainid=c0a02152-cb7b-11e7-84ab-005056aa8e4f&account=admin&networkOfferingId=094a46d7-198f-41b1-b2ff-b1f0e3639aff&name=ningdefault-vpc-sub02&displayText=ningdefault-vpc-sub02&gateway=10.1.0.1&netmask=255.255.255.0&aclid=58291f88-e1ba-4b22-9ffc-1711646aa9ba&_=1512636006889
+		
+		name    #username
+		displayText  #username
+		gateway  # gateway=".".join(cidr.split("/")[0].split(".")[:-1])+ ".1"
+		netmask="255.255.255.0"
+		domainid = "c0a02152-cb7b-11e7-84ab-005056aa8e4f"
+			http://172.18.143.185:8080/client/api?command=listDomains&id=c0a02152-cb7b-11e7-84ab-005056aa8e4f&listAll=true&response=json&sessionkey=T2p1OuZZGYOCF2q2xuYP%2BL%2FFwqY%3D&_=1512610772803
+		zoneid  #zoneId
+		listnetworkofferings #networkOfferingId="352b4259-2c7d-4242-b7bc-b5add12961fd" "name":"DefaultIsolatedNetworkOfferingForVpcNetworksNoLB"
+		createNetwork   zoneId  name  displayText  gateway  netmask=255.255.255.0  account=admin
+						networkOfferingId="352b4259-2c7d-4242-b7bc-b5add12961fd"(固定) vpcid  domainid（暂时先不给看是否可以） 
+
+	成功创建network 
+		createNetwork zoneId  vpcid domainid="af068bf2-a259-11e7-af4a-005056aa5d20"  account="ct_bacf0dd10047f664298a2f85c280ce5693a"  networkOfferingId=ea1a336f-51f2-49c8-90ef-0951a1372436 name displayText gateway=10.0.1.1 netmask=255.255.255.0  aclid=621b5bc9-a465-4f4c-ae2c-4a0e2cd73148
+		http://172.18.143.189:8080/client/api?command=createNetwork&response=json&sessionkey=uZ1HHl%2BnBRQ27Fz0%2BrXG%2B2vKlg0%3D&zoneId=0d86f114-7153-4d71-a835-7916a41ab0b7&vpcid=fb9e1aa2-79f1-461c-a8b3-8534b5424f2d&domainid=af068bf2-a259-11e7-af4a-005056aa5d20&account=ct_bacf0dd10047f664298a2f85c280ce5693a&networkOfferingId=ea1a336f-51f2-49c8-90ef-0951a1372436&name=XXXX&displayText=XXXX&gateway=10.0.1.1&netmask=255.255.255.0&aclid=621b5bc9-a465-4f4c-ae2c-4a0e2cd73148&_=1512662482673
+		需要参数   zoneId（自查）   domainid（自查）  networkOfferingId（自查）  vpcofferingid（自查）  
+
+
+附加单独创建VPC 后直接加上ACL规则
+
+附加单独创建subnet后  直接绑定上ACL规则
+	先查询ACL规则
+	vpcid
+	http://172.18.143.189:8080/client/api?command=listNetworkACLLists&vpcid=d0d0d6cd-86c9-473a-b308-42e6da399473&response=json&sessionkey=PKAGT077mxLJcqbsC6beFqAi2J8%3D&_=1514180997967
+		{ "listnetworkacllistsresponse" : { "count":2 ,"networkacllist" : [  {"id":"eecdfce8-a259-11e7-af4a-005056aa5d20","name":"default_allow","description":"Default Network ACL Allow All"}, {"id":"eecd9c80-a259-11e7-af4a-005056aa5d20","name":"default_deny","description":"Default Network ACL Deny All"} ] } }
+	ses=[]
+	给subnet绑定ACL规则
+	http://172.18.143.189:8080/client/api?command=replaceNetworkACLList&networkid=4383c777-9696-4a09-a440-ce366452dae6&aclid=eecdfce8-a259-11e7-af4a-005056aa5d20&response=json&sessionkey=PKAGT077mxLJcqbsC6beFqAi2J8%3D&_=1514181003250
+		{ "replacenetworkacllistresponse" : {"jobid":"2376c530-8bd8-4b30-973b-53fa15ba217c"} }
+		查询异步执行结果
+		http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=2376c530-8bd8-4b30-973b-53fa15ba217c&response=json&sessionkey=PKAGT077mxLJcqbsC6beFqAi2J8%3D&_=1514181006350
+			{ "queryasyncjobresultresponse" : {"accountid":"09b350d0-fe3c-4bdb-bfbe-f46aa185bb31","userid":"b40c9e50-73a7-4f4e-8466-2ad3cc5c5328","cmd":"org.apache.cloudstack.api.command.user.network.ReplaceNetworkACLListCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"success":true},"created":"2017-12-25T13:50:19+0800","jobid":"2376c530-8bd8-4b30-973b-53fa15ba217c"} }
+
+删除VPC 
+	http://172.18.143.189:8080/client/api?command=deleteVPC&response=json&sessionkey=PKAGT077mxLJcqbsC6beFqAi2J8%3D&id=d0d0d6cd-86c9-473a-b308-42e6da399473&_=1514181561676
+		{ "deletevpcresponse" : {"jobid":"45fd1517-c8ed-4d0b-8728-b0dc5f6eab4b"} }
+		http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=45fd1517-c8ed-4d0b-8728-b0dc5f6eab4b&response=json&sessionkey=PKAGT077mxLJcqbsC6beFqAi2J8%3D&_=1514181564787
+			删除失败 
+			{ "queryasyncjobresultresponse" : {"accountid":"09b350d0-fe3c-4bdb-bfbe-f46aa185bb31","userid":"b40c9e50-73a7-4f4e-8466-2ad3cc5c5328","cmd":"org.apache.cloudstack.api.command.user.vpc.DeleteVPCCmd","jobstatus":2,"jobprocstatus":0,"jobresultcode":530,"jobresulttype":"object","jobresult":{"errorcode":530,"errortext":"Can't delete VPC [VPC [96-test-vpc] as its used by 1 networks"},"created":"2017-12-25T13:59:38+0800","jobid":"45fd1517-c8ed-4d0b-8728-b0dc5f6eab4b"} }
+		http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=8193625e-a8dd-4807-a9c4-8c7ffd2e7b38&response=json&sessionkey=PKAGT077mxLJcqbsC6beFqAi2J8%3D&_=1514181777663
+			删除成功
+			{ "queryasyncjobresultresponse" : {"accountid":"09b350d0-fe3c-4bdb-bfbe-f46aa185bb31","userid":"b40c9e50-73a7-4f4e-8466-2ad3cc5c5328","cmd":"org.apache.cloudstack.api.command.user.vpc.DeleteVPCCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"success":true},"created":"2017-12-25T14:02:50+0800","jobid":"8193625e-a8dd-4807-a9c4-8c7ffd2e7b38"} }
+删除subnet
+	http://172.18.143.189:8080/client/api?command=deleteNetwork&id=4383c777-9696-4a09-a440-ce366452dae6&response=json&sessionkey=PKAGT077mxLJcqbsC6beFqAi2J8%3D&_=1514181675413
+	{ "deletenetworkresponse" : {"jobid":"be05cdb7-b963-4ff0-875d-f4e025e72698"} }
+		http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=be05cdb7-b963-4ff0-875d-f4e025e72698&response=json&sessionkey=PKAGT077mxLJcqbsC6beFqAi2J8%3D&_=1514181678519
+			{ "queryasyncjobresultresponse" : {"accountid":"09b350d0-fe3c-4bdb-bfbe-f46aa185bb31","userid":"b40c9e50-73a7-4f4e-8466-2ad3cc5c5328","cmd":"org.apache.cloudstack.api.command.user.network.DeleteNetworkCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"success":true},"created":"2017-12-25T14:01:32+0800","jobid":"be05cdb7-b963-4ff0-875d-f4e025e72698"} }
+更新 subnet 
+	http://172.18.143.189:8080/client/api?command=updateNetwork&id=e893f2f7-e806-4b24-b247-40b2a3db1b7b&name=new-test-sub2&displaytext=10.0.1.1%2F24&response=json&sessionkey=HrnidtCKYxT%2FDFIzwLXiIBxVSi0%3D&_=1514199118257
+	{ "updatenetworkresponse" : {"jobid":"c267d8f5-96f9-4c19-b666-5fd336c67225"} }
+		http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=c267d8f5-96f9-4c19-b666-5fd336c67225&response=json&sessionkey=HrnidtCKYxT%2FDFIzwLXiIBxVSi0%3D&_=1514199121403
+			{ "queryasyncjobresultresponse" : {"accountid":"09b350d0-fe3c-4bdb-bfbe-f46aa185bb31","userid":"b40c9e50-73a7-4f4e-8466-2ad3cc5c5328","cmd":"org.apache.cloudstack.api.command.user.network.UpdateNetworkCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"network":{"id":"e893f2f7-e806-4b24-b247-40b2a3db1b7b","name":"new-test-sub2","displaytext":"10.0.1.1/24","broadcastdomaintype":"Vlan","traffictype":"Guest","gateway":"10.0.1.1","netmask":"255.255.255.0","cidr":"10.0.1.0/24","zoneid":"0d86f114-7153-4d71-a835-7916a41ab0b7","zonename":"zone1","networkofferingid":"ea1a336f-51f2-49c8-90ef-0951a1372436","networkofferingname":"DefaultIsolatedNetworkOfferingForVpcNetworksNoLB","networkofferingdisplaytext":"Offering for Isolated Vpc networks with Source Nat service enabled and LB service Disabled","networkofferingconservemode":false,"networkofferingavailability":"Optional","issystem":false,"state":"Allocated","related":"e893f2f7-e806-4b24-b247-40b2a3db1b7b","dns1":"114.114.114.114","dns2":"","type":"Isolated","acltype":"Account","account":"ct_bac_155dd96361604a828de75116d265a210","domainid":"af068bf2-a259-11e7-af4a-005056aa5d20","domain":"ROOT","service":[{"name":"Dhcp","capability":[{"name":"DhcpAccrossMultipleSubnets","value":"true","canchooseservicecapability":false}]},{"name":"UserData"},{"name":"StaticNat"},{"name":"NetworkACL","capability":[{"name":"SupportedProtocols","value":"tcp,udp,icmp","canchooseservicecapability":false}]},{"name":"SourceNat","capability":[{"name":"RedundantRouter","value":"false","canchooseservicecapability":false},{"name":"SupportedSourceNatTypes","value":"peraccount","canchooseservicecapability":false}]},{"name":"Vpn","capability":[{"name":"VpnTypes","value":"s2svpn","canchooseservicecapability":false},{"name":"SupportedVpnTypes","value":"pptp,l2tp,ipsec","canchooseservicecapability":false}]},{"name":"Dns","capability":[{"name":"AllowDnsSuffixModification","value":"true","canchooseservicecapability":false}]},{"name":"PortForwarding"}],"networkdomain":"cs50cloud.internal","physicalnetworkid":"3fca5bc4-3e4c-4674-a4c2-123fe8811853","restartrequired":false,"specifyipranges":false,"vpcid":"92f3c7f7-2245-4031-b505-b459a00e4920","canusefordeploy":true,"ispersistent":false,"tags":[],"displaynetwork":true,"aclid":"415bcb63-2061-4994-9e21-d001ba58dc3e"}},"created":"2017-12-25T18:52:20+0800","jobid":"c267d8f5-96f9-4c19-b666-5fd336c67225"} }
+
+创建instance 直接绑定上ACL规则
+	deployVirtualMachine  zoneid  templateid  hypervisor=VMware  serviceofferingid （通过参数创建） diskofferingid（根据size创建）  networkids （查询）displayname name 
+		http://172.18.143.189:8080/client/api?command=deployVirtualMachine&response=json&sessionkey=Ael%2FzlDHJxVS4zQLiVDoEmwuNBw%3D&zoneid=0d86f114-7153-4d71-a835-7916a41ab0b7&templateid=357fb0ae-3543-4893-9d1f-ef0d04da60dd&hypervisor=VMware&serviceofferingid=9f237f6e-fc21-478d-8efc-af87e0cf9647&diskofferingid=83011d54-2e18-4869-89d7-88d5d310fc00&networkids=43044fb2-aa40-43db-a419-f47da77f3e8b&displayname=zntest-vpc-sub01-acl&name=zntest-vpc-sub01-acl&_=1512637997351
+		{ "deployvirtualmachineresponse" : {"id":"08ec3253-bd5a-4e51-b9bf-db12daa2250b","jobid":"431bef99-5a70-47ca-8415-b8ba5b91b004"} }
+	查询创建结果（不满意循环查询）
+	http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=431bef99-5a70-47ca-8415-b8ba5b91b004&response=json&sessionkey=Ael%2FzlDHJxVS4zQLiVDoEmwuNBw%3D&_=1512638063611
+	{ "queryasyncjobresultresponse" : {"accountid":"ff0ed611-41e5-452b-ad5b-d571eb2c1c0f","userid":"32b49b50-7dce-4f50-a3db-93f452ea08b7","cmd":"org.apache.cloudstack.api.command.user.vm.DeployVMCmd","jobstatus":0,"jobprocstatus":0,"jobresultcode":0,"jobinstancetype":"VirtualMachine","jobinstanceid":"08ec3253-bd5a-4e51-b9bf-db12daa2250b","created":"2017-12-07T17:11:44+0800","jobid":"431bef99-5a70-47ca-8415-b8ba5b91b004"} }
+	最后{ "queryasyncjobresultresponse" : {"accountid":"ff0ed611-41e5-452b-ad5b-d571eb2c1c0f","userid":"32b49b50-7dce-4f50-a3db-93f452ea08b7","cmd":"org.apache.cloudstack.api.command.user.vm.DeployVMCmd","jobstatus":0,"jobprocstatus":0,"jobresultcode":0,"jobinstancetype":"VirtualMachine","jobinstanceid":"08ec3253-bd5a-4e51-b9bf-db12daa2250b","created":"2017-12-07T17:11:44+0800","jobid":"431bef99-5a70-47ca-8415-b8ba5b91b004"} }
+
+
+查询instance    
+		
+	instance 状态  
+	1 starting
+	2 Error 
+	3 Running
+	4 Stopped
+	5 Destroyed
+	6 Expunging
+
+	listVirtualMachines id  
+	http://172.18.143.189:8080/client/api?command=listVirtualMachines&id=08ec3253-bd5a-4e51-b9bf-db12daa2250b&response=json&sessionkey=1xZo30hY7BRYIrPUIREjzMeyEUg%3D&_=1513040707678
+		a = {"listvirtualmachinesresponse": {"count": 1, "virtualmachine": [
+            {"id": "08ec3253-bd5a-4e51-b9bf-db12daa2250b", "name": "zntest-vpc-sub01-acl",
+             "displayname": "zntest-vpc-sub01-acl", "account": "zntest",
+             "domainid": "af068bf2-a259-11e7-af4a-005056aa5d20", "domain": "ROOT",
+             "created": "2017-12-07T17:11:44+0800", "state": "Running", "haenable": false,
+             "zoneid": "0d86f114-7153-4d71-a835-7916a41ab0b7", "zonename": "zone1",
+             "templateid": "357fb0ae-3543-4893-9d1f-ef0d04da60dd",
+             "templatename": "Centos6.4-iperf-httpd-https-5.5-java1.8.0",
+             "templatedisplaytext": "Centos6.4-iperf-httpd-https-5.5-java1.8.0", "passwordenabled": false,
+             "serviceofferingid": "9f237f6e-fc21-478d-8efc-af87e0cf9647", "serviceofferingname": "Small Instance",
+             "cpunumber": 1, "cpuspeed": 500, "memory": 512, "cpuused": "0%", "memusage": "4.88%", "networkkbsread": 0,
+             "networkkbswrite": 0, "diskkbsread": 0, "diskkbswrite": 0, "diskioread": 0, "diskiowrite": 0,
+             "guestosid": "af265b12-a259-11e7-af4a-005056aa5d20", "rootdeviceid": 0, "rootdevicetype": "ROOT",
+             "securitygroup": [], "nic": [
+                {"id": "9a8d7994-77a6-47d1-b435-fba042d563e0", "networkid": "43044fb2-aa40-43db-a419-f47da77f3e8b",
+                 "networkname": "zntest-vpc-sub01", "netmask": "255.255.255.0", "gateway": "10.1.1.1",
+                 "ipaddress": "10.1.1.208", "isolationuri": "vlan://1778", "broadcasturi": "vlan://1778",
+                 "traffictype": "Guest", "type": "Isolated", "isdefault": true, "macaddress": "02:00:4c:86:00:01"}],
+             "hypervisor": "VMware", "publicipid": "9b243e0b-5d2d-41b4-a1f4-c65c52dfa2b2", "publicip": "172.18.132.34",
+             "tags": [], "affinitygroup": [], "displayvm": true, "isdynamicallyscalable": true}]}}
+查询floating 
+	listNetworks id=43044fb2-aa40-43db-a419-f47da77f3e8b  listAll=true 
+	http://172.18.143.189:8080/client/api?command=listNetworks&id=43044fb2-aa40-43db-a419-f47da77f3e8b&listAll=true&response=json&sessionkey=gZEstYO44fp3fVjer5mxcXevC%2Fg%3D&listAll=true&_=1513045653583
+		          a = {"listnetipaddressworksresponse": {"count": 1, "network": [
+			                {"id": "43044fb2-aa40-43db-a419-f47da77f3e8b", "name": "zntest-vpc-sub01",
+			                 "displaytext": "zntest-vpc-sub01", "broadcastdomaintype": "Vlan", "traffictype": "Guest",
+			                 "gateway": "10.1.1.1", "netmask": "255.255.255.0", "cidr": "10.1.1.0/24",
+			                 "zoneid": "0d86f114-7153-4d71-a835-7916a41ab0b7", "zonename": "zone1",
+			                 "networkofferingid": "ea1a336f-51f2-49c8-90ef-0951a1372436",
+			                 "networkofferingname": "DefaultIsolatedNetworkOfferingForVpcNetworksNoLB",
+			                 "networkofferingdisplaytext": "Offering for Isolated Vpc networks with Source Nat service enabled and LB service Disabled",
+			                 "networkofferingconservemode": false, "networkofferingavailability": "Optional", "issystem": false,
+			                 "state": "Implemented", "related": "43044fb2-aa40-43db-a419-f47da77f3e8b", "dns1": "114.114.114.114",
+			                 "dns2": "", "type": "Isolated", "acltype": "Account", "account": "zntest",
+			                 "domainid": "af068bf2-a259-11e7-af4a-005056aa5d20", "domain": "ROOT", "service": [{"name": "Dhcp",
+			                                                                                                    "capability": [{
+			                                                                                                                       "name": "DhcpAccrossMultipleSubnets",
+			                                                                                                                       "value": "true",
+			                                                                                                                       "canchooseservicecapability": false}]},
+			                                                                                                   {"name": "UserData"},
+			                                                                                                   {
+			                                                                                                       "name": "StaticNat"},
+			                                                                                                   {
+			                                                                                                       "name": "NetworkACL",
+			                                                                                                       "capability": [{
+			                                                                                                                          "name": "SupportedProtocols",
+			                                                                                                                          "value": "tcp,udp,icmp",
+			                                                                                                                          "canchooseservicecapability": false}]},
+			                                                                                                   {"name": "SourceNat",
+			                                                                                                    "capability": [{
+			                                                                                                                       "name": "RedundantRouter",
+			                                                                                                                       "value": "false",
+			                                                                                                                       "canchooseservicecapability": false},
+			                                                                                                                   {
+			                                                                                                                       "name": "SupportedSourceNatTypes",
+			                                                                                                                       "value": "peraccount",
+			                                                                                                                       "canchooseservicecapability": false}]},
+			                                                                                                   {"name": "Vpn",
+			                                                                                                    "capability": [{
+			                                                                                                                       "name": "VpnTypes",
+			                                                                                                                       "value": "s2svpn",
+			                                                                                                                       "canchooseservicecapability": false},
+			                                                                                                                   {
+			                                                                                                                       "name": "SupportedVpnTypes",
+			                                                                                                                       "value": "pptp,l2tp,ipsec",
+			                                                                                                                       "canchooseservicecapability": false}]},
+			                                                                                                   {"name": "Dns",
+			                                                                                                    "capability": [{
+			                                                                                                                       "name": "AllowDnsSuffixModification",
+			                                                                                                                       "value": "true",
+			                                                                                                                       "canchooseservicecapability": false}]},
+			                                                                                                   {
+			                                                                                                       "name": "PortForwarding"}],
+			                 "networkdomain": "cs2bcloud.internal", "physicalnetworkid": "3fca5bc4-3e4c-4674-a4c2-123fe8811853",
+			                 "restartrequired": false, "specifyipranges": false, "vpcid": "1c5ca0a2-4bb7-4237-b8dc-b54082909a30",
+			                 "canusefordeploy": true, "ispersistent": false, "tags": [], "displaynetwork": true,
+			                 "aclid": "fb87a342-ac6f-4981-a3ee-65a6a160a957"}]}}
+
+添加public ip
+	associateIpAddress  vpcid=1c5ca0a2-4bb7-4237-b8dc-b54082909a30 
+	http://172.18.143.189:8080/client/api?command=associateIpAddress&response=json&sessionkey=ZDUEFSewUH7lJYcb4kpD1mndxvc%3D&vpcid=1c5ca0a2-4bb7-4237-b8dc-b54082909a30&_=1512652824043
+	{ "associateipaddressresponse" : {"id":"9b243e0b-5d2d-41b4-a1f4-c65c52dfa2b2","jobid":"b1e7dd51-0118-4f1d-a623-374b841256f1"} }
+		http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=b1e7dd51-0118-4f1d-a623-374b841256f1&response=json&sessionkey=ZDUEFSewUH7lJYcb4kpD1mndxvc%3D&_=1512652827185
+		{ "queryasyncjobresultresponse" : {"accountid":"ff0ed611-41e5-452b-ad5b-d571eb2c1c0f","userid":"32b49b50-7dce-4f50-a3db-93f452ea08b7","cmd":"org.apache.cloudstack.api.command.user.address.AssociateIPAddrCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"ipaddress":{"id":"9b243e0b-5d2d-41b4-a1f4-c65c52dfa2b2","ipaddress":"172.18.132.34","allocated":"2017-12-07T21:20:41+0800","zoneid":"0d86f114-7153-4d71-a835-7916a41ab0b7","zonename":"zone1","issourcenat":false,"account":"zntest","domainid":"af068bf2-a259-11e7-af4a-005056aa5d20","domain":"ROOT","forvirtualnetwork":true,"isstaticnat":false,"issystem":false,"networkid":"91f33a0f-d421-49fb-bb00-f884933ca489","state":"Allocated","physicalnetworkid":"3fca5bc4-3e4c-4674-a4c2-123fe8811853","vpcid":"1c5ca0a2-4bb7-4237-b8dc-b54082909a30","tags":[],"isportable":false,"networkrate":"2M","accesscontrol":false,"isShare":true}},"created":"2017-12-07T21:20:41+0800","jobid":"b1e7dd51-0118-4f1d-a623-374b841256f1"} }
+
+查询public ip
+	
+给instance绑定public ip
+	command=enableStaticNat  "ipaddressid"='9b243e0b-5d2d-41b4-a1f4-c65c52dfa2b2'&'virtualmachineid'='08ec3253-bd5a-4e51-b9bf-db12daa2250b'&'networkid'='43044fb2-aa40-43db-a419-f47da77f3e8b'
+		http://172.18.143.189:8080/client/api?command=enableStaticNat&response=json&sessionkey=ZDUEFSewUH7lJYcb4kpD1mndxvc%3D&ipaddressid=9b243e0b-5d2d-41b4-a1f4-c65c52dfa2b2&virtualmachineid=08ec3253-bd5a-4e51-b9bf-db12daa2250b&networkid=43044fb2-aa40-43db-a419-f47da77f3e8b&_=1512653003514
+		{ "enablestaticnatresponse" : { "success" : "true"}  }
+给instance解绑定public
+	disableStaticNat  ipaddressid 
+	http://172.18.143.189:8080/client/api?command=disableStaticNat&response=json&sessionkey=kff2gO5irxujQq7i%2FwdV8BkBrME%3D&ipaddressid=75e88e95-92f9-4e0b-b1d4-6303a968d51c&_=1513173546767
+		{ "disablestaticnatresponse" : {"jobid":"d6fa48a3-eed5-49bb-9e4f-3dcc2a23fd58"} }
+
+
+销毁instance（不可恢复）
+	destroyVirtualMachine  id expunge=true 
+	http://172.18.143.189:8080/client/api?command=destroyVirtualMachine&response=json&sessionkey=cq38ISPKCzyrSRtrkildY3enGCo%3D&id=03f28e10-a2f4-4097-bba2-7f882b59df9f&expunge=true&_=1513312166999
+	{ "destroyvirtualmachineresponse" : {"jobid":"ab7340b7-cdb2-46da-ae61-2d34a4a872c1"} }
+	查询状态
+		http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=ab7340b7-cdb2-46da-ae61-2d34a4a872c1&response=json&sessionkey=cq38ISPKCzyrSRtrkildY3enGCo%3D&_=1513312194057
+			没处理完成{ "queryasyncjobresultresponse" : {"accountid":"05627cd6-a25a-11e7-af4a-005056aa5d20","userid":"05629b8a-a25a-11e7-af4a-005056aa5d20","cmd":"org.apache.cloudstack.api.command.user.vm.DestroyVMCmd","jobstatus":0,"jobprocstatus":0,"jobresultcode":0,"jobinstancetype":"VirtualMachine","jobinstanceid":"03f28e10-a2f4-4097-bba2-7f882b59df9f","created":"2017-12-15T12:27:47+0800","jobid":"ab7340b7-cdb2-46da-ae61-2d34a4a872c1"} }
+			处理完成  { "queryasyncjobresultresponse" : {"accountid":"05627cd6-a25a-11e7-af4a-005056aa5d20","userid":"05629b8a-a25a-11e7-af4a-005056aa5d20","cmd":"org.apache.cloudstack.api.command.user.vm.DestroyVMCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"null":{"securitygroup":[],"nic":[],"tags":[],"affinitygroup":[]}},"created":"2017-12-15T12:27:47+0800","jobid":"ab7340b7-cdb2-46da-ae61-2d34a4a872c1"} }
+
+  	是0  无效 需要从network表中的cidr中提取保存至subnet表中的gateway字段中 
+摧毁创建的磁盘
+
+查询规格 
+	http://172.18.143.189:8080/client/api?command=listAccounts&response=json&sessionkey=Yc7impxEALT%2B5lPg4KjA4vgoh58%3D&id=09b350d0-fe3c-4bdb-bfbe-f46aa185bb31&_=1515393857837
+
+wifi  OpenStackcloud123!@
+
+查询
+	http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=5a6a69a5-0e50-4b39-b4ca-a75be607961a&response=json&sessionkey=HPbSd7lHhDn9EvtI6AadClLviOQ%3D&_=1513306582354
+	http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=5a6a69a5-0e50-4b39-b4ca-a75be607961a&response=json&sessionkey=HPbSd7lHhDn9EvtI6AadClLviOQ%3D&_=1513306582354
+		{ "queryasyncjobresultresponse" : {"accountid":"c56e2ec2-fed9-4d8b-9b46-5f4d15a8b5c2","userid":"2b3ce410-a563-49d0-97f3-b6088c2b8ded","cmd":"org.apache.cloudstack.api.command.user.volume.AttachVolumeCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"volume":{"id":"36ede91b-e12a-4fa0-9758-e25d3f08ca72","name":"MyHost-OMS1-volume-0001","zoneid":"0d86f114-7153-4d71-a835-7916a41ab0b7","zonename":"zone1","type":"DATADISK","deviceid":1,"virtualmachineid":"149ce5f4-75ec-47f0-b6a8-d008fd226183","vmname":"MyHost-OMS1","vmdisplayname":"MyHost-OMS1","vmstate":"Running","size":85899345920,"created":"2017-12-14T17:07:32+0800","state":"Ready","account":"ct_af6a7ec3cc904b798031c9604a86b2d3","domainid":"af068bf2-a259-11e7-af4a-005056aa5d20","domain":"ROOT","storagetype":"shared","diskofferingid":"1f01e527-af78-4f3a-b208-3f739a093686","diskofferingname":"Custom","diskofferingdisplaytext":"Custom Disk","attached":"2017-12-15T10:54:42+0800","destroyed":false,"isextractable":true,"tags":[],"displayvolume":true,"quiescevm":false,"jobid":"5a6a69a5-0e50-4b39-b4ca-a75be607961a","jobstatus":0}},"created":"2017-12-15T10:53:31+0800","jobid":"5a6a69a5-0e50-4b39-b4ca-a75be607961a"} }
+
+test  
+	s={'msg':'{"orderId": 23, "workOrderConfig": "{\\"payPattern\\":\\"\\u6708\\"}", "serviceTag": "CVMS", "resourceType": "VM", "resourceDescription": "", "workOrderNo": 19, "masterOrderId": "eea816a0-b446-4234-a227-2b003f998dfb", "workOrderId": "WO20171208090758640274FMkh", "msghandler_url": "http://172.18.143.43:8895", "systemOfferingIds": {"System Offering For Software Router": "53db3c3e-2136-4579-8424-3497b9ed751e"}, "workOrderType": 1, "cycleType": 3, "resourceInfo": "", "workOrderItems": [{"orderId": 23, "serviceTag": "CVMS", "orderItemId": "", "workOrderItemConfig": "{\\"vmNumber\\": 1, \\"sysVolumeType\\": \\"SATA\\", \\"platformId\\": \\"7f61019a8d3011e7aebb005056aaa8be\\", \\"securityGroupId\\": null, \\"imageId\\": \\"357fb0ae-3543-4893-9d1f-ef0d04da60dd\\", \\"cpuNum\\": \\"1\\", \\"keyPairId\\": null, \\"cycleType\\": 5, \\"osType\\": 0, \\"sysVolumeSize\\": 40, \\"networkId\\": \\"\\", \\"cycleCnt\\": 1, \\"rootPassword\\": \\"123456\\", \\"zoneId\\": \\"0d86f114-7153-4d71-a835-7916a41ab0b7\\", \\"memSize\\": \\"1\\", \\"networkCards\\": [{}], \\"vmName\\": \\"zhangtestyi-OMS\\", \\"imageType\\": 0}", "workOrderItemId": 19, "resourceDescription": "CPU: 1\\u4e2a, \\u5185\\u5b58: 1G, OS: CentOS6.4", "masterOrderId": "eea816a0-b446-4234-a227-2b003f998dfb", "workOrderId": 19, "innerOrderItemId": 23, "masterResourceId": "3a8c8b81-6379-4ba9-a3c3-4b86aca84237", "workOrderItemNo": 19, "cycleType": 5, "master": true, "salesEntryId": 5, "resourceInfo": "", "resourceAction": 0, "innerOrderId": 19, "resourceId": "18c3cea4-a7b8-430a-aaae-31597081952c", "resourceType": "VM", "productId": 5}], "accountType": "1", "resourceId": "3a8c8b81-6379-4ba9-a3c3-4b86aca84237", "innerOrderId": 19, "userId": "bacf0dd10047f664298a2f85c280ce5693a", "accountId": "bac3c2c9bef941a47bd889015bc35578cee"}'
+
+	data = {"msg":s}
+
+	ret = requests.post(url, data=data)
+
+	ret.content
+password zhangning358631330 zhangning@yang1314 kuang
+///////network 表中添加新字段zone_id  别忘记添加，暂时仅在表中扩建
+
+images 接口
+	create
+		http://172.18.143.189:8080/client/api?command=createVMSnapshot&virtualmachineid=d1e7fe77-ead1-4bd3-8b88-0074914b4b82&snapshotmemory=false&quiescevm=false&name=nintg-test-image&description=nintg-test-image&response=json&sessionkey=rejuKEoSPQCM4Q8LpnmTzhWXogA%3D&_=1514424086742 
+			{ "createvmsnapshotresponse" : {"id":"1","jobid":"1f6b27e9-35c7-4aab-9b41-68c7bcd9694f"} }
+			查询异步执行结果
+			http://172.18.143.189:8080/client/api?command=queryAsyncJobResult&jobId=1f6b27e9-35c7-4aab-9b41-68c7bcd9694f&response=json&sessionkey=rejuKEoSPQCM4Q8LpnmTzhWXogA%3D&_=1514424093077
+				{ "queryasyncjobresultresponse" : {"accountid":"09b350d0-fe3c-4bdb-bfbe-f46aa185bb31","userid":"b40c9e50-73a7-4f4e-8466-2ad3cc5c5328","cmd":"org.apache.cloudstack.api.command.user.vmsnapshot.CreateVMSnapshotCmd","jobstatus":1,"jobprocstatus":0,"jobresultcode":0,"jobresulttype":"object","jobresult":{"vmsnapshot":{"id":"fd68355d-a6e7-4c82-9d2b-cbb2aea6fb2a","name":"i-80-865-VM_VS_20171228012218","state":"Ready","description":"nintg-test-image","displayname":"nintg-test-image","virtualmachineid":"d1e7fe77-ead1-4bd3-8b88-0074914b4b82","current":true,"type":"Disk","created":"2017-12-28T09:22:18+0800"}},"created":"2017-12-28T09:22:18+0800","jobid":"1f6b27e9-35c7-4aab-9b41-68c7bcd9694f"} }
+	delete
+	update
+	list
+	query
+
+12/15 
+	cloudstack VM重名问题 后跟四位随机字符_xxxx
+	回滚彻底删除instance/
+	回滚代码 检查ebs逻辑
+12/18 
+ 	管理员登陆的时候，首次user_id 和account_id 为0 ，可以os_id = adminuser account=adminaccount后执行link_all_dc 来生成udc表数据，返回os_id,user_id
+
+ 	循环拿状态应封装到一个函数中，根据类型不同，拿到不同的结果
+ 	如：创建云主机后拿状态，running or error 
+
+ 	signal django  
+ 	创建之后
+ 	做点什么
+ 	创建之前
+
+ 	resourceid item  uuid
+ 	resourceid item2 uuid2
+ 	//说明： Instacne 表中添加新字段cpuspeed,保存云主机主频///////////////
+ 	1升级后的VM 的cup 内存没有存入instance表中
+ 	2rebuilt的VM uuid 存入order_item表 在save 时先保存原始值（init），保存后在找到的orderitem中更新uuid（已完成）
+ 	3 VM的list query update 的代码合并create (删除在action中)
+ 	4 network（vpc） 的list query create update delete
+ 	5 subnet 的list query create update delete
+ 	
+ 	6 增加一个测试接口 用来查询cloustack 的异步执行的结果 
+ 	GET请求方式  /api/instances/query_cs_async_result/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be&jobid=xxxxxxx
+ 		获取session os_id >dc> rc = create_rc_by_dc >> (完成待测)
+
+代码合并
+image  姜国优
+	list
+	query
+	创建私有镜像
+network 张宁
+	创建
+	query
+subnet 张宁
+	创建
+instance 张昆
+	query
+	list
+	关机
+	重装、更换系统
+	开启虚拟机
+弹性ip 姜国优
+	绑定
+	解绑
+volume 张昆
+	list
+	query
+单点登陆 姜国优
+http://172.18.143.189:8080/client/api?command=disableStaticNat&response=json&sessionkey=XkoUAAKLMSLqLfB9lUMfz3fFgIU%3D&ipaddressid=28037138-6be8-4c1a-8557-4972bbb6e184&_=1514257834454
+
+
+instance = Instacne.objects.get(id=instance_id)
+vpc_uuid
+
+创建flavor 的名字需要优化
+
+12/28 在drop cloud_web 库不清理cloud_web_idc 库时新建用户总是在os上创建不了 定位在创建idc表时出错
+
+	每个人列下后面的工作，分成几个模块，填写到里面  主要更新下进展，同时填写后面3个月内的工作计划
+	@李春杨 你就填写集成测试板块 openstack工单和cloudstack工单、和管理员门户的测试
+
+部署云管平台
+部署自动化测试jinks
+
+cloudstack 默认网络添加逻辑
+	1 默认网络在create VM 时调用check_get_subnet_id查询默认网络，有则直接返回subnet_id，没有调用创建默认网络函数，创建完成
+		后再次查询本地子网数据，返回子网uuid
+	2 默认网络创建逻辑
+		vpc_name = user.username + "-vpc"
+	    subnet_name = vpc_name + "-net"
+	    cidr = "10.0.1.0/24"
+	    zones = get_cs_zone(rc)
+	    zone_id = zones[0].get("id")
+	    根据user 和udc 获取rc 和以上参数，
+	    先查询本地数据是否有network表，有再获取uuid，没有uuid就创建network 或者创建subnet 创建后将uuid 存入本地数据
+
+	    注：默认网络和子网name固定，新建网络需要区分name
+
+	3 
+	cloudstack 删除ACLlist时里面的规则也需要清理掉
+
+2018/1/3 
+	查看instance绑定创建的ip
+	处理instace表中保存的subnet_id 的问题
+wifi 密码 OpenStackcloud123!@
+任务 1 跟踪instance表中的network_id存subnet_id的问题
+ 2 ip绑定过程的检查
+ 3 os默认网络的优化 
+ 现在的情况是 
+ 	1）创建用户时就有默认安全组信息和出入规则，我们需要创建默认的安全组入规则tcp 22 3389和icmp 3条规则即可
+ 	2）对于创建VM的情况，
+ 		1 确保network存在
+ 			instance.network ==> Network ==> subnets=list(conn.network.subnets(network_id=network.network_id)) ==> 返回Network
+ 							 			 ==> 构造创建subnet 参数default_private_subnet = _create_default_private_subnet(network, instance) ==>创建subnet create_subnet_alone(rc, default_private_subnet) ==>创建Router，和router router_create_task(rc, default_router) ==>给network绑router attach_network_to_router(rc, network, default_router, default_private_subnet)
+ 		2 
+
+任务：单元测试：
+
+
+	比如：用户相关
+		  firewalls
+		  firewall_rules
+
+

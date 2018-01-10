@@ -1,0 +1,314 @@
+﻿BaseSerializer类提供了一个可以使用的最小类
+编写定制的序列化器实现。
+注意，我们严格限制了操作/属性的顺序
+可以在序列化器上使用，以确保正确使用。
+特别是，如果一个
+
+ `data=` argument is passed ，那么:
+.is_valid()——可用。
+.initial_data——可用。
+.validateddata——仅在调用is有效性()之后才可用。
+.errors ——只有在调用is有效性之后才可用()
+.data——仅在调用is有效期后可用()
+
+如果 `data=` argument is not passed ，那么:
+.is_valid()——而不是可用的。
+.initial_data——不是可用的。
+.validated_data——不是可用的。
+.errors ——不是可用的。
+.data 可用。
+
+
+当一个序列化器通过  passed a `data` 
+“必须首先调用”.is_valid()
+“序列化”  `.data`  表示
+“必须首先调用”.is_valid()
+或访问 `.initial_data` 相反”。
+
+
+
+匿名用户是无法认证的，
+即 is_authenticated 方法永远返回 False，
+或者is_anonymous返回True，
+我们可以在代码逻辑中实现对匿名用户进行判断，
+然后拒绝其访问（403），或者重定向到登录页面等。
+
+from django.contrib.auth.decorators import login_required
+@login_required(login_url='/accounts/login/') #装饰器认证登陆状态，没登陆转向login_url
+def my_view(request):
+
+assert 函数
+的作用是现计算表达式 expression ，如果其值为假（即为0），那么它先向stderr打印一条出错信息，然后通过调用 abort 来终止程序运行。
+有的地方，assert不能代替条件过滤。
+assert是用来避免显而易见的错误的，而不是处理异常的。错误和异常是不一样的，错误是不应该出现的，异常是不可避免的。c语言异常可以通过条件判断来处理，其它语言有各自的异常处理机制。
+
+isinstanse(1,int) ++>true
+
+RabbitMQ是一个在AMQP基础上完成的，可复用的企业消息系统。他遵循Mozilla Public License开源协议。
+rabbitMQ
+我们的RPC将会这样执行：
+>  当客户端启动后，它创建一个匿名的唯一的回调队列
+> 对一个RPC请求, 客户端发送一个消息包含两个属性： reply_to （用来设置回调队列）和 correlation_id（用来为每个请求设置一个唯一标识）
+> 请求发送到 rpc_queue队列
+> RPC worker( 服务端) 在那个队列中等待请求，当一个请求出现后，服务端就执行一个job并将结果消息发送给客户端，使用reply_to字段中的队列
+> 客户端在callback 队列中等待数据, 当一个消息出现后，检查这个correlation_id属性,如果和请求中的值匹配将返回给应用
+
+
+
+
+>>> import uuid
+
+# 生成基于计算机主机ID和当前时间的UUID
+>>> uuid.uuid1()
+输出结果：
+UUID('a8098c1a-f86e-11da-bd1a-00112444be1e')
+
+# 基于命名空间和一个字符的MD5加密的UUID
+>>> uuid.uuid3(uuid.NAMESPACE_DNS, 'python.org')
+输出结果：
+UUID('6fa459ea-ee8a-3ca4-894e-db77e160355e')
+
+# 随机生成一个UUID
+>>> uuid.uuid4()
+输出结果：
+UUID('16fd2706-8baf-433b-82eb-8c7fada847da')
+
+# 基于命名空间和一个字符的SHA-1加密的UUID
+>>> uuid.uuid5(uuid.NAMESPACE_DNS, 'python.org')
+输出结果：
+UUID('886313e1-3b8a-5372-9b90-0c9aee199e5d')
+
+# make a UUID from a string of hex digits (braces and hyphens ignored)
+#根据十六进制字符生成UUID（英语好的请看上面的原话）
+>>> x = uuid.UUID('{00010203-0405-0607-0809-0a0b0c0d0e0f}')
+# convert a UUID to a string of hex digits in standard formUUID
+#转换成十六进制的UUID表现字符（英语好的请看上面的原话）
+>>> str(x)
+输出结果：
+'00010203-0405-0607-0809-0a0b0c0d0e0f'
+
+# 获取原始UUID的16位字符
+>>> x.bytes
+输出结果：
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f'
+
+#生成16位字符的UUID
+>>> uuid.UUID(bytes=x.bytes)
+输出结果：
+UUID('00010203-0405-0607-0809-0a0b0c0d0e0f')
+
+import datetime
+datetime.datetime.now().isoformat() 输出当前服务器时间
+
+
+ Django模型层Meta内部类详解 
+
+ 1) abstract
+这个属性是定义当前的模型类是不是一个抽象类。所谓抽象类是不会对应数据库表的。一般我们用它来归纳一些公共属性字段，然后继承它的子类可以继承这些字段。比如下面的代码中Human是一个抽象类，Employee是一个继承了Human的子类，那么在运行syncdb命令时，不会生成Human表，但是会生成一个Employee表，它包含了Human中继承来的字段，以后如果再添加一个Customer模型类，它可以同样继承Human的公共属性：
+class Human(models.Model):
+    name=models.CharField(max_length=100)
+    GENDER_CHOICE=((u'M',u'Male'),(u'F',u'Female'),)
+    gender=models.CharField(max_length=2,choices=GENDER_CHOICE,null=True)
+    class Meta:
+        abstract=True
+class Employee(Human):
+    joint_date=models.DateField()
+class Customer(Human):
+    first_name=models.CharField(max_length=100)
+    birth_day=models.DateField()
+上面的代码，执行python manage.py syncdb 后的输出结果入下，可以看出Human表并没有被创建:
+$ python manage.py syncdb
+Creating tables ...
+Creating table myapp_employee
+Creating table myapp_customer
+Installing custom SQL ...
+Installing indexes ...
+No fixtures found.
+app_label
+
+2) app_label
+app_label这个选项只在一种情况下使用，就是你的模型类不在默认的应用程序包下的models.py文件中，这时候你需要指定你这个模型类是那个应用程序的。比如你在其他地方写了一个模型类，而这个模型类是属于myapp的，那么你这是需要指定为：
+app_label='myapp'
+
+3) db_table
+db_table是用于指定自定义数据库表名的。Django有一套默认的按照一定规则生成数据模型对应的数据库表名，如果你想使用自定义的表名，就通过这个属性指定，比如：
+table_name='my_owner_table'
+
+4)db_tablespace
+有些数据库有数据库表空间，比如Oracle。你可以通过db_tablespace来指定这个模型对应的数据库表放在哪个数据库表空间
+
+5) get_latest_by
+由于Django的管理方法中有个lastest()方法，就是得到最近一行记录。如果你的数据模型中有 DateField 或 DateTimeField 类型的字段，你可以通过这个选项来指定lastest()是按照哪个字段进行选取的。
+
+6) managed
+由于Django会自动根据模型类生成映射的数据库表，如果你不希望Django这么做，可以把managed的值设置为False。
+
+7) order_with_respect_to
+这个选项一般用于多对多的关系中，它指向一个关联对象。就是说关联对象找到这个对象后它是经过排序的。指定这个属性后你会得到一个get_XXX_order()和set_XXX_order（）的方法,通过它们你可以设置或者回去排序的对象。
+
+8) ordering
+这个字段是告诉Django模型对象返回的记录结果集是按照哪个字段排序的。比如下面的代码：
+ordering=['order_date'] # 按订单升序排列
+ordering=['-order_date'] # 按订单降序排列，-表示降序
+ordering=['?order_date'] # 随机排序，？表示随机
+
+9) permissions
+permissions主要是为了在Django Admin管理模块下使用的，如果你设置了这个属性可以让指定的方法权限描述更清晰可读。
+
+10) proxy
+这是为了实现代理模型使用的，这里先不讲随后的文章介绍。
+
+11) unique_together
+unique_together这个选项用于：当你需要通过两个字段保持唯一性时使用。
+比如假设你希望，一个Person的FirstName和LastName两者的组合必须是唯一的，那么需要这样设置：
+unique_together = (("first_name", "last_name"),)
+
+12)verbose_name
+verbose_name的意思很简单，就是给你的模型类起一个更可读的名字：
+verbose_name = "pizza"
+
+13) verbose_name_plural
+这个选项是指定，模型的复数形式是什么，比如：
+verbose_name_plural = "stories"
+如果不指定Django会自动在模型名称后加一个’s’
+
+
+
+CentOS7格式化和挂载数据盘
+1 运行fdisk -l命令查看实例是否有数据盘。如果执行命令后，没有发现/dev/vdb，表示ECS实例没有数据盘，无需格式化。
+2 运行 fdisk /dev/vdb：对数据盘进行分区。依次输入n、p、1、回车、回车、wq，开始分区。
+3 在新分区上创建一个文件系统：运行命令 mkfs.ext3 /dev/vdb1。
+4 （建议）备份 etc/fstab：运行命令 cp /etc/fstab /etc/fstab.bak。
+5 向 /etc/fstab 写入新分区信息：运行命令 echo /dev/vdb1 /mnt ext3 defaults 0 0 >> /etc/fstab。
+6 挂载文件系统：运行命令 mount /dev/vdb1 /mnt。
+
+
+linux 磁盘管理
+查看磁盘占用大小并排序
+du -h --max-depth=2 | sort -hr
+
+清理journalctl 
+journalctl --vacuum-time=1seconds
+
+恢复正常2天的存储
+journalctl --vacuum-time=2d
+
+查看celeryd的状态
+docker exec ecs_develop /etc/init.d/celeryd status
+
+
+pycharm 不显示代码文件  文件中的idea的问题 删掉重新拉取就行////
+
+journalctl -xe
+VMware Bridge Protocol 的位置在HKEY_LOCAL_MACHINE SYSTEM ControlSet001 Enum  Root LEGACY_VMNETBRIDGE
+
+比方说3个线程在运行，加上主线程是4个，死了一个子线程，让这个死掉的子线程重新启动。有实现的吗？
+	
+	import logging
+	import config
+	from logging import StreamHandler
+	from logging.handlers import RotatingFileHandler, SMTPHandler
+	class LoggerConfig(object):
+	    def __init__(self):
+	        self.logger_name = 'root'
+	        logging.basicConfig(filename=config.LOGGER_PATH, level=logging.DEBUG)
+	        # self.add_eamil_handler()
+	        self.add_stream_handler()
+	        self.add_file_handler()
+
+	    @property
+	    def logger(self):
+	        return logging.getLogger(self.logger_name)
+
+	    def add_eamil_handler(self):
+	        '''
+	        输出到email
+	        :return:
+	        '''
+
+	        handler = SMTPHandler(mailhost=config.MAIL_HOST, fromaddr=config.MAIL_FROM, toaddrs=config.MAIL_TOLIST,
+	                              subject='server error', credentials=(config.MAIL_USERNAME, config.MAIL_PASSWORD),
+	                              secure=())
+	        handler.setLevel(logging.ERROR)
+	        handler.setFormatter(logging.Formatter('''
+	        Message type : %(levelname)s
+	        Location : %(pathname)s:%(lineno)d
+	        Module : %(module)s
+	        Function : %(funcName)s
+	        Time : %(asctime)s
+	        Message :
+	          %(message)s '''))
+	        logging.getLogger(self.logger_name).addHandler(handler)
+
+	    def add_stream_handler(self):
+	        '''
+	        输出到窗口
+	        :return:
+	        '''
+	        handler = StreamHandler()
+	        handler.setLevel(logging.DEBUG)
+	        handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s [%(pathname)s:%(lineno)d]'))
+	        logging.getLogger(self.logger_name).addHandler(handler)
+
+	    def add_file_handler(self):
+	        '''
+	        输出到日志文件
+	        :return:
+	        '''
+	        file_handler = RotatingFileHandler(config.LOGGER_PATH, maxBytes=1024 * 1024 * 500, delay=False, backupCount=20)
+	        file_handler.setLevel(logging.INFO)
+	        file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s [%(pathname)s:%(lineno)d]'))
+	        logging.getLogger(self.logger_name).addHandler(file_handler)
+
+	logger = LoggerConfig().logger
+	if __name__ == '__main__':
+	    logger.info('haha')
+
+
+用with 管理上下文  mysql 增删改查 一个函数也不错，节省大量代码。 只是写法有些奇怪import pymysql
+	# server    数据库服务器名称或IP
+	# user      用户名
+	# password  密码
+	# database  数据库名称
+	conn = pymysql.connect("localhost", "root", "111111", "api", charset="utf8")
+
+	def process_data(sql):
+	    try:
+	        with conn as cur:
+	            cur.execute(sql)
+	        except Exception as e:
+
+	        print(e)
+
+	if __name__ == "__main__":
+	    process_data(sql)
+
+我跟你讲一下在实际项目中我们是怎么做数据挖掘的。
+	1:定义业务问题，很多人认为机器学习越高大上的算法越厉害，其实不是这样的，每类算法都有特定的业务场景。机器学习主要分为有监督无监督和半监督，当拿到业务问题时，要看业务场景下哪类算法比较好。
+		比如做风控我们会用决策树，做点击率预估我们会用LR。这里你要清楚每个算法的优缺点，比如为什么我要用决策树不用随机森林，为什么用LR不用SVM 
+
+	2:根据模型做数据的收集和整合(比如爬虫，建立数据仓库，用户画像，使用spark做数据统计和清洗等等)
+	3:拿到数据以后，怎么建立有效的特征 因为数据不可能都是完整的，会有缺失值和异常值 这个时候需要根据业务做一些业务场景下的替代，比如用平均值代替缺失值，用中值代替异常值  
+	4:数据特征的向量化表示 比如LR,LR这个模型要求输入的数据必须是0到1之间的，但是我们的数据不可能都是0到1之间的，这个时候就需要对数据进行向量化表示(比如离散化也叫做one hot encoding，归一化)文本数据使用(tf-idf word2vec)等等  
+	5:建立有效的损失函数 把数据跑到LR中，需要一种方法来迭代数据的误差，比如Logloss function 我们的目的就是不断迭代求出误差的最小值 
+	6:怎么快速求出模型 这里比如离线数据下我们会使用梯度下降算法迭代模型 实时数据下我们会使用ftrl算法迭代模型
+	7:模型的评估 比如使用AUC  
+	8:模型的调整 比如过拟合我们会使用正则项，pca降维 这里比如会用交叉验证算出正则向的系数 其实大部分数据挖掘场景下都是这个套路
+
+
+/usr/bin/memcached -p 12000 -u memcached -m 64 -c 1024 -d
+/usr/bin/memcached -p 11211 -u memcached -m 64 -c 1024 -l 127.0.0.1,::1
+
+-p <num>      设置TCP端口号(默认设置为: 11211)
+-U <num>      UDP监听端口(默认: 11211, 0 时关闭) 
+-l <ip_addr>  绑定地址(默认:所有都允许,无论内外网或者本机更换IP，有安全隐患，若设置为127.0.0.1就只能本机访问)
+-c <num>      max simultaneous connections (default: 1024)
+-d            以daemon方式运行
+-u <username> 绑定使用指定用于运行进程<username>
+-m <num>      允许最大内存用量，单位M (默认: 64 MB)
+-P <file>     将PID写入文件<file>，这样可以使得后边进行快速进程终止, 需要与-d 一起使用
+
+Another app is currently holding the yum lock; waiting for it to exit 
+	
+
+

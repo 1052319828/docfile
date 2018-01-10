@@ -1,0 +1,450 @@
+动态迁移 热迁移
+http://www.lxway.com/452822182.htm
+QEMU KVM Libvirt(12): Live Migration
+由于KVM的架构为
+
+由于KVM的架构为
+
+Libvirt - > qemu - > KVM
+
+所以对于live migration有两种方式，一种是qemu + KVM自己的方式，一种是libvirt的方式，当然libvirt也是基于qemu + kvm的方式
+
+qemu + KVM自己的方式为使用monitor
+
+KVM迁移
+
+KVM当前支持savevm / loadvm和离线或实时迁移在qemu-monitor（Alt-Ctrl-2）中提供了迁移命令。成功完成后，迁移的VM将继续在目标主机上运行。
+
+要求
+
+VM映像可以在源主机和目标主机（位于共享存储上，例如使用nfs）上访问。
+建议在两个主机上的相同路径上找到映像目录（用于迁移写时复制映像 - 使用“qemu-image create -b”创建基本映像顶部的映像。 “。）
+src和dst主机必须位于同一个子网上（使用tap时保留guest网络）。
+不要使用-snapshot qemu命令行选项。
+对于tcp：迁移协议
+目的地的访客必须以与源文件相同的方式启动。
+
+实时迁移过程具有以下步骤：
+
+虚拟机实例正在源主机上运行。
+
+虚拟机在冻结侦听模式下在目标主机上启动。使用的参数与源主机加上参数相同，其中指定了IP地址并指定用于侦听传入迁移的端口。如果将0设置为IP地址，虚拟机将侦听所有接口。-incoming tcp:ip:portipport
+
+在源主机上，切换到监视控制台并使用migrate -d tcp destination_ip：：port命令启动迁移。
+
+要确定迁移的状态，请在源主机上的监视器控制台中使用info migrate命令。
+
+要取消迁移，请在源主机上的监视器控制台中使用migrate_cancel命令。
+
+要以秒为单位设置迁移的最大可容忍停机时间，请使用migrate_set_downtime number_of_seconds命令。
+
+要设置迁移的最大速度（以每秒字节数为单位），请使用migrate_set_speed bytes_per_second命令。
+
+要进行live migration首先要存储共享，我们这里用nfs
+
+在一台nfs服务器上安装
+
+apt-get install nfs-kernel-server
+
+出口如下的文件夹
+
+＃cat / etc / exports 
+＃/ etc / exports：文件系统的访问控制列表，可以将其导出
+到NFS客户端。见出口（5）。
+＃＃
+例子NFSv2和NFSv3：
+＃/ srv / homes hostname1（rw，sync，no_subtree_check）hostname2（ro，sync，no_subtree_check）
+＃＃
+NFSv4的例子：
+＃/ srv / nfs4 gss / krb5i（rw，sync，fsid = 0，crossmnt，no_subtree_check）
+＃/ srv / nfs4 / homes gss / krb5i（rw，sync，no_subtree_check）
+＃
+/ home / cliu8 / nfs *（rw，sync，no_root_squash）
+
+在源机器和目的地机器上，都安装这个文件夹
+
+mount 16.158.166.150:/home/cliu8/nfs / home / cliu8 / migrate
+
+在文件夹里面放入两个图像
+
+root @ escto-bj-hp-z620：/ home / cliu8 / migrate＃ls -l 
+total 3842908 
+-rwxr-xr-x 1 root root 1717567488 Jul 18 00:01 ubuntu-14.04.img 
+-rwxr-xr-x 1 root根2217869312 Jul 17 22:13 ubuntutest.img
+
+在源机器上启动
+
+qemu-system-x86_64 -enable-kvm -name ubuntutest -m 2048 -hda /home/cliu8/migrate/ubuntu-14.04.img -vnc：19 -net nic -net user
+
+在DEST机器上同样启动，但是多了听的参数
+
+qemu-system-x86_64 -enable-kvm -name ubuntutest -m 2048 -hda /home/cliu8/migrate/ubuntu-14.04.img -vnc：19 -net nic -net user -incoming tcp：0：4
+
+打开源机器的显示器
+
+运行migrate -d tcp：16.158.166.150：4
+
+这个时候info migrate，显示迁移状态：active
+
+等变成完整的，则迁移结束
+
+QEMU KVM Libvirt（12）：实时迁移
+
+这个时候，另一面的机器已经起来了。
+
+Libvirt迁移
+
+网络数据传输
+
+迁移的时候的数据传输有两种方式：
+
+管理程序本地传输
+
+所谓本地的交通，就是依赖于虚拟机管理程序，也即KVM的自有的机制去做网络传输，不支持加密，可能对于某些虚拟机管理程序来讲，网络还需要特殊的配置。
+
+QEMU KVM Libvirt（12）：实时迁移
+libvirt隧道运输
+
+依赖于libvirt的的RPC的网络通路进行网络传输，支持加密。
+
+只要下面的命令能够执行，就能够传输
+
+virsh -c qemu + ssh：//cliu8@16.158.166.150/system list --all 
+virsh -c qemu + tcp：// popsuper1982 / system list --all 
+virsh -c qemu + tls：// popsuper1982 / system list - -所有
+
+缺点是有很多额外的性能损耗
+
+QEMU KVM Libvirt（12）：实时迁移
+通信控制路径/流程
+
+看完了数据通路，我们再来看控制通路
+
+移民一般涉及三个较色，管理员，来源，目的地
+
+管理直接迁移
+
+admin节点控制整个迁移的全过程，admin既控制源，也控制目的地，然而源和目的地之间并不交互，因而迁移过程中，如果admin挂了，就失败了。
+
+QEMU KVM Libvirt（12）：实时迁移
+管理对等移植
+
+管理员节点仅仅和源交互，告诉源，你要迁移到目的地，然后源控制整个过程，如果管理员在这个过程中挂了，不影响接着进行的迁移
+
+QEMU KVM Libvirt（12）：实时迁移
+注意的是，管理登录源的凭证信息和源登录目的地的凭证信息是不一样的。
+
+非托管直接迁移
+
+管理员和源都不控制迁移的过程，而是管理的libvirt的直接调用管理程序的控制器，让管理程序自己进行迁移。
+
+
+
+
+要进行live migration首先要存储共享，我们这里用nfs
+
+在一台nfs server上安装
+
+apt-get install nfs-kernel-server
+
+export如下的文件夹
+
+# cat /etc/exports
+# /etc/exports: the access control list for filesystems which may be exported
+#               to NFS clients.  See exports(5).
+#
+# Example for NFSv2 and NFSv3:
+# /srv/homes       hostname1(rw,sync,no_subtree_check) hostname2(ro,sync,no_subtree_check)
+#
+# Example for NFSv4:
+# /srv/nfs4        gss/krb5i(rw,sync,fsid=0,crossmnt,no_subtree_check)
+# /srv/nfs4/homes  gss/krb5i(rw,sync,no_subtree_check)
+#
+/home/cliu8/nfs    *(rw,sync,no_root_squash)
+
+在source机器和destination机器上，都mount这个文件夹
+
+mount 16.158.166.150:/home/cliu8/nfs /home/cliu8/migrate
+
+在文件夹里面放入两个image
+
+root@escto-bj-hp-z620:/home/cliu8/migrate# ls -l
+total 3842908
+-rwxr-xr-x 1 root root 1717567488 Jul 18 00:01 ubuntu-14.04.img
+-rwxr-xr-x 1 root root 2217869312 Jul 17 22:13 ubuntutest.img
+
+在source机器上启动
+
+qemu-system-x86_64 -enable-kvm -name ubuntutest  -m 2048 -hda /home/cliu8/migrate/ubuntu-14.04.img -vnc :19 -net nic -net user
+
+在dest机器上同样启动，但是多了listen的参数
+
+qemu-system-x86_64 -enable-kvm -name ubuntutest  -m 2048 -hda /home/cliu8/migrate/ubuntu-14.04.img -vnc :19 -net nic -net user -incoming tcp:0:4
+
+打开source机器的monitor
+
+运行migrate -d tcp:16.158.166.150:4
+
+这个时候info migrate，显示Migration status: active
+
+等变成complete，则migration结束
+
+QEMU KVM Libvirt(12): Live Migration
+
+这个时候，另一面的机器已经起来了。
+
+Libvirt Migration
+
+Network data transports
+
+migration的时候的数据传输有两种方式：
+
+Hypervisor native transport
+
+所谓native的transport，就是依赖于hypervisor，也即KVM的自有的机制去做网络传输，不支持加密，可能对于某些hypervisor来讲，网络还需要特殊的配置。
+
+QEMU KVM Libvirt(12): Live Migration
+libvirt tunnelled transport
+
+依赖于libvirt的RPC的网络通路进行网络传输，支持加密。
+
+只要下面的命令能够执行，就能够传输
+
+virsh -c qemu+ssh://cliu8@16.158.166.150/system list --all
+virsh -c qemu+tcp://popsuper1982/system list --all
+virsh -c qemu+tls://popsuper1982/system list --all
+
+缺点是有很多额外的性能损耗
+
+QEMU KVM Libvirt(12): Live Migration
+Communication control paths/flows
+
+看完了数据通路，我们再来看控制通路
+
+Migration一般涉及三个较色，admin, source, destination
+
+Managed direct migration
+
+admin节点控制整个migration的全过程，admin既控制source, 也控制destination，然而source和destination之间并不交互，因而migration过程中，如果admin挂了，就失败了。
+
+QEMU KVM Libvirt(12): Live Migration
+Managed peer to peer migration
+
+admin节点仅仅和source交互，告诉source，你要migrate到destination，然后source控制整个过程，如果admin在这个过程中挂了，不影响接着进行migration
+
+QEMU KVM Libvirt(12): Live Migration
+注意的是，admin登录source的credential信息和source登录destination的credential信息是不一样的。
+
+Unmanaged direct migration
+
+admin和source都不控制migration的过程，而是admin的libvirt直接调用hypervisor的控制器，让hypervisor自己进行migration。
+
+QEMU KVM Libvirt(12): Live Migration
+Configuration file handling
+
+A transient guest only exists while it is running, and has no configuration file stored on disk.
+
+A persistent guest maintains a configuration file on disk even when it is not running.
+
+The virsh command has two flags to influence this behaviour.
+
+The --undefine-source flag will cause the configuration file to be removed on the source host after a successful migration.
+
+The --persist flag will cause a configuration file to be created on the destination host after a successful migration.
+
+我们首先需要使得source和destination之间的libvirt是相互通的。
+
+在source机器上，16.158.166.197
+
+root@escto-bj-hp-z620:/home/cliu8/certtool# ls -l
+total 60
+-r--r--r-- 1 root root 1204 Jul 17 20:17 certificate_authority_certificate.pem
+-r--r--r-- 1 root root 1972 Jul 17 20:17 certificate_authority_key.pem
+-r--r--r-- 1 root root   37 Jul 17 20:17 certificate_authority_template.info
+-r--r--r-- 1 root root 1379 Jul 17 20:17 escto-bj-hp-z620_client_certificate.pem
+-r--r--r-- 1 root root 1968 Jul 17 20:17 escto-bj-hp-z620_client_key.pem
+-r--r--r-- 1 root root  139 Jul 17 20:17 escto-bj-hp-z620_client_template.info
+-r--r--r-- 1 root root 1310 Jul 17 20:17 escto-bj-hp-z620_server_certificate.pem
+-r--r--r-- 1 root root 1968 Jul 17 20:17 escto-bj-hp-z620_server_key.pem
+-r--r--r-- 1 root root   91 Jul 17 20:17 escto-bj-hp-z620_server_template.info
+-r--r--r-- 1 root root 1371 Jul 17 20:17 popsuper1982_client_certificate.pem
+-r--r--r-- 1 root root 1972 Jul 17 20:17 popsuper1982_client_key.pem
+-r--r--r-- 1 root root  135 Jul 17 20:17 popsuper1982_client_template.info
+-r--r--r-- 1 root root 1306 Jul 17 20:17 popsuper1982_server_certificate.pem
+-r--r--r-- 1 root root 1968 Jul 17 20:17 popsuper1982_server_key.pem
+-r--r--r-- 1 root root   87 Jul 17 20:17 popsuper1982_server_template.info
+
+root@escto-bj-hp-z620:/home/cliu8/certtool# tree --charset ASCII /etc/pki/
+/etc/pki/
+-- CA
+   `-- cacert.pem -> /home/cliu8/certtool/certificate_authority_certificate.pem
+-- libvirt
+   -- clientcert.pem -> /home/cliu8/certtool/escto-bj-hp-z620_client_certificate.pem
+   -- private
+      -- clientkey.pem -> /home/cliu8/certtool/escto-bj-hp-z620_client_key.pem
+      `-- serverkey.pem -> /home/cliu8/certtool/escto-bj-hp-z620_server_key.pem
+   `-- servercert.pem -> /home/cliu8/certtool/escto-bj-hp-z620_server_certificate.pem
+`-- nssdb -> /var/lib/nssdb
+
+配置/etc/libvirt/libvirtd.conf
+
+为了方便测试，我们对tcp, tls不进行密码设置
+
+listen_tls = 1
+
+listen_tcp = 1
+
+tls_port = "16514"
+
+tcp_port = "16509"
+
+unix_sock_group = "libvirtd"
+
+unix_sock_ro_perms = "0"
+
+unix_sock_rw_perms = "0770"
+
+auth_unix_ro = "none"
+
+auth_unix_rw = "none"
+
+auth_tcp = "none"
+
+auth_tls = "none"
+
+测试下面的命令都能通过
+
+virsh -c qemu+ssh://cliu8@16.158.166.150/system list --all
+virsh -c qemu+tcp://popsuper1982/system list --all
+virsh -c qemu+tls://popsuper1982/system list --all
+
+在destination机器上，16.158.166.150
+
+root@popsuper1982:/home/cliu8/certtool# ls -l
+total 60
+-r--r--r-- 1 root root 1204 Jul 15 22:31 certificate_authority_certificate.pem
+-r--r--r-- 1 root root 1972 Jul 15 22:28 certificate_authority_key.pem
+-r--r--r-- 1 root root   37 Jul 15 22:26 certificate_authority_template.info
+-r--r--r-- 1 root root 1379 Jul 16 00:27 escto-bj-hp-z620_client_certificate.pem
+-r--r--r-- 1 root root 1968 Jul 16 00:25 escto-bj-hp-z620_client_key.pem
+-r--r--r-- 1 root root  139 Jul 16 00:24 escto-bj-hp-z620_client_template.info
+-r--r--r-- 1 root root 1310 Jul 17 20:09 escto-bj-hp-z620_server_certificate.pem
+-r--r--r-- 1 root root 1968 Jul 17 20:07 escto-bj-hp-z620_server_key.pem
+-r--r--r-- 1 root root   91 Jul 17 20:06 escto-bj-hp-z620_server_template.info
+-r--r--r-- 1 root root 1371 Jul 17 20:14 popsuper1982_client_certificate.pem
+-r--r--r-- 1 root root 1972 Jul 17 20:13 popsuper1982_client_key.pem
+-r--r--r-- 1 root root  135 Jul 17 20:12 popsuper1982_client_template.info
+-r--r--r-- 1 root root 1306 Jul 16 00:09 popsuper1982_server_certificate.pem
+-r--r--r-- 1 root root 1968 Jul 16 00:06 popsuper1982_server_key.pem
+-r--r--r-- 1 root root   87 Jul 16 00:05 popsuper1982_server_template.info
+root@popsuper1982:/home/cliu8/certtool# tree --charset ASCII /etc/pki/
+/etc/pki/
+-- CA
+   `-- cacert.pem -> /home/cliu8/certtool/certificate_authority_certificate.pem
+-- libvirt
+   -- clientcert.pem -> /home/cliu8/certtool/popsuper1982_client_certificate.pem
+   -- private
+      -- clientkey.pem -> /home/cliu8/certtool/popsuper1982_client_key.pem
+      `-- serverkey.pem -> /home/cliu8/certtool/popsuper1982_server_key.pem
+   `-- servercert.pem -> /home/cliu8/certtool/popsuper1982_server_certificate.pem
+`-- nssdb -> /var/lib/nssdb
+
+virsh -c qemu+ssh://cliu8@16.158.166.197/system list --all
+virsh -c qemu+tcp://escto-bj-hp-z620/system list --all
+virsh -c qemu+tls://escto-bj-hp-z620/system list –all
+
+在source机器上，启动一个虚拟机virsh start ubuntu-14.04
+
+# virsh dumpxml ubuntu-14.04
+<domain type='kvm' id='55'>
+  <name>ubuntu-14.04</name>
+  <uuid>0f0806ab-531d-6134-5def-c5b495529284</uuid>
+  <memory unit='KiB'>2097152</memory>
+  <currentMemory unit='KiB'>2097152</currentMemory>
+  <vcpu placement='static'>1</vcpu>
+  <resource>
+    <partition>/machine</partition>
+  </resource>
+  <os>
+    <type arch='x86_64' machine='pc-i440fx-trusty'>hvm</type>
+    <boot dev='hd'/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <pae/>
+  </features>
+  <clock offset='utc'/>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>restart</on_crash>
+  <devices>
+    <emulator>/usr/bin/kvm-spice</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2' cache='none'/>
+      <source file='/home/cliu8/migrate/ubuntu-14.04.img'/>
+      <target dev='vda' bus='virtio'/>
+      <alias name='virtio-disk0'/>
+      <address type='pci' domain='0x0' bus='0x00' slot='0x04' function='0x0'/>
+    </disk>
+    <disk type='block' device='cdrom'>
+      <driver name='qemu' type='raw'/>
+      <target dev='hdc' bus='ide'/>
+      <readonly/>
+      <alias name='ide0-1-0'/>
+      <address type='drive' controller='0' bus='1' target='0' unit='0'/>
+    </disk>
+    <controller type='usb' index='0'>
+      <alias name='usb0'/>
+      <address type='pci' domain='0x0' bus='0x00' slot='0x01' function='0x2'/>
+    </controller>
+    <controller type='pci' index='0' model='pci-root'>
+      <alias name='pci.0'/>
+    </controller>
+    <controller type='ide' index='0'>
+      <alias name='ide0'/>
+      <address type='pci' domain='0x0' bus='0x00' slot='0x01' function='0x1'/>
+    </controller>
+    <interface type='bridge'>
+      <mac address='52:54:11:9b:d5:11'/>
+      <source bridge='ubuntu_br'/>
+      <virtualport type='openvswitch'>
+        <parameters interfaceid='18a45d7e-d96b-4b9e-9d92-dc9ff3ea77e0'/>
+      </virtualport>
+      <target dev='vnet8'/>
+      <model type='virtio'/>
+      <alias name='net0'/>
+      <address type='pci' domain='0x0' bus='0x00' slot='0x03' function='0x0'/>
+    </interface>
+    <serial type='pty'>
+      <source path='/dev/pts/16'/>
+      <target port='0'/>
+      <alias name='serial0'/>
+    </serial>
+    <console type='pty' tty='/dev/pts/16'>
+      <source path='/dev/pts/16'/>
+      <target type='serial' port='0'/>
+      <alias name='serial0'/>
+    </console>
+    <input type='mouse' bus='ps2'/>
+    <input type='keyboard' bus='ps2'/>
+    <graphics type='vnc' port='5908' autoport='yes' listen='0.0.0.0'>
+      <listen type='address' address='0.0.0.0'/>
+    </graphics>
+    <video>
+      <model type='cirrus' vram='9216' heads='1'/>
+      <alias name='video0'/>
+      <address type='pci' domain='0x0' bus='0x00' slot='0x02' function='0x0'/>
+    </video>
+    <memballoon model='virtio'>
+      <alias name='balloon0'/>
+      <address type='pci' domain='0x0' bus='0x00' slot='0x05' function='0x0'/>
+    </memballoon>
+  </devices>
+  <seclabel type='none'/>
+</domain>
+
+其中cdrom和usb的都应该去掉，才能migration成功。
+
+# virsh migrate --verbose --live --persistent ubuntu-14.04 qemu+tcp://popsuper1982/system      
+Migration: [100 %]
