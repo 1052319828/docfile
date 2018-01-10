@@ -1,4 +1,4 @@
-﻿BaseSerializer类提供了一个可以使用的最小类
+BaseSerializer类提供了一个可以使用的最小类
 编写定制的序列化器实现。
 注意，我们严格限制了操作/属性的顺序
 可以在序列化器上使用，以确保正确使用。
@@ -191,7 +191,7 @@ du -h --max-depth=2 | sort -hr
 journalctl --vacuum-time=1seconds
 
 恢复正常2天的存储
-journalctl --vacuum-time=2d
+journalctl --vacuum-time=2d 
 
 查看celeryd的状态
 docker exec ecs_develop /etc/init.d/celeryd status
@@ -201,114 +201,3 @@ pycharm 不显示代码文件  文件中的idea的问题 删掉重新拉取就�
 
 journalctl -xe
 VMware Bridge Protocol 的位置在HKEY_LOCAL_MACHINE SYSTEM ControlSet001 Enum  Root LEGACY_VMNETBRIDGE
-
-比方说3个线程在运行，加上主线程是4个，死了一个子线程，让这个死掉的子线程重新启动。有实现的吗？
-	
-	import logging
-	import config
-	from logging import StreamHandler
-	from logging.handlers import RotatingFileHandler, SMTPHandler
-	class LoggerConfig(object):
-	    def __init__(self):
-	        self.logger_name = 'root'
-	        logging.basicConfig(filename=config.LOGGER_PATH, level=logging.DEBUG)
-	        # self.add_eamil_handler()
-	        self.add_stream_handler()
-	        self.add_file_handler()
-
-	    @property
-	    def logger(self):
-	        return logging.getLogger(self.logger_name)
-
-	    def add_eamil_handler(self):
-	        '''
-	        输出到email
-	        :return:
-	        '''
-
-	        handler = SMTPHandler(mailhost=config.MAIL_HOST, fromaddr=config.MAIL_FROM, toaddrs=config.MAIL_TOLIST,
-	                              subject='server error', credentials=(config.MAIL_USERNAME, config.MAIL_PASSWORD),
-	                              secure=())
-	        handler.setLevel(logging.ERROR)
-	        handler.setFormatter(logging.Formatter('''
-	        Message type : %(levelname)s
-	        Location : %(pathname)s:%(lineno)d
-	        Module : %(module)s
-	        Function : %(funcName)s
-	        Time : %(asctime)s
-	        Message :
-	          %(message)s '''))
-	        logging.getLogger(self.logger_name).addHandler(handler)
-
-	    def add_stream_handler(self):
-	        '''
-	        输出到窗口
-	        :return:
-	        '''
-	        handler = StreamHandler()
-	        handler.setLevel(logging.DEBUG)
-	        handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s [%(pathname)s:%(lineno)d]'))
-	        logging.getLogger(self.logger_name).addHandler(handler)
-
-	    def add_file_handler(self):
-	        '''
-	        输出到日志文件
-	        :return:
-	        '''
-	        file_handler = RotatingFileHandler(config.LOGGER_PATH, maxBytes=1024 * 1024 * 500, delay=False, backupCount=20)
-	        file_handler.setLevel(logging.INFO)
-	        file_handler.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(message)s [%(pathname)s:%(lineno)d]'))
-	        logging.getLogger(self.logger_name).addHandler(file_handler)
-
-	logger = LoggerConfig().logger
-	if __name__ == '__main__':
-	    logger.info('haha')
-
-
-用with 管理上下文  mysql 增删改查 一个函数也不错，节省大量代码。 只是写法有些奇怪import pymysql
-	# server    数据库服务器名称或IP
-	# user      用户名
-	# password  密码
-	# database  数据库名称
-	conn = pymysql.connect("localhost", "root", "111111", "api", charset="utf8")
-
-	def process_data(sql):
-	    try:
-	        with conn as cur:
-	            cur.execute(sql)
-	        except Exception as e:
-
-	        print(e)
-
-	if __name__ == "__main__":
-	    process_data(sql)
-
-我跟你讲一下在实际项目中我们是怎么做数据挖掘的。
-	1:定义业务问题，很多人认为机器学习越高大上的算法越厉害，其实不是这样的，每类算法都有特定的业务场景。机器学习主要分为有监督无监督和半监督，当拿到业务问题时，要看业务场景下哪类算法比较好。
-		比如做风控我们会用决策树，做点击率预估我们会用LR。这里你要清楚每个算法的优缺点，比如为什么我要用决策树不用随机森林，为什么用LR不用SVM 
-
-	2:根据模型做数据的收集和整合(比如爬虫，建立数据仓库，用户画像，使用spark做数据统计和清洗等等)
-	3:拿到数据以后，怎么建立有效的特征 因为数据不可能都是完整的，会有缺失值和异常值 这个时候需要根据业务做一些业务场景下的替代，比如用平均值代替缺失值，用中值代替异常值  
-	4:数据特征的向量化表示 比如LR,LR这个模型要求输入的数据必须是0到1之间的，但是我们的数据不可能都是0到1之间的，这个时候就需要对数据进行向量化表示(比如离散化也叫做one hot encoding，归一化)文本数据使用(tf-idf word2vec)等等  
-	5:建立有效的损失函数 把数据跑到LR中，需要一种方法来迭代数据的误差，比如Logloss function 我们的目的就是不断迭代求出误差的最小值 
-	6:怎么快速求出模型 这里比如离线数据下我们会使用梯度下降算法迭代模型 实时数据下我们会使用ftrl算法迭代模型
-	7:模型的评估 比如使用AUC  
-	8:模型的调整 比如过拟合我们会使用正则项，pca降维 这里比如会用交叉验证算出正则向的系数 其实大部分数据挖掘场景下都是这个套路
-
-
-/usr/bin/memcached -p 12000 -u memcached -m 64 -c 1024 -d
-/usr/bin/memcached -p 11211 -u memcached -m 64 -c 1024 -l 127.0.0.1,::1
-
--p <num>      设置TCP端口号(默认设置为: 11211)
--U <num>      UDP监听端口(默认: 11211, 0 时关闭) 
--l <ip_addr>  绑定地址(默认:所有都允许,无论内外网或者本机更换IP，有安全隐患，若设置为127.0.0.1就只能本机访问)
--c <num>      max simultaneous connections (default: 1024)
--d            以daemon方式运行
--u <username> 绑定使用指定用于运行进程<username>
--m <num>      允许最大内存用量，单位M (默认: 64 MB)
--P <file>     将PID写入文件<file>，这样可以使得后边进行快速进程终止, 需要与-d 一起使用
-
-Another app is currently holding the yum lock; waiting for it to exit 
-	
-
-
