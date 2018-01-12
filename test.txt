@@ -1,17 +1,4 @@
 测试
-    quotas
-    cloudstack quotas 的序号说明
-    1 - IP
-    2 - Volume
-    3 - Snapshot
-    4 - Template
-    5 - Project
-    6 - Network
-    7 - VPC
-    8 - CPU
-    9 - Memory
-    10 - Primary Storage
-    11 - Secondary Storage
 firewalls 
     ACLlist 增 http://172.18.143.9:12121/api/firewalls/create/?ct_user_id=bac_155dd96361604a828de75116d265a210&os_id=sjif259a8d3011e7aebb005056aaa8be
         post  {"name":"test_acllist","desc":"test_acl_desc","network_uuid":"80b39653-4e0b-41ea-ab5e-cf83e203fb77","ct_user_id":"bac_155dd96361604a828de75116d265a210","os_id":"sjif259a8d3011e7aebb005056aaa8be"}
@@ -515,7 +502,7 @@ create_rc_by_udc 过程
 udc_id = 5256
 
 from biz.account.models import *
-from biz.idc.models import CtUserPlatforms, SysPlatforms
+from biz.idc.models import *
 from biz.network.models import *
 from biz.instance.models import *
 from cloud.cloud_utils import *
@@ -523,7 +510,6 @@ from cloud.universal_api.instance import UniversalInstance
 from cloud.universal_api.keystone import UniversalKeystone
 from cloud.universal_api.network import UniversalNetwork
 from cloud.universal_api.volume import UniversalVolume
-from cloud.universal_api.image import universal_image
 
 from openstack import connection
 from cloud.universal_api.ct_network import CTNetwork
@@ -533,17 +519,11 @@ from biz.work_order.models import WorkOrder
 from biz.work_order_item.models import WorkOrderItem
 from biz.floating.models import *
 from cloud.network_task import *
-ct_user_id = ""
-dc_id = ""
-user = User.objects.get(ct_user_id=ct_user_id)
-dc = SysPlatforms.objects.get(uuid=dc_id)
-udc=CtUserPlatforms.objects.get(user_id=user.id,sysplatforms_id=dc.id)
-rc = create_rc_by_udc(udc)
-conn = UniversalKeystone(rc).conn
 
-查备份
-    bs = list(conn.block_store.backups())
-    bss = [backup.to_dict() for backup in bs]
+user = User.objects.get(id= 1784)
+udc=CtUserPlatforms.objects.get(id=5808)
+edit_default_net_sub_ACL(user,udc)
+
 
 
 def bingin():
