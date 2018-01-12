@@ -44,133 +44,131 @@ assert是用来避免显而易见的错误的，而不是处理异常的。错�
 
 isinstanse(1,int) ++>true
 
-RabbitMQ是一个在AMQP基础上完成的，可复用的企业消息系统。他遵循Mozilla Public License开源协议。
+
 rabbitMQ
-我们的RPC将会这样执行：
->  当客户端启动后，它创建一个匿名的唯一的回调队列
-> 对一个RPC请求, 客户端发送一个消息包含两个属性： reply_to （用来设置回调队列）和 correlation_id（用来为每个请求设置一个唯一标识）
-> 请求发送到 rpc_queue队列
-> RPC worker( 服务端) 在那个队列中等待请求，当一个请求出现后，服务端就执行一个job并将结果消息发送给客户端，使用reply_to字段中的队列
-> 客户端在callback 队列中等待数据, 当一个消息出现后，检查这个correlation_id属性,如果和请求中的值匹配将返回给应用
+	RabbitMQ是一个在AMQP基础上完成的，可复用的企业消息系统。他遵循Mozilla Public License开源协议。
+	我们的RPC将会这样执行：
+	>  当客户端启动后，它创建一个匿名的唯一的回调队列
+	> 对一个RPC请求, 客户端发送一个消息包含两个属性： reply_to （用来设置回调队列）和 correlation_id（用来为每个请求设置一个唯一标识）
+	> 请求发送到 rpc_queue队列
+	> RPC worker( 服务端) 在那个队列中等待请求，当一个请求出现后，服务端就执行一个job并将结果消息发送给客户端，使用reply_to字段中的队列
+	> 客户端在callback 队列中等待数据, 当一个消息出现后，检查这个correlation_id属性,如果和请求中的值匹配将返回给应用
 
+uuid
+	>>> import uuid
 
+	# 生成基于计算机主机ID和当前时间的UUID
+	>>> uuid.uuid1()
+	输出结果：
+	UUID('a8098c1a-f86e-11da-bd1a-00112444be1e')
 
+	# 基于命名空间和一个字符的MD5加密的UUID
+	>>> uuid.uuid3(uuid.NAMESPACE_DNS, 'python.org')
+	输出结果：
+	UUID('6fa459ea-ee8a-3ca4-894e-db77e160355e')
 
->>> import uuid
+	# 随机生成一个UUID
+	>>> uuid.uuid4()
+	输出结果：
+	UUID('16fd2706-8baf-433b-82eb-8c7fada847da')
 
-# 生成基于计算机主机ID和当前时间的UUID
->>> uuid.uuid1()
-输出结果：
-UUID('a8098c1a-f86e-11da-bd1a-00112444be1e')
+	# 基于命名空间和一个字符的SHA-1加密的UUID
+	>>> uuid.uuid5(uuid.NAMESPACE_DNS, 'python.org')
+	输出结果：
+	UUID('886313e1-3b8a-5372-9b90-0c9aee199e5d')
 
-# 基于命名空间和一个字符的MD5加密的UUID
->>> uuid.uuid3(uuid.NAMESPACE_DNS, 'python.org')
-输出结果：
-UUID('6fa459ea-ee8a-3ca4-894e-db77e160355e')
+	# make a UUID from a string of hex digits (braces and hyphens ignored)
+	#根据十六进制字符生成UUID（英语好的请看上面的原话）
+	>>> x = uuid.UUID('{00010203-0405-0607-0809-0a0b0c0d0e0f}')
+	# convert a UUID to a string of hex digits in standard formUUID
+	#转换成十六进制的UUID表现字符（英语好的请看上面的原话）
+	>>> str(x)
+	输出结果：
+	'00010203-0405-0607-0809-0a0b0c0d0e0f'
 
-# 随机生成一个UUID
->>> uuid.uuid4()
-输出结果：
-UUID('16fd2706-8baf-433b-82eb-8c7fada847da')
+	# 获取原始UUID的16位字符
+	>>> x.bytes
+	输出结果：
+	'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f'
 
-# 基于命名空间和一个字符的SHA-1加密的UUID
->>> uuid.uuid5(uuid.NAMESPACE_DNS, 'python.org')
-输出结果：
-UUID('886313e1-3b8a-5372-9b90-0c9aee199e5d')
+	#生成16位字符的UUID
+	>>> uuid.UUID(bytes=x.bytes)
+	输出结果：
+	UUID('00010203-0405-0607-0809-0a0b0c0d0e0f')
 
-# make a UUID from a string of hex digits (braces and hyphens ignored)
-#根据十六进制字符生成UUID（英语好的请看上面的原话）
->>> x = uuid.UUID('{00010203-0405-0607-0809-0a0b0c0d0e0f}')
-# convert a UUID to a string of hex digits in standard formUUID
-#转换成十六进制的UUID表现字符（英语好的请看上面的原话）
->>> str(x)
-输出结果：
-'00010203-0405-0607-0809-0a0b0c0d0e0f'
+输出当前服务器时间
+	import datetime
+	datetime.datetime.now().isoformat() 
 
-# 获取原始UUID的16位字符
->>> x.bytes
-输出结果：
-'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f'
+Django模型层Meta内部类详解 
+	1) abstract
+	这个属性是定义当前的模型类是不是一个抽象类。所谓抽象类是不会对应数据库表的。一般我们用它来归纳一些公共属性字段，然后继承它的子类可以继承这些字段。比如下面的代码中Human是一个抽象类，Employee是一个继承了Human的子类，那么在运行syncdb命令时，不会生成Human表，但是会生成一个Employee表，它包含了Human中继承来的字段，以后如果再添加一个Customer模型类，它可以同样继承Human的公共属性：
+	class Human(models.Model):
+	    name=models.CharField(max_length=100)
+	    GENDER_CHOICE=((u'M',u'Male'),(u'F',u'Female'),)
+	    gender=models.CharField(max_length=2,choices=GENDER_CHOICE,null=True)
+	    class Meta:
+	        abstract=True
+	class Employee(Human):
+	    joint_date=models.DateField()
+	class Customer(Human):
+	    first_name=models.CharField(max_length=100)
+	    birth_day=models.DateField()
+	上面的代码，执行python manage.py syncdb 后的输出结果入下，可以看出Human表并没有被创建:
+	$ python manage.py syncdb
+	Creating tables ...
+	Creating table myapp_employee
+	Creating table myapp_customer
+	Installing custom SQL ...
+	Installing indexes ...
+	No fixtures found.
+	app_label
 
-#生成16位字符的UUID
->>> uuid.UUID(bytes=x.bytes)
-输出结果：
-UUID('00010203-0405-0607-0809-0a0b0c0d0e0f')
+	2) app_label
+	app_label这个选项只在一种情况下使用，就是你的模型类不在默认的应用程序包下的models.py文件中，这时候你需要指定你这个模型类是那个应用程序的。比如你在其他地方写了一个模型类，而这个模型类是属于myapp的，那么你这是需要指定为：
+	app_label='myapp'
 
-import datetime
-datetime.datetime.now().isoformat() 输出当前服务器时间
+	3) db_table
+	db_table是用于指定自定义数据库表名的。Django有一套默认的按照一定规则生成数据模型对应的数据库表名，如果你想使用自定义的表名，就通过这个属性指定，比如：
+	table_name='my_owner_table'
 
+	4)db_tablespace
+	有些数据库有数据库表空间，比如Oracle。你可以通过db_tablespace来指定这个模型对应的数据库表放在哪个数据库表空间
 
- Django模型层Meta内部类详解 
+	5) get_latest_by
+	由于Django的管理方法中有个lastest()方法，就是得到最近一行记录。如果你的数据模型中有 DateField 或 DateTimeField 类型的字段，你可以通过这个选项来指定lastest()是按照哪个字段进行选取的。
 
- 1) abstract
-这个属性是定义当前的模型类是不是一个抽象类。所谓抽象类是不会对应数据库表的。一般我们用它来归纳一些公共属性字段，然后继承它的子类可以继承这些字段。比如下面的代码中Human是一个抽象类，Employee是一个继承了Human的子类，那么在运行syncdb命令时，不会生成Human表，但是会生成一个Employee表，它包含了Human中继承来的字段，以后如果再添加一个Customer模型类，它可以同样继承Human的公共属性：
-class Human(models.Model):
-    name=models.CharField(max_length=100)
-    GENDER_CHOICE=((u'M',u'Male'),(u'F',u'Female'),)
-    gender=models.CharField(max_length=2,choices=GENDER_CHOICE,null=True)
-    class Meta:
-        abstract=True
-class Employee(Human):
-    joint_date=models.DateField()
-class Customer(Human):
-    first_name=models.CharField(max_length=100)
-    birth_day=models.DateField()
-上面的代码，执行python manage.py syncdb 后的输出结果入下，可以看出Human表并没有被创建:
-$ python manage.py syncdb
-Creating tables ...
-Creating table myapp_employee
-Creating table myapp_customer
-Installing custom SQL ...
-Installing indexes ...
-No fixtures found.
-app_label
+	6) managed
+	由于Django会自动根据模型类生成映射的数据库表，如果你不希望Django这么做，可以把managed的值设置为False。
 
-2) app_label
-app_label这个选项只在一种情况下使用，就是你的模型类不在默认的应用程序包下的models.py文件中，这时候你需要指定你这个模型类是那个应用程序的。比如你在其他地方写了一个模型类，而这个模型类是属于myapp的，那么你这是需要指定为：
-app_label='myapp'
+	7) order_with_respect_to
+	这个选项一般用于多对多的关系中，它指向一个关联对象。就是说关联对象找到这个对象后它是经过排序的。指定这个属性后你会得到一个get_XXX_order()和set_XXX_order（）的方法,通过它们你可以设置或者回去排序的对象。
 
-3) db_table
-db_table是用于指定自定义数据库表名的。Django有一套默认的按照一定规则生成数据模型对应的数据库表名，如果你想使用自定义的表名，就通过这个属性指定，比如：
-table_name='my_owner_table'
+	8) ordering
+	这个字段是告诉Django模型对象返回的记录结果集是按照哪个字段排序的。比如下面的代码：
+	ordering=['order_date'] # 按订单升序排列
+	ordering=['-order_date'] # 按订单降序排列，-表示降序
+	ordering=['?order_date'] # 随机排序，？表示随机
 
-4)db_tablespace
-有些数据库有数据库表空间，比如Oracle。你可以通过db_tablespace来指定这个模型对应的数据库表放在哪个数据库表空间
+	9) permissions
+	permissions主要是为了在Django Admin管理模块下使用的，如果你设置了这个属性可以让指定的方法权限描述更清晰可读。
 
-5) get_latest_by
-由于Django的管理方法中有个lastest()方法，就是得到最近一行记录。如果你的数据模型中有 DateField 或 DateTimeField 类型的字段，你可以通过这个选项来指定lastest()是按照哪个字段进行选取的。
+	10) proxy
+	这是为了实现代理模型使用的，这里先不讲随后的文章介绍。
 
-6) managed
-由于Django会自动根据模型类生成映射的数据库表，如果你不希望Django这么做，可以把managed的值设置为False。
+	11) unique_together
+	unique_together这个选项用于：当你需要通过两个字段保持唯一性时使用。
+	比如假设你希望，一个Person的FirstName和LastName两者的组合必须是唯一的，那么需要这样设置：
+	unique_together = (("first_name", "last_name"),)
 
-7) order_with_respect_to
-这个选项一般用于多对多的关系中，它指向一个关联对象。就是说关联对象找到这个对象后它是经过排序的。指定这个属性后你会得到一个get_XXX_order()和set_XXX_order（）的方法,通过它们你可以设置或者回去排序的对象。
+	12)verbose_name
+	verbose_name的意思很简单，就是给你的模型类起一个更可读的名字：
+	verbose_name = "pizza"
 
-8) ordering
-这个字段是告诉Django模型对象返回的记录结果集是按照哪个字段排序的。比如下面的代码：
-ordering=['order_date'] # 按订单升序排列
-ordering=['-order_date'] # 按订单降序排列，-表示降序
-ordering=['?order_date'] # 随机排序，？表示随机
-
-9) permissions
-permissions主要是为了在Django Admin管理模块下使用的，如果你设置了这个属性可以让指定的方法权限描述更清晰可读。
-
-10) proxy
-这是为了实现代理模型使用的，这里先不讲随后的文章介绍。
-
-11) unique_together
-unique_together这个选项用于：当你需要通过两个字段保持唯一性时使用。
-比如假设你希望，一个Person的FirstName和LastName两者的组合必须是唯一的，那么需要这样设置：
-unique_together = (("first_name", "last_name"),)
-
-12)verbose_name
-verbose_name的意思很简单，就是给你的模型类起一个更可读的名字：
-verbose_name = "pizza"
-
-13) verbose_name_plural
-这个选项是指定，模型的复数形式是什么，比如：
-verbose_name_plural = "stories"
-如果不指定Django会自动在模型名称后加一个’s’
+	13) verbose_name_plural
+	这个选项是指定，模型的复数形式是什么，比如：
+	verbose_name_plural = "stories"
+	如果不指定Django会自动在模型名称后加一个’s’
 
 
 
@@ -197,9 +195,34 @@ journalctl --vacuum-time=2d
 docker exec ecs_develop /etc/init.d/celeryd status
 
 
-pycharm 不显示代码文件  文件中的idea的问题 删掉重新拉取就行////
+pycharm 不显示代码文件  
+	文件中的idea的问题 删掉重新拉取就行////
 
-journalctl -xe
+docker 启动不了需要查看的信息
+	systemctl status -l docker 查看docker 状态
+	journalctl -xe
+	办法1 rm -rf /var/lib/docker/devicemapper 执行完后之前运行的容器不能启动
+			systemctl start docker
+			docker ps 可以使用
+	办法2 重装docker
+	无法启动docker可能是你异常停止造成的
+	执行查状态
+	/etc/init.d/docker status
+	显示
+	docker dead but subsys locked
+	需要删除 pid,sock
+	\rm /var/run/docker.*
+	\rm /var/lock/subsys/docker
+	执行
+	/etc/init.d/docker status
+	显示
+	docker is stopped
+	然后再
+	/etc/init.d/docker start
+	应该就正常可以用 pull 镜像了
+
+docker exec 不能使用 报fork/exec /proc/self/exe: no such file or directory\
+	可以重启docker试一下
 VMware Bridge Protocol 的位置在HKEY_LOCAL_MACHINE SYSTEM ControlSet001 Enum  Root LEGACY_VMNETBRIDGE
 
 比方说3个线程在运行，加上主线程是4个，死了一个子线程，让这个死掉的子线程重新启动。有实现的吗？
@@ -295,20 +318,83 @@ VMware Bridge Protocol 的位置在HKEY_LOCAL_MACHINE SYSTEM ControlSet001 Enum 
 	7:模型的评估 比如使用AUC  
 	8:模型的调整 比如过拟合我们会使用正则项，pca降维 这里比如会用交叉验证算出正则向的系数 其实大部分数据挖掘场景下都是这个套路
 
+运行memcached 说明
+	/usr/bin/memcached -p 12000 -u memcached -m 64 -c 1024 -d
+	/usr/bin/memcached -p 11211 -u memcached -m 64 -c 1024 -l 127.0.0.1,::1
 
-/usr/bin/memcached -p 12000 -u memcached -m 64 -c 1024 -d
-/usr/bin/memcached -p 11211 -u memcached -m 64 -c 1024 -l 127.0.0.1,::1
+	-p <num>      设置TCP端口号(默认设置为: 11211)
+	-U <num>      UDP监听端口(默认: 11211, 0 时关闭) 
+	-l <ip_addr>  绑定地址(默认:所有都允许,无论内外网或者本机更换IP，有安全隐患，若设置为127.0.0.1就只能本机访问)
+	-c <num>      max simultaneous connections (default: 1024)
+	-d            以daemon方式运行
+	-u <username> 绑定使用指定用于运行进程<username>
+	-m <num>      允许最大内存用量，单位M (默认: 64 MB)
+	-P <file>     将PID写入文件<file>，这样可以使得后边进行快速进程终止, 需要与-d 一起使用
 
--p <num>      设置TCP端口号(默认设置为: 11211)
--U <num>      UDP监听端口(默认: 11211, 0 时关闭) 
--l <ip_addr>  绑定地址(默认:所有都允许,无论内外网或者本机更换IP，有安全隐患，若设置为127.0.0.1就只能本机访问)
--c <num>      max simultaneous connections (default: 1024)
--d            以daemon方式运行
--u <username> 绑定使用指定用于运行进程<username>
--m <num>      允许最大内存用量，单位M (默认: 64 MB)
--P <file>     将PID写入文件<file>，这样可以使得后边进行快速进程终止, 需要与-d 一起使用
+	Another app is currently holding the yum lock; waiting for it to exit 
 
-Another app is currently holding the yum lock; waiting for it to exit 
-	
+git 修改仓库地址
+	公司搬移， 作为git仓库的服务器IP地址变了。 本地代码挺多，重新检出太占时间，可以修改一个什么配置让我本地仓库和新的远程仓库建立关联吗， 答案是肯定的！
 
+	方法有很多，这里简单介绍几种：
 
+	以下均以项目git_test为例： 
+	老地址：http://192.168.1.12:9797/john/git_test.git 
+	新地址：http://192.168.100.235:9797/john/git_test.git 
+	远程仓库名称： origin
+
+	方法一 通过命令直接修改远程地址
+
+	进入git_test根目录
+	git remote 查看所有远程仓库， git remote xxx 查看指定远程仓库地址
+	git remote set-url origin http://192.168.100.235:9797/john/git_test.git
+	方法二 通过命令先删除再添加远程仓库
+
+	进入git_test根目录
+	git remote 查看所有远程仓库， git remote xxx 查看指定远程仓库地址
+	git remote rm origin
+	git remote add origin http://192.168.100.235:9797/john/git_test.git
+	方法三 直接修改配置文件
+
+	进入git_test/.git
+	vim config 
+
+	[core] 
+	repositoryformatversion = 0 
+	filemode = true 
+	logallrefupdates = true 
+	precomposeunicode = true 
+	[remote "origin"] 
+	url = http://192.168.100.235:9797/shimanqiang/assistant.git 
+	fetch = +refs/heads/*:refs/remotes/origin/* 
+	[branch "master"] 
+	remote = origin 
+	merge = refs/heads/master
+
+	修改 [remote “origin”]下面的url即可
+
+	方法四 通过第三方git客户端修改。
+
+	以SourceTree为例，点击 仓库 -> 仓库配置 -> 远程仓库 即可管理此项目中配置的所有远程仓库， 而且这个界面最下方还可以点击编辑配置文件，同样可以完成方法三。
+
+svn 修改仓库地址
+	当前的用户在SVN客户端当前路径切换到当初更新SVN的位置上
+	命令:svn switch --relocate (Old Repository Root) (New Repository Root)
+	查看当前的svn仓库地址: svn info
+
+svn创建服务
+	今天在客户现场联调，两个开发人员之间的代码想用SVN来管理，所以就临时在本地机器上搭建一个SVN仓库。现将操作步骤记录下来，以便后续查阅。
+
+	1、安装SVN服务端Setup-Subversion-1.6.5.msi和客户端TortoiseSVN-1.6.5.16974-win32-svn-1.6.5.msi
+
+	2、建立一个仓库空文件夹E:\repos，并在repos文件夹上右键选中TortoiseSVN-->create repository here
+
+	3、建立一个存放项目的文件夹E:\working，并在working文件夹内右键选中SVN Checkout，并在url of repository中输入file:///E:/repos，在E:\working中将会生成.svn的文件夹，表名已将working文件夹与repos仓库关联起来了
+
+	4、在working中放入源代码sources，在sources右键TortoiseSVN-->Add，将sources加入到working文件夹（被SVN管理的working文件夹），然后TortoiseSVN--Commit提交到repository中
+
+	5、最后需要启动SVN服务,在dos中输入D:\Program Files\Subversion\bin>svnserve -d -r E:\repos
+
+	6、在E:\repos\conf的文件中配置访问权限、用户名、密码
+
+	7、提供同事访问的地址：svn://IP地址/sources

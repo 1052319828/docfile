@@ -111,6 +111,27 @@ keytool -genkey -alias tomcat_key -keyalg RSA -storepass changeit -keystore serv
 docker run -it --name=app -p 8083:8000 -v /code:/usr/src/app --link=redis:db django bash
 
 
+docker run -itd --privileged --name ning_cloud -p 12180:8080 -p 12122:22 --env-file=ecs_db.env -v $(pwd)/log:/var/log/ecscloud -v /etc/localtime:/etc/localtime:ro -v /sys/fs/cgroup:/sys/fs/cgroup:ro ecs_dev2
+云平台部署
+sh build.sh #Dockerfile
+sh run.sh 
+sh exec.sh #
+
+1 SVN 仓库切换
+2 
+
+
+
+docker 启动不了需要查看的信息
+	systemctl status -l docker
+	journalctl -xe
+	
+
+
+
+
+
+
 docker build -t (name) 
 ./run.sh
 ./exec.sh
@@ -118,7 +139,7 @@ docker exec -it ecs_name bash
 本云管平台部署docker
 安装docker
 	1)安装Docker命令
-		yum install  -y docker
+		yum install -y docker
 	2)安装之后启动Docker服务，并让它随系统启动自动加载
 		sudo service docker start
 		sudo chkconfig docker on
@@ -133,7 +154,7 @@ docker exec -it ecs_name bash
 修改所有需要访问私库的docker的配置文件
 	vi /etc/sysconfig/docker
 	增加
-	INSECURE_REGISTRY='--insecure-registry 192.168.10.247:5000
+	INSECURE_REGISTRY='--insecure-registry 192.168.10.247:5000'
 	172.18.143.37:5000为私库地址
 
 重启docker
